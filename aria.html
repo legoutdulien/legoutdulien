@@ -472,13 +472,20 @@ async function sendMsg(){
     const r=await fetch('/.netlify/functions/claude',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
+        model:'claude-opus-4-6',
         max_tokens:1000,
         system:sysPrompt,
         messages:conv
       })
     });
     const d=await r.json();
+    if(d.error){
+      removeTyping();
+      addMsg('bot','Erreur API: '+d.error.message);
+      isLoading=false;
+      document.getElementById('sendBtn').disabled=false;
+      return;
+    }
     const reply=d.content?.[0]?.text||'Désolé, je n\'ai pas pu répondre.';
     removeTyping();
     addMsg('bot',reply);
@@ -486,7 +493,7 @@ async function sendMsg(){
     if(conv.length>20)conv=conv.slice(-20);
   }catch(e){
     removeTyping();
-    addMsg('bot','Connexion impossible à l\'assistant. Vérifiez votre déploiement.');
+    addMsg('bot','Erreur technique: '+e.message);
   }
   isLoading=false;
   document.getElementById('sendBtn').disabled=false;
