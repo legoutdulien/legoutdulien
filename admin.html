@@ -3,351 +3,395 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Le Goût du Lien – Admin</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<title>Admin – Le Goût du Lien</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-:root{--vert:#3d6b4f;--vc:#5a8a6a;--vp:#eef4f0;--bg:#f8f4ee;--bgd:#ede7db;--tx:#2c2c2c;--txl:#6b6b6b;--wh:#fff;--sh:0 4px 24px rgba(0,0,0,.08);--r:16px}
+:root{
+  --vert:#2d5a3d;--vc:#4a7c59;--vp:#e8f0e9;--vl:#c8dcc8;
+  --noir:#0d0d0d;--blanc:#fafaf7;--gris:#8a8a7a;--grisl:#f0efe8;
+  --bg:#f5f4ef;--bgd:#e8e7e0;--tx:#1a1a1a;--txl:#6b7c6b;--wh:#fff;
+}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh}
-header{background:var(--vert);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:62px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.15)}
-.logo{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;color:#fff}
-.logo span{font-size:11px;font-weight:400;opacity:.6;display:block;margin-top:-2px}
-.hbtn{padding:7px 14px;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.25);border-radius:8px;font-size:12px;color:#fff;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
-.hbtn:hover{background:rgba(255,255,255,.25)}
-.main{padding:28px;max-width:1200px;margin:0 auto}
-/* Nav tabs */
-.nav-tabs{display:flex;gap:5px;margin-bottom:26px;background:var(--wh);border-radius:12px;padding:5px;box-shadow:var(--sh);flex-wrap:wrap}
-.ntab{padding:9px 18px;border:none;background:transparent;cursor:pointer;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--txl);transition:all .2s;white-space:nowrap}
-.ntab.on{background:var(--vert);color:#fff}
-.npage{display:none}.npage.on{display:block}
-/* Sem nav */
-.sem-nav{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
-.sem-select{padding:9px 14px;border:1.5px solid var(--bgd);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:14px;background:var(--wh);color:var(--tx);cursor:pointer;outline:none}
-.sem-select:focus{border-color:var(--vert)}
-/* Stats */
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:24px}
-.stat-card{background:var(--wh);border-radius:var(--r);padding:16px;box-shadow:var(--sh);text-align:center}
-.stat-num{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--vert)}
-.stat-lbl{font-size:12px;color:var(--txl);margin-top:3px}
-.stit{font-family:'Playfair Display',serif;font-size:17px;font-weight:600;margin-bottom:14px}
-/* Commandes */
-.cmd-cards{display:flex;flex-direction:column;gap:12px;margin-bottom:28px}
-.cmd-card{background:var(--wh);border-radius:var(--r);padding:18px 22px;box-shadow:var(--sh)}
-.cmd-card-top{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:14px;align-items:start;margin-bottom:12px}
-.cmd-label{font-size:10px;color:var(--txl);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
-.cmd-val{font-size:13px;font-weight:500}
-.cmd-val.sm{font-size:12px;color:var(--txl);font-weight:400}
-.cmd-plats-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
-.ptag{font-size:11px;background:var(--vp);color:var(--vert);padding:3px 9px;border-radius:10px;cursor:pointer;transition:background .15s}
-.ptag:hover{background:#c8e6c9}
-.assign-row{display:flex;align-items:center;gap:9px;padding-top:10px;border-top:1px solid var(--bgd);flex-wrap:wrap}
-.assign-select{padding:7px 12px;border:1.5px solid var(--bgd);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--wh);color:var(--tx);cursor:pointer;outline:none;flex:1;max-width:200px}
-.assign-select:focus{border-color:var(--vert)}
-.btn-sm{padding:7px 14px;background:var(--vert);color:#fff;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:background .2s}
-.btn-sm:hover{background:var(--vc)}
-.btn-sm.outline{background:transparent;color:var(--vert);border:1.5px solid var(--vert)}
-.btn-sm.outline:hover{background:var(--vp)}
-.btn-sm.danger{background:#c62828}
-.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500}
-.badge.ok{background:#e8f5e9;color:#2e7d32}
-.badge.wait{background:#fff3e0;color:#e65100}
-/* Calendrier */
-.cal-semaine{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-bottom:22px}
-.cal-jour{background:var(--wh);border-radius:12px;overflow:hidden;box-shadow:var(--sh)}
-.cal-jour-header{background:var(--vert);color:#fff;padding:9px 11px;font-size:12px;font-weight:600}
-.cal-jour-header span{font-size:10px;opacity:.7;display:block}
-.cal-slot{padding:7px 9px;border-bottom:1px solid var(--bgd);font-size:11px;cursor:pointer;transition:background .15s}
-.cal-slot:hover{background:var(--vp)}
-.cal-slot:last-child{border-bottom:none}
-.cal-slot-heure{font-weight:600;color:var(--vert);font-size:10px;margin-bottom:1px}
-.cal-slot.vide{color:var(--txl);font-style:italic}
-.cal-mois{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
-.cmh{text-align:center;font-size:10px;font-weight:600;color:var(--txl);text-transform:uppercase;padding:5px 0}
-.cmd{background:var(--wh);border-radius:7px;min-height:70px;padding:5px;box-shadow:var(--sh)}
-.cmd.autre{opacity:.35}
-.cmd.today{border:2px solid var(--vert)}
-.cmd-num{font-size:11px;font-weight:600;margin-bottom:3px}
-.cmd-ev{font-size:9px;background:var(--vp);color:var(--vert);border-radius:3px;padding:1px 4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-/* Plats gestion */
-.plats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
-.plat-card{background:var(--wh);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);transition:transform .2s}
-.plat-card:hover{transform:translateY(-2px)}
-.plat-img{width:100%;height:130px;object-fit:cover}
-.plat-ph{width:100%;height:130px;background:linear-gradient(135deg,var(--bgd),var(--vp));display:flex;align-items:center;justify-content:center;font-size:32px}
-.plat-info{padding:12px}
-.plat-nom{font-family:'Playfair Display',serif;font-size:13px;font-weight:600;margin-bottom:6px}
-.plat-cat{font-size:11px;color:var(--txl);margin-bottom:8px}
-.toggle-wrap{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.toggle-lbl{font-size:12px;color:var(--txl)}
-.toggle{position:relative;width:40px;height:22px;cursor:pointer}
-.toggle input{opacity:0;width:0;height:0}
-.toggle-slider{position:absolute;inset:0;background:var(--bgd);border-radius:11px;transition:.3s}
-.toggle-slider:before{position:absolute;content:"";height:16px;width:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
-.toggle input:checked+.toggle-slider{background:var(--vert)}
-.toggle input:checked+.toggle-slider:before{transform:translateX(18px)}
-.plat-btns{display:flex;gap:5px}
-/* Formulaires */
-.form-card{background:var(--wh);border-radius:var(--r);padding:22px;box-shadow:var(--sh);margin-bottom:20px}
-.form-card h3{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;margin-bottom:16px;color:var(--vert)}
-.fg{margin-bottom:14px}
-.fg label{display:block;font-size:11px;font-weight:500;color:var(--txl);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
-.fg input,.fg textarea,.fg select{width:100%;padding:10px 14px;border:1.5px solid var(--bgd);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--tx);background:var(--bg);outline:none;transition:border-color .2s}
-.fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--vert);background:var(--wh)}
-.fg textarea{resize:vertical;min-height:80px}
-.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-/* Table clients/salaries */
-.data-table{background:var(--wh);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:20px}
-.dt-header{display:grid;gap:0;background:var(--bgd);padding:11px 18px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--txl)}
-.dt-row{padding:13px 18px;border-top:1px solid var(--bgd);display:grid;gap:14px;align-items:center;transition:background .15s}
-.dt-row:hover{background:var(--bg)}
-.dt-val{font-size:13px}
-.dt-val.bold{font-weight:600}
-.dt-actions{display:flex;gap:6px}
-/* Modal */
-.mbg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
-.mbg.show{display:flex}
-.mbox{background:var(--wh);border-radius:20px;max-width:520px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
-.mimg{width:100%;height:170px;object-fit:cover}
-.mph{width:100%;height:170px;background:var(--bgd);display:flex;align-items:center;justify-content:center;font-size:36px}
-.mbody{padding:22px}
-.mtit{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;margin-bottom:4px}
-.mstit{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--txl);margin-bottom:7px;margin-top:13px}
-.ing-list{list-style:none}
-.ing-list li{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bgd);font-size:13px}
-.ing-list li:last-child{border-bottom:none}
-.prep-box{background:#fff8e7;border-left:3px solid #f9c74f;border-radius:9px;padding:12px 14px;font-size:13px;line-height:1.6;margin-bottom:4px}
-.rec-box{background:var(--vp);border-radius:9px;padding:12px 14px;font-size:13px;line-height:1.6}
-.mclose{width:100%;padding:11px;background:var(--bgd);border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;margin-top:13px}
-/* ARIA Panel */
-.aria-fab{position:fixed;bottom:26px;right:26px;width:54px;height:54px;background:linear-gradient(135deg,var(--vert),var(--vc));border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;z-index:500;box-shadow:0 4px 20px rgba(45,90,61,.4);transition:all .2s;animation:fabPulse 3s ease-in-out infinite}
-.aria-fab:hover{transform:scale(1.1)}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+#pLogin{flex:1;display:flex;align-items:center;justify-content:center;background:var(--noir);background-image:radial-gradient(ellipse at 20% 50%,rgba(45,90,61,.35) 0%,transparent 60%);padding:20px}
+.lcard{background:rgba(255,255,255,.05);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:48px 40px;width:100%;max-width:400px;text-align:center}
+.licon{width:64px;height:64px;margin:0 auto 20px;background:linear-gradient(135deg,var(--vert),var(--vc));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px}
+.ltit{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:#fff;letter-spacing:2px;margin-bottom:4px}
+.ltag{font-size:12px;color:rgba(255,255,255,.35);margin-bottom:36px}
+.finput{width:100%;padding:13px 16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:15px;color:#fff;outline:none;margin-bottom:12px;transition:border-color .2s}
+.finput:focus{border-color:rgba(45,90,61,.7)}
+.finput::placeholder{color:rgba(255,255,255,.25)}
+.fbtn{width:100%;padding:14px;background:linear-gradient(135deg,var(--vert),var(--vc));color:#fff;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer}
+.ferr{color:#ff7070;font-size:13px;margin-top:10px;display:none}
+#pApp{display:none;flex-direction:column;height:100%}
+.topbar{background:var(--noir);height:54px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.brand{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:#fff;letter-spacing:1px}
+.brand span{font-size:11px;opacity:.35;margin-left:8px;font-family:'DM Sans',sans-serif}
+.tbtn{padding:6px 12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:7px;font-size:12px;color:rgba(255,255,255,.55);cursor:pointer;font-family:'DM Sans',sans-serif}
+.tbtn:hover{color:#fff;background:rgba(255,255,255,.14)}
+.tabs{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 20px;display:flex;gap:4px;flex-shrink:0;overflow-x:auto}
+.tab{padding:12px 16px;font-size:13px;cursor:pointer;border-bottom:2px solid transparent;color:var(--txl);transition:all .2s;white-space:nowrap}
+.tab:hover{color:var(--vert)}
+.tab.active{color:var(--vert);border-color:var(--vert);font-weight:500}
+.content{flex:1;overflow-y:auto;padding:20px}
+.card{background:var(--wh);border-radius:16px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:16px}
+.card-tit{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:400;color:var(--vert);margin-bottom:14px}
+.semaine-nav{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.snav-btn{width:32px;height:32px;border-radius:50%;background:var(--vp);border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--vert)}
+.snav-label{font-size:14px;font-weight:500;color:var(--vert);flex:1}
+.cmd-card{background:var(--grisl);border-radius:12px;padding:14px 16px;margin-bottom:10px;border:1px solid var(--bgd)}
+.cmd-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.cmd-client{font-weight:500;font-size:14px;margin-bottom:2px}
+.cmd-creneau{font-size:12px;color:var(--txl)}
+.cmd-coords{font-size:12px;color:var(--txl);margin-top:1px}
+.cmd-plats{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.plat-chip{padding:4px 10px;background:var(--vp);border-radius:20px;font-size:12px;color:var(--vert);cursor:pointer;border:1px solid var(--vl);transition:all .15s}
+.plat-chip:hover{background:var(--vl)}
+.cmd-assign{margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.assign-sel{padding:6px 10px;border:1.5px solid var(--bgd);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:12px;background:var(--wh);color:var(--tx);outline:none;cursor:pointer}
+.badge{display:inline-block;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:500}
+.badge-ok{background:#e8f5e9;color:#2e7d32}
+.badge-en{background:#fff3e0;color:#e65100}
+.badge-att{background:#e3f2fd;color:#1565c0}
+.del-btn{padding:5px 10px;background:rgba(198,40,40,.08);border:1px solid rgba(198,40,40,.2);border-radius:6px;font-size:11px;color:#c62828;cursor:pointer;font-family:'DM Sans',sans-serif;flex-shrink:0}
+.del-btn:hover{background:rgba(198,40,40,.15)}
+.edit-cmd-btn{padding:5px 10px;background:var(--vp);border:1px solid var(--vl);border-radius:6px;font-size:11px;color:var(--vert);cursor:pointer;font-family:'DM Sans',sans-serif;flex-shrink:0}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-head-row{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px}
+.cal-dh{text-align:center;font-size:11px;color:var(--txl);font-weight:500;padding:4px}
+.cal-day{background:var(--grisl);border-radius:8px;padding:6px;min-height:70px;border:1px solid var(--bgd)}
+.cal-day.has-cmd{background:var(--vp);border-color:var(--vl)}
+.cal-day.today{border-color:var(--vert);border-width:2px}
+.cal-day-num{font-size:11px;font-weight:500;color:var(--txl);margin-bottom:3px}
+.cal-event{background:var(--vert);color:#fff;border-radius:4px;padding:2px 5px;font-size:9px;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{padding:10px 12px;text-align:left;font-size:11px;font-weight:500;color:var(--txl);text-transform:uppercase;letter-spacing:.5px;border-bottom:1.5px solid var(--bgd)}
+.data-table td{padding:10px 12px;font-size:13px;border-bottom:1px solid var(--bgd);vertical-align:middle}
+.data-table tr:hover td{background:var(--grisl)}
+.toggle-btn{padding:4px 10px;border-radius:16px;font-size:11px;font-weight:500;cursor:pointer;border:none;font-family:'DM Sans',sans-serif}
+.toggle-on{background:#e8f5e9;color:#2e7d32}
+.toggle-off{background:#ffebee;color:#c62828}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg label{font-size:11px;font-weight:500;color:var(--txl);text-transform:uppercase;letter-spacing:.5px}
+.fg input,.fg select,.fg textarea{padding:10px 12px;border:1.5px solid var(--bgd);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .2s;background:var(--wh);color:var(--tx)}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--vc)}
+.fg textarea{resize:vertical;min-height:70px}
+.btn-save{padding:10px 20px;background:linear-gradient(135deg,var(--vert),var(--vc));color:#fff;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;margin-top:12px}
+.btn-add{padding:8px 16px;background:var(--vp);color:var(--vert);border:1.5px solid var(--vl);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;margin-bottom:14px}
+.btn-edit{padding:4px 10px;background:var(--vp);color:var(--vert);border:1px solid var(--vl);border-radius:6px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+.overlay.open{display:flex}
+.modal{background:var(--wh);border-radius:20px;padding:24px;width:100%;max-width:520px;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-tit{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;color:var(--vert);margin-bottom:16px}
+.modal-close{float:right;background:none;border:none;font-size:20px;cursor:pointer;color:var(--txl);padding:4px;margin-left:8px}
+/* CRENEAUX */
+.creneau-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:10px}
+.creneau-card{background:var(--grisl);border-radius:12px;padding:14px;border:1.5px solid var(--bgd);transition:all .2s}
+.creneau-card.actif{background:var(--vp);border-color:var(--vl)}
+.creneau-card.passe{opacity:.5}
+.creneau-day{font-weight:500;font-size:14px;margin-bottom:5px;color:var(--vert)}
+.creneau-slots{font-size:12px;color:var(--txl);margin-bottom:8px}
+.creneau-toggle{padding:5px 0;border-radius:16px;font-size:11px;font-weight:500;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;width:100%;transition:all .15s}
+.ct-on{background:#e8f5e9;color:#2e7d32}
+.ct-off{background:#ffebee;color:#c62828}
+/* PLAT SELECTOR */
+.plat-select-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px;margin-top:6px}
+.plat-opt{padding:7px 10px;background:var(--grisl);border:1.5px solid var(--bgd);border-radius:8px;font-size:12px;cursor:pointer;transition:all .15s;text-align:center;line-height:1.3}
+.plat-opt.selected{background:var(--vp);border-color:var(--vert);color:var(--vert);font-weight:500}
+/* ING ROWS */
+.ing-header{display:grid;grid-template-columns:3fr 70px 80px 28px;gap:5px;margin-bottom:4px}
+.ing-row{display:grid;grid-template-columns:3fr 70px 80px 28px;gap:5px;align-items:center;margin-bottom:5px}
+.ing-row input{padding:7px 9px;border:1.5px solid var(--bgd);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:12px;outline:none;background:var(--wh);width:100%}
+.ing-row input:focus{border-color:var(--vc)}
+.ing-del{width:28px;height:28px;background:rgba(198,40,40,.08);border:1px solid rgba(198,40,40,.2);border-radius:6px;cursor:pointer;color:#c62828;font-size:13px;display:flex;align-items:center;justify-content:center}
+/* ARIA FAB */
+.aria-fab{position:fixed;bottom:24px;right:24px;width:54px;height:54px;background:linear-gradient(135deg,var(--vert),var(--vc));border-radius:50%;border:none;cursor:pointer;font-size:22px;box-shadow:0 4px 20px rgba(45,90,61,.4);z-index:90;display:none;align-items:center;justify-content:center;color:#fff;animation:fabPulse 3s ease-in-out infinite}
 @keyframes fabPulse{0%,100%{box-shadow:0 4px 20px rgba(45,90,61,.4)}50%{box-shadow:0 4px 32px rgba(45,90,61,.7)}}
-.aria-overlay{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:499;display:none;backdrop-filter:blur(2px)}
-.aria-overlay.show{display:block}
-.aria-panel{position:fixed;top:0;right:-420px;width:420px;height:100vh;background:var(--wh);z-index:600;box-shadow:-8px 0 40px rgba(0,0,0,.15);display:flex;flex-direction:column;transition:right .35s cubic-bezier(.4,0,.2,1)}
+.aria-panel{position:fixed;top:0;right:-400px;width:380px;height:100%;background:var(--wh);z-index:200;box-shadow:-4px 0 40px rgba(0,0,0,.15);transition:right .3s ease;display:flex;flex-direction:column}
 .aria-panel.open{right:0}
-.aria-ph{background:linear-gradient(135deg,#0d1f13,#1a3325);padding:15px 18px;display:flex;align-items:center;gap:12px;flex-shrink:0}
-.aria-av{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--vc));display:flex;align-items:center;justify-content:center;font-size:18px;animation:ariaBreath 3s ease-in-out infinite}
-@keyframes ariaBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
-.aria-av.speaking{animation:ariaTalk .3s ease-in-out infinite}
-@keyframes ariaTalk{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
-.aria-ph-info h3{font-family:'Playfair Display',serif;font-size:17px;font-weight:300;color:#fff;letter-spacing:1px}
-.aria-ph-info p{font-size:11px;color:rgba(255,255,255,.4)}
-.aria-close{margin-left:auto;background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.5);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center}
-.aria-close:hover{background:rgba(255,255,255,.2);color:#fff}
-.aria-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:11px;background:#f4f7f4}
-.aria-msgs::-webkit-scrollbar{width:3px}
-.aria-msgs::-webkit-scrollbar-thumb{background:var(--bgd)}
-.aria-msg{display:flex;gap:8px;align-items:flex-end;animation:fadeUp .2s ease}
-@keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
-.aria-msg.user{flex-direction:row-reverse}
-.aria-mav{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
-.aria-msg.bot .aria-mav{background:linear-gradient(135deg,var(--vert),var(--vc))}
-.aria-msg.user .aria-mav{background:var(--bgd);color:var(--txl)}
-.aria-bub{padding:9px 13px;border-radius:14px;font-size:13px;line-height:1.6;max-width:83%}
-.aria-msg.bot .aria-bub{background:var(--wh);border:1px solid rgba(45,90,61,.07);border-bottom-left-radius:3px;box-shadow:0 1px 6px rgba(0,0,0,.05)}
-.aria-msg.user .aria-bub{background:var(--vert);color:#fff;border-bottom-right-radius:3px}
-.aria-bub strong{font-weight:600;color:var(--vert)}
-.aria-msg.user .aria-bub strong{color:#c8e6c9}
-.aria-typing{display:flex;gap:3px;padding:3px}
-.aria-typing span{width:5px;height:5px;background:var(--bgd);border-radius:50%;animation:td .7s infinite}
-.aria-typing span:nth-child(2){animation-delay:.12s}
-.aria-typing span:nth-child(3){animation-delay:.24s}
-@keyframes td{0%,60%,100%{transform:scale(1)}30%{transform:scale(1.4)}}
-.aria-sugs{padding:8px 12px;display:flex;gap:6px;flex-wrap:wrap;background:var(--wh);border-top:1px solid var(--bgd);flex-shrink:0}
-.aria-sug{padding:5px 10px;background:var(--bg);border:1.5px solid var(--bgd);border-radius:12px;font-size:11px;color:var(--vert);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
-.aria-sug:hover{background:var(--vp);border-color:var(--vc)}
-.aria-bottom{padding:11px 13px;background:var(--wh);border-top:1px solid var(--bgd);display:flex;gap:8px;align-items:center;flex-shrink:0}
-.aria-inp{flex:1;padding:9px 14px;border:1.5px solid var(--bgd);border-radius:20px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;background:var(--bg);color:var(--tx)}
-.aria-inp:focus{border-color:var(--vc);background:var(--wh)}
-.aria-send{width:36px;height:36px;background:linear-gradient(135deg,var(--vert),var(--vc));border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.aria-send:disabled{opacity:.4;cursor:not-allowed}
-.aria-send svg{fill:#fff;width:13px;height:13px;margin-left:2px}
-.aria-mic{width:36px;height:36px;background:var(--bg);border:1.5px solid var(--bgd);border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;transition:all .2s}
-.aria-mic.rec{background:#fdecea;border-color:#c62828;animation:micP 1s infinite}
-@keyframes micP{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
-/* Utils */
-.lov{position:fixed;inset:0;background:rgba(255,255,255,.85);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:999}
-.spin{width:34px;height:34px;border:3px solid var(--bgd);border-top-color:var(--vert);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:12px}
+.aria-header{background:var(--noir);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.aria-brand{display:flex;align-items:center;gap:10px}
+.aria-orb{width:30px;height:30px;background:linear-gradient(135deg,var(--vert),var(--vc));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px}
+.aria-name{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:300;color:#fff;letter-spacing:1px}
+.aria-stat{font-size:10px;color:rgba(255,255,255,.35)}
+.aria-close{background:none;border:none;color:rgba(255,255,255,.5);font-size:18px;cursor:pointer}
+#ariaLoad{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px}
+.spin{width:32px;height:32px;border:3px solid var(--bgd);border-top-color:var(--vert);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.ltxt{font-size:14px;color:var(--txl)}
-.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--tx);color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;z-index:999;transition:transform .3s;white-space:nowrap}
-.toast.show{transform:translateX(-50%) translateY(0)}
-.toast.ok{background:var(--vert)}
-.toast.err{background:#c62828}
-.empty{text-align:center;padding:40px;color:var(--txl);font-size:14px}
-.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
-@media(max-width:768px){
-  .main{padding:16px}header{padding:0 16px}
-  .cmd-card-top{grid-template-columns:1fr 1fr}
-  .nav-tabs{gap:3px}.ntab{padding:8px 12px;font-size:12px}
-  .plats-grid{grid-template-columns:1fr 1fr}
-  .fgrid{grid-template-columns:1fr}
-  .cal-semaine{grid-template-columns:1fr}
+#ariaChat{flex:1;display:none;flex-direction:column;min-height:0;overflow:hidden}
+.a-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.a-msgs::-webkit-scrollbar{width:3px}
+.a-msgs::-webkit-scrollbar-thumb{background:var(--bgd)}
+.a-msg{display:flex;gap:7px;align-items:flex-end;animation:fadeUp .2s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.a-msg.user{flex-direction:row-reverse}
+.a-av{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}
+.a-msg.bot .a-av{background:linear-gradient(135deg,var(--vert),var(--vc))}
+.a-msg.user .a-av{background:var(--bgd);color:var(--txl)}
+.a-bub{padding:8px 12px;border-radius:14px;font-size:13px;line-height:1.6;max-width:82%}
+.a-msg.bot .a-bub{background:var(--grisl);border-bottom-left-radius:4px}
+.a-msg.user .a-bub{background:var(--vert);color:#fff;border-bottom-right-radius:4px}
+.a-bub strong{font-weight:600;color:var(--vert)}
+.a-msg.user .a-bub strong{color:#c8e6c9}
+.typing{display:flex;gap:4px;padding:2px}
+.typing span{width:5px;height:5px;background:var(--gris);border-radius:50%;animation:td .7s infinite}
+.typing span:nth-child(2){animation-delay:.12s}
+.typing span:nth-child(3){animation-delay:.24s}
+@keyframes td{0%,60%,100%{transform:scale(1)}30%{transform:scale(1.4)}}
+.a-sugs{padding:8px 14px;display:flex;flex-wrap:wrap;gap:5px;flex-shrink:0;border-top:1px solid var(--bgd)}
+.a-sug{padding:5px 10px;background:var(--grisl);border:1px solid var(--bgd);border-radius:12px;font-size:11px;color:var(--vert);cursor:pointer}
+.a-sug:hover{background:var(--vp)}
+/* INPUT TOUJOURS EN BAS */
+.a-input-wrap{padding:10px 14px 14px;flex-shrink:0;border-top:1px solid var(--bgd);background:var(--wh)}
+.a-input-row{display:flex;gap:6px;align-items:center}
+.a-input{flex:1;padding:8px 12px;border:1.5px solid var(--bgd);border-radius:20px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;background:var(--grisl);color:var(--tx)}
+.a-input:focus{border-color:var(--vc);background:var(--wh)}
+.a-send{width:34px;height:34px;background:linear-gradient(135deg,var(--vert),var(--vc));border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.a-send:disabled{opacity:.4;cursor:not-allowed}
+.a-send svg{fill:#fff;width:13px;height:13px;margin-left:2px}
+/* MIC : vert quand actif (pas rouge) */
+.a-mic{width:34px;height:34px;background:var(--vp);border:1.5px solid var(--vl);border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;transition:all .2s}
+.a-mic.rec{background:linear-gradient(135deg,var(--vert),var(--vc));border-color:var(--vert);animation:micPulse .8s infinite}
+@keyframes micPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.a-reload{width:34px;height:34px;background:var(--grisl);border:1.5px solid var(--bgd);border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.a-reload:hover{background:var(--vp)}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--vert);color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+@media(max-width:600px){
+  .form-grid{grid-template-columns:1fr}
   .aria-panel{width:100vw;right:-100vw}
+  .tabs{padding:0 10px}
+  .content{padding:12px}
+  .plat-select-grid{grid-template-columns:repeat(2,1fr)}
+  .ing-header,.ing-row{grid-template-columns:2fr 55px 65px 28px}
 }
 </style>
 </head>
 <body>
-<div class="lov" id="lov"><div class="spin"></div><div class="ltxt" id="ltxt">Chargement...</div></div>
-<div class="toast" id="toast"></div>
-<div class="mbg" id="mbg" onclick="closeMod(event)"><div class="mbox"><div id="mcont"></div></div></div>
  
 <!-- LOGIN -->
-<div id="pLogin" style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--bg),var(--vp));padding:20px">
-  <div style="background:var(--wh);border-radius:24px;padding:44px 36px;width:100%;max-width:380px;box-shadow:var(--sh);text-align:center">
-    <div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--vert);margin-bottom:4px">Le Goût du Lien</div>
-    <div style="font-size:13px;color:var(--txl);margin-bottom:28px">Espace administration</div>
-    <div class="fg"><label>Mot de passe admin</label><input type="password" id="iMdp" placeholder="••••••••"></div>
-    <button class="btn-sm" style="width:100%;padding:13px;font-size:15px" onclick="login()">Accéder</button>
-    <div id="lerr" style="background:#fdecea;color:#c62828;padding:10px;border-radius:9px;font-size:13px;margin-top:12px;display:none">Mot de passe incorrect.</div>
+<div id="pLogin">
+  <div class="lcard">
+    <div class="licon">🌿</div>
+    <div class="ltit">Administration</div>
+    <div class="ltag">Le Goût du Lien · Espace gérant</div>
+    <input class="finput" type="password" id="iMdp" placeholder="Mot de passe">
+    <button class="fbtn" onclick="login()">Accéder</button>
+    <div class="ferr" id="ferr">Mot de passe incorrect</div>
   </div>
 </div>
  
-<!-- ADMIN -->
-<div id="pAdmin" style="display:none">
-  <header>
-    <div class="logo">Le Goût du Lien <span>Dashboard Admin</span></div>
-    <button class="hbtn" onclick="logout()">Déconnexion</button>
-  </header>
-  <div class="main">
-    <div class="nav-tabs">
-      <button class="ntab on" onclick="chgPage('planning',this)">📅 Planning</button>
-      <button class="ntab" onclick="chgPage('calendrier',this)">🗓️ Calendrier</button>
-      <button class="ntab" onclick="chgPage('recettes',this)">🍽️ Recettes</button>
-      <button class="ntab" onclick="chgPage('clients',this)">👥 Clients</button>
-      <button class="ntab" onclick="chgPage('salaries',this)">👷 Salariés</button>
-      <button class="ntab" onclick="chgPage('creneaux',this)">🕐 Créneaux</button>
-    </div>
- 
-    <!-- PLANNING -->
-    <div id="np-planning" class="npage on">
-      <div class="sem-nav">
-        <select class="sem-select" id="semSelect" onchange="chargerPlanning()"></select>
-        <button class="btn-sm" onclick="chargerPlanning()">↺ Actualiser</button>
-      </div>
-      <div class="stats-grid" id="statsGrid"></div>
-      <div class="stit">📋 Commandes & assignations</div>
-      <div id="commandesDiv"></div>
-    </div>
- 
-    <!-- CALENDRIER -->
-    <div id="np-calendrier" class="npage">
-      <div class="sem-nav">
-        <select class="sem-select" id="calMoisSel" onchange="renderCalMois()"></select>
-        <button class="btn-sm" style="background:var(--bgd);color:var(--tx)" id="btnSem" onclick="setCalView('semaine')">Vue semaine</button>
-        <button class="btn-sm" id="btnMois" onclick="setCalView('mois')">Vue mois</button>
-      </div>
-      <div id="calDiv"></div>
-    </div>
- 
-    <!-- RECETTES -->
-    <div id="np-recettes" class="npage">
-      <div class="section-header">
-        <div class="stit" style="margin-bottom:0">🍽️ Gestion des recettes</div>
-        <div style="display:flex;gap:8px">
-          <span id="platsCount" style="font-size:13px;color:var(--txl);align-self:center"></span>
-          <button class="btn-sm" onclick="ouvrirFormRecette(null)">+ Nouvelle recette</button>
-        </div>
-      </div>
-      <div class="plats-grid" id="platsGrid"></div>
-    </div>
- 
-    <!-- CLIENTS -->
-    <div id="np-clients" class="npage">
-      <div class="section-header">
-        <div class="stit" style="margin-bottom:0">👥 Gestion des clients</div>
-        <button class="btn-sm" onclick="ouvrirFormClient(null)">+ Nouveau client</button>
-      </div>
-      <div id="clientsDiv"></div>
-    </div>
- 
-    <!-- SALARIES -->
-    <div id="np-salaries" class="npage">
-      <div class="section-header">
-        <div class="stit" style="margin-bottom:0">👷 Gestion des salariés</div>
-        <button class="btn-sm" onclick="ouvrirFormSalarie(null)">+ Nouveau salarié</button>
-      </div>
-      <div id="salariesDiv"></div>
-    </div>
- 
-    <!-- CRENEAUX -->
-    <div id="np-creneaux" class="npage">
-      <div class="stit">🕐 Créneaux disponibles</div>
-      <div class="form-card">
-        <h3>Jours d'intervention</h3>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
-          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer"><input type="checkbox" id="cr-lundi" checked> Lundi</label>
-          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer"><input type="checkbox" id="cr-mardi" checked> Mardi</label>
-          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer"><input type="checkbox" id="cr-mercredi"> Mercredi</label>
-          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer"><input type="checkbox" id="cr-jeudi" checked> Jeudi</label>
-          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer"><input type="checkbox" id="cr-vendredi" checked> Vendredi</label>
-        </div>
-        <h3>Plages horaires</h3>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
-          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer"><input type="checkbox" id="cr-matin" checked> Matin 9h00 - 12h00</label>
-          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer"><input type="checkbox" id="cr-aprem" checked> Après-midi 13h00 - 16h00</label>
-        </div>
-        <h3>Capacité max par semaine</h3>
-        <div class="fg" style="max-width:200px">
-          <label>Nombre max de commandes</label>
-          <input type="number" id="cr-max" value="12" min="1" max="20">
-        </div>
-        <button class="btn-sm" onclick="showToast('Créneaux enregistrés !','ok')">Enregistrer</button>
-      </div>
+<!-- APP -->
+<div id="pApp">
+  <div class="topbar">
+    <div class="brand">Le Goût du Lien <span>· Administration</span></div>
+    <button class="tbtn" onclick="logout()">Déconnexion</button>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('planning')">📅 Planning</div>
+    <div class="tab" onclick="showTab('calendrier')">🗓️ Calendrier</div>
+    <div class="tab" onclick="showTab('recettes')">🍽️ Recettes</div>
+    <div class="tab" onclick="showTab('clients')">👥 Clients</div>
+    <div class="tab" onclick="showTab('salaries')">👷 Salariés</div>
+    <div class="tab" onclick="showTab('creneaux')">🕐 Créneaux</div>
+  </div>
+  <div class="content" id="content">
+    <div style="text-align:center;padding:60px;color:var(--txl)">
+      <div class="spin" style="margin:0 auto 16px"></div>
+      <div>Chargement des données...</div>
     </div>
   </div>
 </div>
  
 <!-- ARIA FAB -->
-<button class="aria-fab" id="ariaFab" style="display:none" onclick="openAria()" title="Parler à ARIA">🌿</button>
-<div class="aria-overlay" id="ariaOverlay" onclick="closeAria()"></div>
+<button class="aria-fab" id="ariaFab" onclick="toggleAria()" title="Ouvrir ARIA">🌿</button>
+ 
+<!-- ARIA PANEL -->
 <div class="aria-panel" id="ariaPanel">
-  <div class="aria-ph">
-    <div class="aria-av" id="ariaAv">👩‍🍳</div>
-    <div class="aria-ph-info">
-      <h3>ARIA</h3>
-      <p id="ariaStatus">Prête à vous aider</p>
+  <div class="aria-header">
+    <div class="aria-brand">
+      <div class="aria-orb">🌿</div>
+      <div>
+        <div class="aria-name">ARIA</div>
+        <div class="aria-stat" id="ariaStat">Chargement...</div>
+      </div>
     </div>
-    <button class="aria-close" onclick="closeAria()">✕</button>
+    <div style="display:flex;gap:6px;align-items:center">
+      <button class="tbtn" onclick="resetAriaConv()" style="font-size:10px;padding:4px 8px" title="Nouvelle conversation">↺</button>
+      <button class="aria-close" onclick="toggleAria()">✕</button>
+    </div>
   </div>
-  <div class="aria-msgs" id="ariaMsgs"></div>
-  <div class="aria-sugs" id="ariaSugs">
-    <button class="aria-sug" onclick="ariaUseSug(this)">📅 Commandes semaine</button>
-    <button class="aria-sug" onclick="ariaUseSug(this)">🍽️ Plats actifs</button>
-    <button class="aria-sug" onclick="ariaUseSug(this)">👥 Clients</button>
-    <button class="aria-sug" onclick="ariaUseSug(this)">📊 Résumé activité</button>
+  <div id="ariaLoad">
+    <div class="spin"></div>
+    <div style="font-size:13px;color:var(--txl)">Chargement des données...</div>
   </div>
-  <div class="aria-bottom">
-    <button class="aria-mic" id="ariaMic" onclick="ariaToggleMic()">🎤</button>
-    <input class="aria-inp" type="text" id="ariaInp" placeholder="Posez votre question...">
-    <button class="aria-send" id="ariaSend" onclick="ariaSend()" disabled>
-      <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-    </button>
+  <div id="ariaChat">
+    <div class="a-msgs" id="aMsgs"></div>
+    <div class="a-sugs">
+      <button class="a-sug" onclick="useASug(this)">📅 Commandes cette semaine</button>
+      <button class="a-sug" onclick="useASug(this)">🍽️ Plats actifs</button>
+      <button class="a-sug" onclick="useASug(this)">👥 Mes clients</button>
+      <button class="a-sug" onclick="useASug(this)">📊 Résumé activité</button>
+    </div>
+    <div class="a-input-wrap">
+      <div class="a-input-row">
+        <input class="a-input" type="text" id="aInput" placeholder="Posez votre question...">
+        <button class="a-mic" id="aMic" onclick="toggleMic()" title="Parler à ARIA">🎤</button>
+        <button class="a-reload" onclick="reloadAriaData()" title="Actualiser les données Airtable">🔄</button>
+        <button class="a-send" id="aSend" onclick="sendAria()" disabled>
+          <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+      </div>
+    </div>
   </div>
 </div>
+ 
+<!-- MODAL INGRÉDIENTS (lecture) -->
+<div class="overlay" id="modalIng">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modalIng')">✕</button>
+    <div class="modal-tit" id="modalIngTit"></div>
+    <div id="modalIngBody"></div>
+  </div>
+</div>
+ 
+<!-- MODAL RECETTE (avec ingrédients éditables) -->
+<div class="overlay" id="modalRecette">
+  <div class="modal" style="max-width:600px">
+    <button class="modal-close" onclick="closeModal('modalRecette')">✕</button>
+    <div class="modal-tit" id="modalRecTit">Recette</div>
+    <div class="form-grid">
+      <div class="fg"><label>Nom du plat</label><input id="rNom" type="text"></div>
+      <div class="fg"><label>Catégorie</label>
+        <select id="rCat">
+          <option>Légumes</option><option>Viande</option><option>Poisson</option>
+          <option>Végétarien</option><option>Soupe</option><option>Autre</option>
+        </select>
+      </div>
+      <div class="fg"><label>Frigo (jours)</label><input id="rFrigo" type="number" min="1" max="10"></div>
+      <div class="fg"><label>Conservation</label><input id="rConservation" type="text"></div>
+      <div class="fg" style="grid-column:1/-1"><label>Instructions préparation</label><textarea id="rPrep" rows="3" placeholder="Étapes de préparation..."></textarea></div>
+      <div class="fg" style="grid-column:1/-1"><label>Instructions réchauffage</label><textarea id="rRechauffage" rows="2"></textarea></div>
+      <div class="fg" style="grid-column:1/-1"><label>Congélation</label><input id="rCongelation" type="text"></div>
+    </div>
+    <div style="margin-top:18px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-size:11px;font-weight:500;color:var(--txl);text-transform:uppercase;letter-spacing:.5px">Ingrédients (par portion)</div>
+        <button onclick="ajouterIngRow()" style="padding:5px 12px;background:var(--vp);color:var(--vert);border:1.5px solid var(--vl);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;cursor:pointer">+ Ajouter</button>
+      </div>
+      <div class="ing-header">
+        <div style="font-size:10px;color:var(--txl);text-transform:uppercase;padding:0 4px">Ingrédient</div>
+        <div style="font-size:10px;color:var(--txl);text-transform:uppercase;padding:0 4px">Qté</div>
+        <div style="font-size:10px;color:var(--txl);text-transform:uppercase;padding:0 4px">Unité</div>
+        <div></div>
+      </div>
+      <div id="ingRows"></div>
+    </div>
+    <input type="hidden" id="rId">
+    <button class="btn-save" onclick="saveRecette()">💾 Enregistrer tout</button>
+  </div>
+</div>
+ 
+<!-- MODAL CLIENT -->
+<div class="overlay" id="modalClient">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modalClient')">✕</button>
+    <div class="modal-tit" id="modalCliTit">Client</div>
+    <div class="form-grid">
+      <div class="fg"><label>Nom</label><input id="cNom" type="text"></div>
+      <div class="fg"><label>Email</label><input id="cEmail" type="email"></div>
+      <div class="fg"><label>Téléphone</label><input id="cTel" type="tel"></div>
+      <div class="fg"><label>Mot de passe portail</label><input id="cMdp" type="text"></div>
+      <div class="fg" style="grid-column:1/-1"><label>Adresse</label><input id="cAdresse" type="text"></div>
+    </div>
+    <input type="hidden" id="cId">
+    <button class="btn-save" onclick="saveClient()">💾 Enregistrer</button>
+  </div>
+</div>
+ 
+<!-- MODAL SALARIÉ -->
+<div class="overlay" id="modalSalarie">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modalSalarie')">✕</button>
+    <div class="modal-tit" id="modalSalTit">Salarié</div>
+    <div class="form-grid">
+      <div class="fg"><label>Nom</label><input id="sNom" type="text"></div>
+      <div class="fg"><label>Email</label><input id="sEmail" type="email"></div>
+      <div class="fg"><label>Téléphone</label><input id="sTel" type="tel"></div>
+      <div class="fg"><label>Mot de passe</label><input id="sMdp" type="text"></div>
+    </div>
+    <input type="hidden" id="sId">
+    <button class="btn-save" onclick="saveSalarie()">💾 Enregistrer</button>
+  </div>
+</div>
+ 
+<!-- MODAL MODIFIER COMMANDE -->
+<div class="overlay" id="modalCommande">
+  <div class="modal" style="max-width:580px">
+    <button class="modal-close" onclick="closeModal('modalCommande')">✕</button>
+    <div class="modal-tit">Modifier la commande</div>
+    <div class="form-grid">
+      <div class="fg"><label>Client</label><select id="cmdClient"></select></div>
+      <div class="fg"><label>Créneau</label>
+        <select id="cmdCreneau">
+          <option>Lundi matin</option><option>Lundi après-midi</option>
+          <option>Mardi matin</option><option>Mardi après-midi</option>
+          <option>Mercredi matin</option><option>Mercredi après-midi</option>
+          <option>Jeudi matin</option><option>Jeudi après-midi</option>
+          <option>Vendredi matin</option><option>Vendredi après-midi</option>
+        </select>
+      </div>
+      <div class="fg"><label>Semaine du (lundi)</label><input type="date" id="cmdSemaine"></div>
+      <div class="fg"><label>Salarié assigné</label><select id="cmdSalarie"></select></div>
+      <div class="fg" style="grid-column:1/-1"><label>Nb portions</label><input type="number" id="cmdPortions" min="1" max="20" value="4" style="max-width:100px"></div>
+    </div>
+    <div style="margin-top:14px">
+      <div style="font-size:11px;font-weight:500;color:var(--txl);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Plats — cliquer pour sélectionner (max 5)</div>
+      <div class="plat-select-grid" id="platSelectGrid"></div>
+    </div>
+    <input type="hidden" id="cmdId">
+    <button class="btn-save" onclick="saveCommande()">💾 Enregistrer</button>
+  </div>
+</div>
+ 
+<div class="toast" id="toast"></div>
  
 <script>
 const AK='patvhOGv8O9szhfm9.2b3cb31f20ecd6c0271669df216fa0224adc9b1e16c7f98ce6f5b14575a75905';
 const BID='appTNygSM2x5VdNy6';
 const AT=`https://api.airtable.com/v0/${BID}`;
 const H={'Authorization':`Bearer ${AK}`,'Content-Type':'application/json'};
-const ADMIN_PWD='legoutdulien2026';
-const JOURS=['Lundi','Mardi','Jeudi','Vendredi'];
-const JMAP={Lundi:0,Mardi:1,Jeudi:3,Vendredi:4};
-const HEURES=['9h00 - 12h00','13h00 - 16h00'];
-const COULEURS=['#3d6b4f','#1565c0','#e65100','#6a1b9a','#00695c'];
+const PWD='legoutdulien2026';
  
-let salaries=[],recettes=[],riRecs=[],allCommandes=[];
-let calView='semaine',ariaConv=[],ariaSysPrompt='',ariaLoaded=false,ariaBusy=false;
-let ariaRec=null,ariaRecording=false;
-const ariaSynth=window.speechSynthesis;
+let DATA={commandes:[],recettes:[],ri:[],clients:[],salaries:[]};
+let curOffset=0;
+let creneauxOffset=0;
+let ariaConv=[],ariaSys='',ariaBusy=false;
+let recognition=null,isRec=false;
+let ingBuffer=[];
+const synth=window.speechSynthesis;
  
-function showLoad(t){document.getElementById('lov').style.display='flex';document.getElementById('ltxt').textContent=t||'Chargement...'}
-function hideLoad(){document.getElementById('lov').style.display='none'}
-function showToast(m,t){const el=document.getElementById('toast');el.textContent=m;el.className='toast show '+(t||'');setTimeout(()=>{el.className='toast'},3200)}
-function closeMod(e){if(e.target===document.getElementById('mbg'))document.getElementById('mbg').classList.remove('show')}
+// CRENEAUX — stockage local par semaine
+function getCrKey(sem,jour){return`cren_${sem}_${jour}`}
+function isCrenActif(sem,jour){const v=localStorage.getItem(getCrKey(sem,jour));return v===null?true:v==='1'}
+function setCrenActif(sem,jour,actif){localStorage.setItem(getCrKey(sem,jour),actif?'1':'0')}
  
+// AUTH
+function login(){
+  if(document.getElementById('iMdp').value.trim()===PWD){
+    sessionStorage.setItem('adm','1');
+    document.getElementById('pLogin').style.display='none';
+    document.getElementById('pApp').style.display='flex';
+    chargerTout();
+  }else{
+    document.getElementById('ferr').style.display='block';
+  }
+}
+function logout(){sessionStorage.removeItem('adm');location.reload()}
+document.getElementById('iMdp').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
+ 
+// AIRTABLE
 async function fetchAll(tbl,sort=''){
   let recs=[],offset=null;
   do{
@@ -360,7 +404,6 @@ async function fetchAll(tbl,sort=''){
   }while(offset);
   return recs;
 }
- 
 async function patchRecord(tbl,id,fields){
   const r=await fetch(`${AT}/${tbl}/${id}`,{method:'PATCH',headers:H,body:JSON.stringify({fields})});
   return r.json();
@@ -370,589 +413,586 @@ async function createRecord(tbl,fields){
   return r.json();
 }
 async function deleteRecord(tbl,id){
-  const r=await fetch(`${AT}/${tbl}/${id}`,{method:'DELETE',headers:H});
-  return r.json();
+  await fetch(`${AT}/${tbl}/${id}`,{method:'DELETE',headers:H});
 }
  
-// AUTH
-function login(){
-  if(document.getElementById('iMdp').value.trim()===ADMIN_PWD){
-    sessionStorage.setItem('admin','1');
-    document.getElementById('pLogin').style.display='none';
-    document.getElementById('pAdmin').style.display='block';
+// CHARGEMENT
+async function chargerTout(){
+  try{
+    const [commandes,recettes,ri,clients,salaries]=await Promise.all([
+      fetchAll('Commandes','sort%5B0%5D%5Bfield%5D=Semaine+du&sort%5B0%5D%5Bdirection%5D=desc'),
+      fetchAll('Recettes','sort%5B0%5D%5Bfield%5D=Nom+du+plat&sort%5B0%5D%5Bdirection%5D=asc'),
+      fetchAll('Recettes_Ingr%C3%A9dients','sort%5B0%5D%5Bfield%5D=Ordre&sort%5B0%5D%5Bdirection%5D=asc'),
+      fetchAll('Clients'),
+      fetchAll('Salari%C3%A9s')
+    ]);
+    DATA={commandes,recettes,ri,clients,salaries};
     document.getElementById('ariaFab').style.display='flex';
-    initAdmin();
-  }else{document.getElementById('lerr').style.display='block'}
-}
-function logout(){sessionStorage.removeItem('admin');location.reload()}
- 
-// NAV
-function chgPage(p,btn){
-  document.querySelectorAll('.ntab').forEach(x=>x.classList.remove('on'));
-  document.querySelectorAll('.npage').forEach(x=>x.classList.remove('on'));
-  btn.classList.add('on');
-  document.getElementById('np-'+p).classList.add('on');
-  if(p==='calendrier')initCalendrier();
-  if(p==='recettes')chargerPlats();
-  if(p==='clients')chargerClients();
-  if(p==='salaries')chargerSalaries();
-}
- 
-// INIT
-function getLundis(){
-  const res=[];
-  const now=new Date();
-  const y=now.getFullYear(),m=now.getMonth(),d=now.getDate();
-  const dow=(new Date(y,m,d)).getDay();
-  const nextMon=dow===1?0:(8-dow)%7;
-  for(let i=-4;i<8;i++){
-    const l=new Date(y,m,d+nextMon+i*7);
-    const yy=l.getFullYear(),mm=String(l.getMonth()+1).padStart(2,'0'),dd=String(l.getDate()).padStart(2,'0');
-    res.push({id:`${yy}-${mm}-${dd}`,label:`Semaine du ${l.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}`});
+    renderPlanning();
+    buildAriaSys();
+    document.getElementById('ariaLoad').style.display='none';
+    document.getElementById('ariaChat').style.display='flex';
+    document.getElementById('aSend').disabled=false;
+    document.getElementById('ariaStat').textContent=`${DATA.recettes.filter(r=>r.fields['Active ?']).length} plats actifs`;
+    addAriaMsg('bot',`**Bonjour !** 🌿\n\nDonnées chargées depuis Airtable. Je suis disponible — tapez ou utilisez le 🎤 !\n\nUtilisez 🔄 pour actualiser si vous venez de modifier des données.`);
+  }catch(e){
+    document.getElementById('content').innerHTML=`<div style="padding:40px;text-align:center;color:#c62828">Erreur : ${e.message}</div>`;
   }
-  return res;
 }
  
-async function initAdmin(){
-  showLoad('Initialisation...');
-  const sel=document.getElementById('semSelect');
-  getLundis().forEach((s,i)=>{
-    const opt=document.createElement('option');
-    opt.value=s.id;opt.textContent=s.label;
-    if(i===4)opt.selected=true;
-    sel.appendChild(opt);
-  });
-  [salaries,recettes,riRecs,allCommandes]=await Promise.all([
-    fetchAll('Salari%C3%A9s'),
-    fetchAll('Recettes','sort%5B0%5D%5Bfield%5D=Nom+du+plat&sort%5B0%5D%5Bdirection%5D=asc'),
-    fetchAll('Recettes_Ingr%C3%A9dients','sort%5B0%5D%5Bfield%5D=Ordre&sort%5B0%5D%5Bdirection%5D=asc'),
-    fetchAll('Commandes','sort%5B0%5D%5Bfield%5D=Cr%C3%A9neau&sort%5B0%5D%5Bdirection%5D=asc')
-  ]);
-  hideLoad();
-  chargerPlanning();
+// UTILS
+function getMonday(offset=0){
+  const d=new Date(),day=d.getDay();
+  const diff=d.getDate()-day+(day===0?-6:1)+(offset*7);
+  const m=new Date(d);m.setDate(diff);
+  return`${m.getFullYear()}-${String(m.getMonth()+1).padStart(2,'0')}-${String(m.getDate()).padStart(2,'0')}`;
 }
- 
+function semaineLabel(offset=0){
+  const mon=new Date(),day=mon.getDay();
+  const diff=mon.getDate()-day+(day===0?-6:1)+(offset*7);
+  mon.setDate(diff);
+  const fri=new Date(mon);fri.setDate(fri.getDate()+4);
+  const o={day:'numeric',month:'long'};
+  return`${mon.toLocaleDateString('fr-FR',o)} – ${fri.toLocaleDateString('fr-FR',o)}`;
+}
 function resolveNom(val){
   if(!val)return null;
   const v=Array.isArray(val)?val[0]:val;
-  if(!v)return null;
   if(typeof v==='string'&&!v.startsWith('rec'))return v;
-  return recettes.find(r=>r.id===v)?.fields['Nom du plat']||null;
+  return DATA.recettes.find(r=>r.id===v)?.fields['Nom du plat']||null;
 }
+function showContent(html){document.getElementById('content').innerHTML=html}
+function showTab(tab){
+  document.querySelectorAll('.tab').forEach((t,i)=>{
+    t.classList.toggle('active',['planning','calendrier','recettes','clients','salaries','creneaux'][i]===tab);
+  });
+  ({planning:renderPlanning,calendrier:renderCalendrier,recettes:renderRecettes,clients:renderClients,salaries:renderSalaries,creneaux:renderCreneaux})[tab]?.();
+}
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
  
 // ===== PLANNING =====
-async function chargerPlanning(){
-  const semId=document.getElementById('semSelect').value;
-  showLoad('Chargement...');
-  try{
-    allCommandes=await fetchAll('Commandes','sort%5B0%5D%5Bfield%5D=Cr%C3%A9neau&sort%5B0%5D%5Bdirection%5D=asc');
-    const clients=await fetchAll('Clients');
-    const cmdSem=allCommandes.filter(c=>(c.fields['Semaine du']||'').includes(semId));
- 
-    document.getElementById('statsGrid').innerHTML=`
-      <div class="stat-card"><div class="stat-num">${cmdSem.length}</div><div class="stat-lbl">Commandes</div></div>
-      <div class="stat-card"><div class="stat-num">${cmdSem.filter(c=>c.fields['Statut']==='Confirmée').length}</div><div class="stat-lbl">Confirmées</div></div>
-      <div class="stat-card"><div class="stat-num">${cmdSem.filter(c=>c.fields['Statut']==='En attente de paiement').length}</div><div class="stat-lbl">En attente</div></div>
-      <div class="stat-card"><div class="stat-num">${cmdSem.length*5}</div><div class="stat-lbl">Plats à préparer</div></div>`;
- 
-    if(!cmdSem.length){document.getElementById('commandesDiv').innerHTML='<div class="empty">Aucune commande cette semaine.</div>';hideLoad();return;}
- 
-    const salOpts=salaries.map(s=>`<option value="${s.fields['Nom']||''}">${s.fields['Nom']||''}</option>`).join('')+`<option value="">-- Non assigné --</option>`;
- 
-    document.getElementById('commandesDiv').innerHTML=`<div class="cmd-cards">${cmdSem.map(cmd=>{
-      const f=cmd.fields;
-      const plats=[f['Plat 1'],f['Plat 2'],f['Plat 3'],f['Plat 4'],f['Plat 5']].map(resolveNom).filter(Boolean);
-      const clientLie=Array.isArray(f['Client lié'])?f['Client lié'][0]:f['Client lié'];
-      const cf=clients.find(c=>c.id===clientLie)?.fields||{};
-      const assigneActuel=f['Assigné à']||'';
-      return`<div class="cmd-card" id="cmd-${cmd.id}">
-        <div class="cmd-card-top">
-          <div>
-            <div class="cmd-label">Client</div>
-            <div class="cmd-val">${f['Client']||'–'}</div>
-            ${cf['Téléphone']?`<div class="cmd-val sm">📞 ${cf['Téléphone']}</div>`:''}
-            ${cf['Adresse']?`<div class="cmd-val sm">📍 ${cf['Adresse']}</div>`:''}
-          </div>
-          <div>
-            <div class="cmd-label">Créneau</div>
-            <div class="cmd-val">${f['Créneau']||'–'}</div>
-          </div>
-          <div>
-            <div class="cmd-label">Statut</div>
-            <span class="badge ${f['Statut']==='Confirmée'?'ok':'wait'}">${f['Statut']==='Confirmée'?'✓ Confirmée':'⏳ En attente'}</span>
-          </div>
-          <div>
-            <div class="cmd-label">Assigné à</div>
-            <div class="cmd-val">${assigneActuel||'<span style="color:var(--txl)">Non assigné</span>'}</div>
-          </div>
+function renderPlanning(){
+  const semaine=getMonday(curOffset);
+  const cmdSem=DATA.commandes.filter(c=>(c.fields['Semaine du']||'').includes(semaine));
+  const salOpts=`<option value="">Non assigné</option>`+DATA.salaries.map(s=>`<option value="${s.fields['Nom']||s.id}">${s.fields['Nom']||'Salarié'}</option>`).join('');
+  const cmdsHtml=cmdSem.length?cmdSem.map(c=>{
+    const f=c.fields;
+    const plats=[f['Plat 1'],f['Plat 2'],f['Plat 3'],f['Plat 4'],f['Plat 5']].map(resolveNom).filter(Boolean);
+    const statut=f['Statut']||'En attente';
+    const bc=statut.includes('Livr')||statut.includes('Termin')?'badge-ok':statut.includes('cours')?'badge-en':'badge-att';
+    return`<div class="cmd-card">
+      <div class="cmd-head">
+        <div>
+          <div class="cmd-client">${f['Client']||'–'} <span class="badge ${bc}">${statut}</span></div>
+          <div class="cmd-creneau">📅 ${f['Créneau']||'–'}</div>
+          ${f['Adresse client']?`<div class="cmd-coords">📍 ${f['Adresse client']}</div>`:''}
+          ${f['Téléphone client']?`<div class="cmd-coords">📞 ${f['Téléphone client']}</div>`:''}
         </div>
-        <div class="cmd-label" style="margin-bottom:6px">Plats (cliquez pour détails)</div>
-        <div class="cmd-plats-tags">${plats.map(p=>`<span class="ptag" onclick="voirIngredients('${p.replace(/'/g,"\\'")}',4)">${p}</span>`).join('')}</div>
-        <div class="assign-row">
-          <span style="font-size:13px;color:var(--txl)">Assigner à :</span>
-          <select class="assign-select" id="sel-${cmd.id}">${salaries.map(s=>`<option value="${s.fields['Nom']||''}" ${assigneActuel===s.fields['Nom']?'selected':''}>${s.fields['Nom']||''}</option>`).join('')}<option value="" ${!assigneActuel?'selected':''}>-- Non assigné --</option></select>
-          <button class="btn-sm" onclick="assigner('${cmd.id}')">Enregistrer</button>
-          <button class="btn-sm outline" onclick="supprimerCommande('${cmd.id}')">Supprimer</button>
+        <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-end">
+          <button class="edit-cmd-btn" onclick="ouvrirModifCommande('${c.id}')">✏️ Modifier</button>
+          <button class="del-btn" onclick="supprimerCommande('${c.id}')">🗑️</button>
         </div>
-      </div>`;
-    }).join('')}</div>`;
-  }catch(e){showToast('Erreur: '+e.message,'err')}
-  hideLoad();
-}
- 
-async function assigner(id){
-  const nom=document.getElementById('sel-'+id).value;
-  try{
-    await patchRecord('Commandes',id,{'Assigné à':nom||null});
-    showToast(nom?`Assigné à ${nom} !`:'Assignation retirée','ok');
-    const card=document.getElementById('cmd-'+id);
-    card.querySelector('.cmd-card-top > div:last-child .cmd-val').innerHTML=nom||'<span style="color:var(--txl)">Non assigné</span>';
-  }catch(e){showToast('Erreur','err')}
-}
- 
-async function supprimerCommande(id){
-  if(!confirm('Supprimer cette commande ?'))return;
-  try{
-    await deleteRecord('Commandes',id);
-    showToast('Commande supprimée','ok');
-    chargerPlanning();
-  }catch(e){showToast('Erreur','err')}
-}
- 
-// ===== INGREDIENTS MODAL =====
-async function voirIngredients(nomPlat,portions){
-  document.getElementById('mcont').innerHTML='<div style="padding:30px;text-align:center"><div class="spin" style="margin:0 auto"></div></div>';
-  document.getElementById('mbg').classList.add('show');
-  const ings=riRecs.filter(r=>(r.fields['Nom ligne']||'').startsWith(nomPlat));
-  const platRec=recettes.find(r=>r.fields['Nom du plat']===nomPlat);
-  const pf=platRec?platRec.fields:{};
-  const ingRecs=await fetchAll('Ingr%C3%A9dients');
-  const ingCache={};
-  ingRecs.forEach(r=>{const n=r.fields['Nom ingrédient']||'';if(n)ingCache[n]=r.fields['Rayon']||'Autres'});
-  document.getElementById('mcont').innerHTML=`
-    ${pf['Photo']&&pf['Photo'][0]?`<img src="${pf['Photo'][0].url}" style="width:100%;height:175px;object-fit:cover">`:`<div class="mph">🍽️</div>`}
-    <div class="mbody">
-      <div class="mtit">${nomPlat}</div>
-      <div style="font-size:12px;color:var(--txl);margin-bottom:12px">Pour ${portions} portions</div>
-      ${pf['Instructions préparation']?`<div class="mstit">👩‍🍳 Préparation</div><div class="prep-box">${pf['Instructions préparation']}</div>`:''}
-      ${ings.length?`<div class="mstit">🥕 Ingrédients</div><ul class="ing-list">${ings.map(r=>{
-        const nl=r.fields['Nom ligne']||'';
-        const nom=nl.includes(' - ')?nl.split(' - ').slice(1).join(' - '):'–';
-        const qte=(r.fields['Quantité par portion']||0)*portions;
-        const uR=r.fields['Unité par défaut'];const u=Array.isArray(uR)?uR[0]:(uR||'');
-        const uF=u&&u!=='Unité par défaut'?u:'';
-        return`<li><span>${nom}<span style="font-size:10px;color:var(--txl);margin-left:4px">(${ingCache[nom]||''})</span></span><span style="color:var(--txl)">${qte>0?(Number.isInteger(qte)?qte:qte.toFixed(2))+(uF?' '+uF:''):'–'}</span></li>`;
-      }).join('')}</ul>`:''}
-      ${pf['Instructions réchauffage']?`<div class="mstit">♨️ Réchauffage</div><div class="rec-box">${pf['Instructions réchauffage']}</div>`:''}
-      <button class="mclose" onclick="document.getElementById('mbg').classList.remove('show')">Fermer</button>
+      </div>
+      <div class="cmd-plats">${plats.map(p=>`<span class="plat-chip" onclick="voirIngredients('${encodeURIComponent(p)}',${f['Nb portions']||4})">${p}</span>`).join('')}</div>
+      <div class="cmd-assign">
+        <span style="font-size:12px;color:var(--txl)">Assigné à :</span>
+        <select class="assign-sel" id="asel-${c.id}" onchange="assignerSalarie('${c.id}',this.value)">${salOpts}</select>
+      </div>
     </div>`;
-}
+  }).join(''):`<div style="text-align:center;padding:40px;color:var(--txl)">Aucune commande cette semaine</div>`;
  
-// ===== CALENDRIER =====
-function initCalendrier(){
-  const sel=document.getElementById('calMoisSel');
-  if(sel.options.length)return;
-  const now=new Date();
-  for(let i=-2;i<6;i++){
-    const d=new Date(now.getFullYear(),now.getMonth()+i,1);
-    const opt=document.createElement('option');
-    opt.value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
-    opt.textContent=d.toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
-    if(i===0)opt.selected=true;
-    sel.appendChild(opt);
-  }
-  renderCalSemaine();
-}
- 
-function setCalView(v){
-  calView=v;
-  document.getElementById('btnSem').style.background=v==='semaine'?'var(--bgd)':'var(--vert)';
-  document.getElementById('btnSem').style.color=v==='semaine'?'var(--tx)':'#fff';
-  document.getElementById('btnMois').style.background=v==='mois'?'var(--bgd)':'var(--vert)';
-  document.getElementById('btnMois').style.color=v==='mois'?'var(--tx)':'#fff';
-  if(v==='semaine')renderCalSemaine();else renderCalMois();
-}
- 
-function renderCalMois(){
-  const val=document.getElementById('calMoisSel').value;
-  const [y,m]=val.split('-').map(Number);
-  const premier=new Date(y,m-1,1);const dernier=new Date(y,m,0);
-  const today=new Date();
-  let dow=premier.getDay();if(dow===0)dow=7;
-  const jours=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
-  let html=`<div class="cal-mois">`;
-  jours.forEach(j=>{html+=`<div class="cmh">${j}</div>`});
-  for(let i=1;i<dow;i++)html+=`<div class="cmd autre"></div>`;
-  for(let d=1;d<=dernier.getDate();d++){
-    const isT=today.getFullYear()===y&&today.getMonth()===m-1&&today.getDate()===d;
-    const cmdsJ=allCommandes.filter(c=>{
-      const cren=c.fields['Créneau']||'';const sem=c.fields['Semaine du']||'';
-      if(!sem)return false;
-      const[sy,sm,sd]=sem.split('-').map(Number);
-      for(let i=0;i<5;i++){const jd=new Date(sy,sm-1,sd+i);if(jd.getFullYear()===y&&jd.getMonth()===m-1&&jd.getDate()===d){const jl=jd.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});return cren.startsWith(jl)}}
-      return false;
-    });
-    html+=`<div class="cmd ${isT?'today':''}"><div class="cmd-num">${d}</div>${cmdsJ.map(c=>`<div class="cmd-ev">${c.fields['Client']||'?'}</div>`).join('')}</div>`;
-  }
-  html+=`</div>`;
-  document.getElementById('calDiv').innerHTML=html;
-}
- 
-function renderCalSemaine(){
-  const semId=document.getElementById('semSelect').value;
-  const[y,m,d]=semId.split('-').map(Number);
-  const cmdSem=allCommandes.filter(c=>(c.fields['Semaine du']||'').includes(semId));
-  document.getElementById('calDiv').innerHTML=`<div class="cal-semaine">${JOURS.map(j=>{
-    const jd=new Date(y,m-1,d+JMAP[j]);
-    const jl=jd.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
-    return`<div class="cal-jour">
-      <div class="cal-jour-header">${j}<span>${jd.toLocaleDateString('fr-FR',{day:'numeric',month:'short'})}</span></div>
-      ${HEURES.map(h=>{
-        const lbl=`${jl} · ${h}`;
-        const cmd=cmdSem.find(c=>(c.fields['Créneau']||'').trim()===lbl.trim());
-        if(cmd)return`<div class="cal-slot"><div class="cal-slot-heure">${h}</div><div style="font-size:11px;font-weight:500">${cmd.fields['Client']||''}</div><div style="font-size:10px;color:var(--txl)">${cmd.fields['Assigné à']||'Non assigné'}</div></div>`;
-        return`<div class="cal-slot vide">${h} — Libre</div>`;
-      }).join('')}
-    </div>`;
-  }).join('')}</div>`;
-}
- 
-// ===== RECETTES =====
-async function chargerPlats(){
-  const actifs=recettes.filter(r=>r.fields['Active ?']).length;
-  document.getElementById('platsCount').textContent=`${actifs} actif${actifs>1?'s':''} / ${recettes.length}`;
-  const grid=document.getElementById('platsGrid');
-  grid.innerHTML='';
-  recettes.forEach(rec=>{
-    const f=rec.fields;const actif=!!f['Active ?'];
-    const img=f['Photo']&&f['Photo'][0]?f['Photo'][0].url:null;
-    const card=document.createElement('div');
-    card.className='plat-card';card.style.opacity=actif?'1':'0.55';
-    card.innerHTML=`
-      ${img?`<img class="plat-img" src="${img}" alt="${f['Nom du plat']||''}">`:`<div class="plat-ph">🍽️</div>`}
-      <div class="plat-info">
-        <div class="plat-nom">${f['Nom du plat']||''}</div>
-        <div class="plat-cat">${f['Catégorie']||''} · Frigo: ${f['Frigo en jours']||0}j</div>
-        <div class="toggle-wrap">
-          <span class="toggle-lbl" id="lbl-${rec.id}">${actif?'<b style="color:var(--vert)">Actif</b>':'Inactif'}</span>
-          <label class="toggle"><input type="checkbox" ${actif?'checked':''} onchange="togglePlat('${rec.id}',this.checked,this)"><span class="toggle-slider"></span></label>
-        </div>
-        <div class="plat-btns">
-          <button class="btn-sm outline" style="flex:1;font-size:11px" onclick="ouvrirFormRecette('${rec.id}')">✏️ Modifier</button>
-        </div>
-      </div>`;
-    grid.appendChild(card);
+  showContent(`<div class="card">
+    <div class="card-tit">📅 Planning de la semaine</div>
+    <div class="semaine-nav">
+      <button class="snav-btn" onclick="changerSemaine(-1)">◀</button>
+      <div class="snav-label">${semaineLabel(curOffset)}</div>
+      <button class="snav-btn" onclick="changerSemaine(1)">▶</button>
+      ${curOffset!==0?`<button class="snav-btn" onclick="changerSemaine(${-curOffset})" title="Aujourd'hui">◎</button>`:''}
+    </div>
+    <div style="font-size:12px;color:var(--txl);margin-bottom:12px">${cmdSem.length} commande(s)</div>
+    ${cmdsHtml}
+  </div>`);
+  cmdSem.forEach(c=>{
+    const sel=document.getElementById(`asel-${c.id}`);
+    if(sel&&c.fields['Assigné à'])sel.value=c.fields['Assigné à'];
   });
 }
  
-async function togglePlat(id,actif,input){
-  input.disabled=true;
-  const card=input.closest('.plat-card');
-  try{
-    await patchRecord('Recettes',id,{'Active ?':actif});
-    card.style.opacity=actif?'1':'0.55';
-    document.getElementById('lbl-'+id).innerHTML=actif?'<b style="color:var(--vert)">Actif</b>':'Inactif';
-    showToast(actif?'Plat activé !':'Plat désactivé','ok');
-    const actifs=recettes.filter((r,i)=>{if(r.id===id)recettes[i].fields['Active ?']=actif;return recettes[i].fields['Active ?']}).length;
-    document.getElementById('platsCount').textContent=`${actifs} actif${actifs>1?'s':''} / ${recettes.length}`;
-  }catch(e){input.checked=!actif;showToast('Erreur','err')}
-  input.disabled=false;
+function changerSemaine(delta){curOffset+=delta;renderPlanning()}
+ 
+async function supprimerCommande(id){
+  if(!confirm('Supprimer cette commande ?'))return;
+  await deleteRecord('Commandes',id);
+  DATA.commandes=DATA.commandes.filter(c=>c.id!==id);
+  toast('Commande supprimée');renderPlanning();
 }
  
-function ouvrirFormRecette(id){
-  const rec=id?recettes.find(r=>r.id===id):null;
-  const f=rec?rec.fields:{};
-  document.getElementById('mcont').innerHTML=`
-    <div class="mbody">
-      <div class="mtit">${id?'Modifier':'Nouvelle'} recette</div>
-      <div class="fg"><label>Nom du plat *</label><input id="r-nom" value="${f['Nom du plat']||''}"></div>
-      <div class="fgrid">
-        <div class="fg"><label>Catégorie</label><select id="r-cat"><option ${f['Catégorie']==='Végé'?'selected':''}>Végé</option><option ${f['Catégorie']==='Viande'?'selected':''}>Viande</option><option ${f['Catégorie']==='Poisson'?'selected':''}>Poisson</option><option ${f['Catégorie']==='Poulet'?'selected':''}>Poulet</option><option ${f['Catégorie']==='Cuisine du monde'?'selected':''}>Cuisine du monde</option></select></div>
-        <div class="fg"><label>Frigo (jours)</label><input type="number" id="r-frigo" value="${f['Frigo en jours']||3}"></div>
-      </div>
-      <div class="fg"><label>Instructions préparation</label><textarea id="r-prep">${f['Instructions préparation']||''}</textarea></div>
-      <div class="fg"><label>Instructions réchauffage</label><textarea id="r-rech">${f['Instructions réchauffage']||''}</textarea></div>
-      <div class="fg"><label>Conservation</label><textarea id="r-cons" style="min-height:60px">${f['Conservation']||''}</textarea></div>
-      <div class="fg"><label>Congélation</label><textarea id="r-cong" style="min-height:60px">${f['Congélation']||''}</textarea></div>
-      <div style="display:flex;gap:8px">
-        <button class="btn-sm" style="flex:1" onclick="sauvegarderRecette('${id||''}')">💾 Enregistrer</button>
-        <button class="mclose" style="width:auto;flex:1" onclick="document.getElementById('mbg').classList.remove('show')">Annuler</button>
-      </div>
-    </div>`;
-  document.getElementById('mbg').classList.add('show');
+async function assignerSalarie(cmdId,nom){
+  await patchRecord('Commandes',cmdId,{'Assigné à':nom});
+  const cmd=DATA.commandes.find(c=>c.id===cmdId);
+  if(cmd)cmd.fields['Assigné à']=nom;
+  toast('Assignation enregistrée');
 }
  
-async function sauvegarderRecette(id){
-  const nom=document.getElementById('r-nom').value.trim();
-  if(!nom){showToast('Le nom est obligatoire','err');return}
+// ===== MODIFIER COMMANDE =====
+function ouvrirModifCommande(id){
+  const cmd=DATA.commandes.find(c=>c.id===id);
+  if(!cmd)return;
+  const f=cmd.fields;
+  document.getElementById('cmdId').value=id;
+ 
+  const cliSel=document.getElementById('cmdClient');
+  cliSel.innerHTML=DATA.clients.map(c=>`<option value="${c.fields['Nom']||''}">${c.fields['Nom']||'–'}</option>`).join('');
+  cliSel.value=f['Client']||'';
+ 
+  document.getElementById('cmdCreneau').value=f['Créneau']||'Lundi matin';
+ 
+  const semDate=(f['Semaine du']||'').match(/\d{4}-\d{2}-\d{2}/)?.[0]||getMonday(0);
+  document.getElementById('cmdSemaine').value=semDate;
+ 
+  const salSel=document.getElementById('cmdSalarie');
+  salSel.innerHTML=`<option value="">Non assigné</option>`+DATA.salaries.map(s=>`<option value="${s.fields['Nom']||''}">${s.fields['Nom']||'–'}</option>`).join('');
+  salSel.value=f['Assigné à']||'';
+ 
+  document.getElementById('cmdPortions').value=f['Nb portions']||4;
+ 
+  const selPlats=[f['Plat 1'],f['Plat 2'],f['Plat 3'],f['Plat 4'],f['Plat 5']].map(resolveNom).filter(Boolean);
+  const platsActifs=DATA.recettes.filter(r=>r.fields['Active ?']);
+  document.getElementById('platSelectGrid').innerHTML=platsActifs.map(r=>{
+    const nom=r.fields['Nom du plat'];
+    return`<div class="plat-opt${selPlats.includes(nom)?' selected':''}" onclick="togglePlatSel(this)">${nom}</div>`;
+  }).join('');
+ 
+  openModal('modalCommande');
+}
+ 
+function togglePlatSel(el){
+  const grid=document.getElementById('platSelectGrid');
+  if(el.classList.contains('selected')){el.classList.remove('selected');}
+  else{
+    if(grid.querySelectorAll('.plat-opt.selected').length>=5){toast('Maximum 5 plats');return;}
+    el.classList.add('selected');
+  }
+}
+ 
+async function saveCommande(){
+  const id=document.getElementById('cmdId').value;if(!id)return;
+  const selPlats=[...document.getElementById('platSelectGrid').querySelectorAll('.plat-opt.selected')].map(el=>el.textContent.trim());
+  const semDate=document.getElementById('cmdSemaine').value;
   const fields={
-    'Nom du plat':nom,
-    'Catégorie':document.getElementById('r-cat').value,
-    'Frigo en jours':parseInt(document.getElementById('r-frigo').value)||3,
-    'Instructions préparation':document.getElementById('r-prep').value,
-    'Instructions réchauffage':document.getElementById('r-rech').value,
-    'Conservation':document.getElementById('r-cons').value,
-    'Congélation':document.getElementById('r-cong').value,
+    'Client':document.getElementById('cmdClient').value,
+    'Créneau':document.getElementById('cmdCreneau').value,
+    'Semaine du':semDate?`Semaine du ${semDate}`:`Semaine du ${getMonday(0)}`,
+    'Assigné à':document.getElementById('cmdSalarie').value,
+    'Nb portions':parseInt(document.getElementById('cmdPortions').value)||4,
+    'Plat 1':selPlats[0]||'','Plat 2':selPlats[1]||'','Plat 3':selPlats[2]||'','Plat 4':selPlats[3]||'','Plat 5':selPlats[4]||'',
   };
-  showLoad('Enregistrement...');
-  try{
-    if(id){
-      await patchRecord('Recettes',id,fields);
-      const idx=recettes.findIndex(r=>r.id===id);
-      if(idx>=0)recettes[idx].fields={...recettes[idx].fields,...fields};
-    }else{
-      const d=await createRecord('Recettes',fields);
-      if(d.id)recettes.push(d);
+  await patchRecord('Commandes',id,fields);
+  const cmd=DATA.commandes.find(c=>c.id===id);
+  if(cmd)Object.assign(cmd.fields,fields);
+  toast('✅ Commande modifiée !');
+  closeModal('modalCommande');renderPlanning();
+}
+ 
+// ===== VOIR INGRÉDIENTS (planning) =====
+async function voirIngredients(nomEnc,portions){
+  const nomPlat=decodeURIComponent(nomEnc);
+  const recRec=DATA.recettes.find(r=>r.fields['Nom du plat']===nomPlat);
+  const pf=recRec?.fields||{};
+  const ings=DATA.ri.filter(r=>(r.fields['Nom ligne']||'').startsWith(nomPlat));
+  const ingsHtml=ings.length?`<ul style="list-style:none;padding:0">${ings.map(r=>{
+    const nl=r.fields['Nom ligne']||'';
+    const nom=nl.includes(' - ')?nl.split(' - ').slice(1).join(' - '):'';
+    const qte=r.fields['Quantité par portion']||0;
+    const uRaw=r.fields['Unité par défaut'];
+    const u=Array.isArray(uRaw)?uRaw[0]:(uRaw||'');
+    const total=(qte*portions).toFixed(1).replace('.0','');
+    return`<li style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bgd);font-size:13px">
+      <span>${nom}</span><span style="font-weight:500;color:var(--vert)">${total} ${u!=='Unité par défaut'?u:''}</span>
+    </li>`;
+  }).join('')}</ul>`:`<p style="color:var(--txl);font-size:13px;padding:10px 0">Aucun ingrédient — modifiez la recette pour en ajouter.</p>`;
+ 
+  const prepHtml=pf['Instructions préparation']?`<div style="background:#fff8e7;border-left:3px solid #f9c74f;border-radius:10px;padding:13px 15px;margin-bottom:14px">
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#6b6b6b;margin-bottom:6px">👩‍🍳 Préparation</div>
+    <div style="font-size:13px;line-height:1.6">${pf['Instructions préparation']}</div></div>`:' ';
+ 
+  document.getElementById('modalIngTit').textContent=nomPlat;
+  document.getElementById('modalIngBody').innerHTML=`
+    <p style="font-size:12px;color:var(--txl);margin-bottom:12px">Pour ${portions} portions</p>
+    ${prepHtml}${ingsHtml}
+    ${pf['Instructions réchauffage']?`<div style="margin-top:14px;padding:10px;background:var(--vp);border-radius:8px;font-size:12px"><strong>🔥 Réchauffage :</strong> ${pf['Instructions réchauffage']}</div>`:''}
+    ${pf['Conservation']?`<div style="margin-top:8px;font-size:12px;color:var(--txl)">❄️ Conservation : ${pf['Conservation']}</div>`:''}
+    ${pf['Congélation']?`<div style="margin-top:4px;font-size:12px;color:var(--txl)">🧊 Congélation : ${pf['Congélation']}</div>`:''}`;
+  openModal('modalIng');
+}
+ 
+// ===== CALENDRIER =====
+function renderCalendrier(){
+  const jours=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+  const now=new Date();const y=now.getFullYear(),m=now.getMonth();
+  const first=new Date(y,m,1),last=new Date(y,m+1,0);
+  const startDay=(first.getDay()+6)%7;
+  let cells=[];for(let i=0;i<startDay;i++)cells.push('');for(let d=1;d<=last.getDate();d++)cells.push(d);
+  const todayStr=`${y}-${String(m+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  const moisNoms=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  const grid=cells.map(d=>{
+    if(!d)return`<div></div>`;
+    const iso=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dayStr=jours[(new Date(iso).getDay()+6)%7].toLowerCase();
+    const cmds=DATA.commandes.filter(c=>{const sem=c.fields['Semaine du']||'';const cren=(c.fields['Créneau']||'').toLowerCase();return sem.includes(iso.slice(0,7))&&cren.includes(dayStr);});
+    return`<div class="cal-day${cmds.length?' has-cmd':''}${iso===todayStr?' today':''}">
+      <div class="cal-day-num">${d}</div>
+      ${cmds.slice(0,3).map(c=>`<div class="cal-event">${c.fields['Client']||'–'}</div>`).join('')}
+      ${cmds.length>3?`<div style="font-size:9px;color:var(--txl)">+${cmds.length-3}</div>`:''}
+    </div>`;
+  }).join('');
+  showContent(`<div class="card"><div class="card-tit">🗓️ ${moisNoms[m]} ${y}</div>
+    <div class="cal-head-row">${jours.map(j=>`<div class="cal-dh">${j}</div>`).join('')}</div>
+    <div class="cal-grid">${grid}</div></div>`);
+}
+ 
+// ===== RECETTES =====
+function renderRecettes(){
+  const rows=DATA.recettes.map(r=>{
+    const f=r.fields;const actif=!!f['Active ?'];
+    const nbIngs=DATA.ri.filter(x=>(x.fields['Nom ligne']||'').startsWith(f['Nom du plat']||'')).length;
+    return`<tr>
+      <td><strong>${f['Nom du plat']||'–'}</strong></td>
+      <td>${f['Catégorie']||'–'}</td>
+      <td><span style="font-size:12px;color:var(--txl)">${nbIngs} ingr.</span></td>
+      <td><button class="toggle-btn ${actif?'toggle-on':'toggle-off'}" onclick="toggleRecette('${r.id}',${actif})">${actif?'✓ Actif':'✗ Inactif'}</button></td>
+      <td><button class="btn-edit" onclick="editerRecette('${r.id}')">✏️ Modifier</button></td>
+    </tr>`;
+  }).join('');
+  showContent(`<div class="card"><div class="card-tit">🍽️ Recettes (${DATA.recettes.length})</div>
+    <button class="btn-add" onclick="nouvelleRecette()">+ Nouvelle recette</button>
+    <div style="overflow-x:auto"><table class="data-table">
+      <thead><tr><th>Nom</th><th>Catégorie</th><th>Ingr.</th><th>Statut</th><th>Action</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div></div>`);
+}
+ 
+async function toggleRecette(id,actif){
+  await patchRecord('Recettes',id,{'Active ?':!actif});
+  const rec=DATA.recettes.find(r=>r.id===id);
+  if(rec)rec.fields['Active ?']=!actif;
+  toast(actif?'Recette désactivée':'Recette activée');renderRecettes();
+}
+ 
+// INGRÉDIENTS BUFFER
+function renderIngRows(){
+  const cont=document.getElementById('ingRows');
+  const visible=ingBuffer.filter(i=>!i.toDelete);
+  cont.innerHTML=visible.map((ing,vi)=>{
+    const bi=ingBuffer.indexOf(ing);
+    return`<div class="ing-row">
+      <input type="text" placeholder="Ingrédient" value="${ing.nom.replace(/"/g,'&quot;')}" oninput="ingBuffer[${bi}].nom=this.value">
+      <input type="number" placeholder="Qté" value="${ing.qte||''}" step="0.1" min="0" oninput="ingBuffer[${bi}].qte=parseFloat(this.value)||0">
+      <input type="text" placeholder="g / mL / u..." value="${ing.unite.replace(/"/g,'&quot;')}" oninput="ingBuffer[${bi}].unite=this.value">
+      <button class="ing-del" onclick="supprimerIngRow(${bi})">✕</button>
+    </div>`;
+  }).join('');
+}
+ 
+function ajouterIngRow(){
+  ingBuffer.push({id:null,nom:'',qte:0,unite:'',isNew:true,toDelete:false});
+  renderIngRows();
+}
+function supprimerIngRow(bi){
+  if(ingBuffer[bi].id){ingBuffer[bi].toDelete=true;}
+  else{ingBuffer.splice(bi,1);}
+  renderIngRows();
+}
+ 
+function nouvelleRecette(){
+  document.getElementById('rId').value='';
+  ['rNom','rConservation','rPrep','rRechauffage','rCongelation'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('rCat').value='Légumes';
+  document.getElementById('rFrigo').value='5';
+  document.getElementById('modalRecTit').textContent='Nouvelle recette';
+  ingBuffer=[];renderIngRows();openModal('modalRecette');
+}
+ 
+function editerRecette(id){
+  const rec=DATA.recettes.find(r=>r.id===id);if(!rec)return;
+  const f=rec.fields;
+  document.getElementById('rId').value=id;
+  document.getElementById('rNom').value=f['Nom du plat']||'';
+  document.getElementById('rCat').value=f['Catégorie']||'Légumes';
+  document.getElementById('rFrigo').value=f['Frigo en jours']||5;
+  document.getElementById('rConservation').value=f['Conservation']||'';
+  document.getElementById('rPrep').value=f['Instructions préparation']||'';
+  document.getElementById('rRechauffage').value=f['Instructions réchauffage']||'';
+  document.getElementById('rCongelation').value=f['Congélation']||'';
+  document.getElementById('modalRecTit').textContent='Modifier recette';
+  const nomPlat=f['Nom du plat']||'';
+  ingBuffer=DATA.ri.filter(r=>(r.fields['Nom ligne']||'').startsWith(nomPlat)).map(r=>{
+    const nl=r.fields['Nom ligne']||'';
+    const nom=nl.includes(' - ')?nl.split(' - ').slice(1).join(' - '):'';
+    const uRaw=r.fields['Unité par défaut'];const u=Array.isArray(uRaw)?uRaw[0]:(uRaw||'');
+    return{id:r.id,nom,qte:r.fields['Quantité par portion']||0,unite:u==='Unité par défaut'?'':u,isNew:false,toDelete:false};
+  });
+  renderIngRows();openModal('modalRecette');
+}
+ 
+async function saveRecette(){
+  const id=document.getElementById('rId').value;
+  const nomPlat=document.getElementById('rNom').value.trim();
+  if(!nomPlat){toast('Le nom est obligatoire');return;}
+  const fields={'Nom du plat':nomPlat,'Catégorie':document.getElementById('rCat').value,'Frigo en jours':parseInt(document.getElementById('rFrigo').value)||5,'Conservation':document.getElementById('rConservation').value,'Instructions préparation':document.getElementById('rPrep').value,'Instructions réchauffage':document.getElementById('rRechauffage').value,'Congélation':document.getElementById('rCongelation').value};
+  if(id){
+    await patchRecord('Recettes',id,fields);
+    const rec=DATA.recettes.find(r=>r.id===id);if(rec)Object.assign(rec.fields,fields);
+  }else{
+    const res=await createRecord('Recettes',fields);DATA.recettes.push(res);
+  }
+  // Sync ingrédients
+  for(const ing of ingBuffer){
+    if(ing.toDelete&&ing.id){
+      await deleteRecord('Recettes_Ingr%C3%A9dients',ing.id);
+      DATA.ri=DATA.ri.filter(r=>r.id!==ing.id);
+    }else if(ing.isNew&&!ing.toDelete&&ing.nom.trim()){
+      const iF={'Nom ligne':`${nomPlat} - ${ing.nom.trim()}`,'Quantité par portion':ing.qte||0,'Unité par défaut':ing.unite||''};
+      const res=await createRecord('Recettes_Ingr%C3%A9dients',iF);DATA.ri.push(res);
+    }else if(!ing.isNew&&!ing.toDelete&&ing.id&&ing.nom.trim()){
+      const iF={'Nom ligne':`${nomPlat} - ${ing.nom.trim()}`,'Quantité par portion':ing.qte||0,'Unité par défaut':ing.unite||''};
+      await patchRecord('Recettes_Ingr%C3%A9dients',ing.id,iF);
+      const ri=DATA.ri.find(r=>r.id===ing.id);if(ri)Object.assign(ri.fields,iF);
     }
-    hideLoad();
-    document.getElementById('mbg').classList.remove('show');
-    showToast('Recette enregistrée !','ok');
-    chargerPlats();
-  }catch(e){hideLoad();showToast('Erreur: '+e.message,'err')}
+  }
+  toast('✅ Recette et ingrédients enregistrés !');
+  closeModal('modalRecette');renderRecettes();
 }
  
 // ===== CLIENTS =====
-async function chargerClients(){
-  showLoad('Chargement clients...');
-  try{
-    const clients=await fetchAll('Clients','sort%5B0%5D%5Bfield%5D=Nom&sort%5B0%5D%5Bdirection%5D=asc');
-    const cols='1fr 1fr 1fr 1fr 80px';
-    document.getElementById('clientsDiv').innerHTML=`
-      <div class="data-table">
-        <div class="dt-header" style="grid-template-columns:${cols}"><div>Nom</div><div>Email</div><div>Téléphone</div><div>Adresse</div><div>Actions</div></div>
-        ${clients.map(c=>{
-          const f=c.fields;
-          return`<div class="dt-row" style="grid-template-columns:${cols}">
-            <div class="dt-val bold">${f['Nom']||'–'}</div>
-            <div class="dt-val">${f['E-mail']||'–'}</div>
-            <div class="dt-val">${f['Téléphone']||'–'}</div>
-            <div class="dt-val" style="font-size:12px">${f['Adresse']||'–'}</div>
-            <div class="dt-actions"><button class="btn-sm outline" style="font-size:11px;padding:5px 9px" onclick="ouvrirFormClient('${c.id}')">✏️</button></div>
-          </div>`;
-        }).join('')}
-      </div>
-      <button class="btn-sm outline" onclick="ouvrirFormClient(null)">+ Nouveau client</button>`;
-  }catch(e){showToast('Erreur','err')}
-  hideLoad();
+function renderClients(){
+  const rows=DATA.clients.map(c=>{const f=c.fields;return`<tr>
+    <td><strong>${f['Nom']||'–'}</strong></td><td>${f['E-mail']||'–'}</td>
+    <td>${f['Téléphone']||'–'}</td><td>${f['Adresse']||'–'}</td>
+    <td><button class="btn-edit" onclick="editerClient('${c.id}')">✏️</button></td>
+  </tr>`;}).join('');
+  showContent(`<div class="card"><div class="card-tit">👥 Clients (${DATA.clients.length})</div>
+    <button class="btn-add" onclick="nouveauClient()">+ Nouveau client</button>
+    <div style="overflow-x:auto"><table class="data-table">
+      <thead><tr><th>Nom</th><th>Email</th><th>Téléphone</th><th>Adresse</th><th>Action</th></tr></thead>
+      <tbody>${rows}</tbody></table></div></div>`);
+}
+function nouveauClient(){['cId','cNom','cEmail','cTel','cMdp','cAdresse'].forEach(id=>document.getElementById(id).value='');document.getElementById('modalCliTit').textContent='Nouveau client';openModal('modalClient');}
+function editerClient(id){
+  const cli=DATA.clients.find(c=>c.id===id);if(!cli)return;const f=cli.fields;
+  document.getElementById('cId').value=id;document.getElementById('cNom').value=f['Nom']||'';
+  document.getElementById('cEmail').value=f['E-mail']||'';document.getElementById('cTel').value=f['Téléphone']||'';
+  document.getElementById('cMdp').value=f['Mot de passe']||'';document.getElementById('cAdresse').value=f['Adresse']||'';
+  document.getElementById('modalCliTit').textContent='Modifier client';openModal('modalClient');
+}
+async function saveClient(){
+  const id=document.getElementById('cId').value;
+  const fields={'Nom':document.getElementById('cNom').value,'E-mail':document.getElementById('cEmail').value,'Téléphone':document.getElementById('cTel').value,'Mot de passe':document.getElementById('cMdp').value,'Adresse':document.getElementById('cAdresse').value};
+  if(id){await patchRecord('Clients',id,fields);const cli=DATA.clients.find(c=>c.id===id);if(cli)Object.assign(cli.fields,fields);toast('Client modifié');}
+  else{const res=await createRecord('Clients',fields);DATA.clients.push(res);toast('Client créé');}
+  closeModal('modalClient');renderClients();
 }
  
-function ouvrirFormClient(id){
-  const fetchAndShow=async()=>{
-    let f={};
-    if(id){const clients=await fetchAll('Clients');const rec=clients.find(c=>c.id===id);f=rec?rec.fields:{}}
-    document.getElementById('mcont').innerHTML=`
-      <div class="mbody">
-        <div class="mtit">${id?'Modifier':'Nouveau'} client</div>
-        <div class="fgrid">
-          <div class="fg"><label>Nom *</label><input id="cl-nom" value="${f['Nom']||''}"></div>
-          <div class="fg"><label>Email</label><input type="email" id="cl-email" value="${f['E-mail']||''}"></div>
-        </div>
-        <div class="fgrid">
-          <div class="fg"><label>Téléphone</label><input id="cl-tel" value="${f['Téléphone']||''}"></div>
-          <div class="fg"><label>Mot de passe portail</label><input id="cl-mdp" value="${f['MOT DE PASSE']||''}"></div>
-        </div>
-        <div class="fg"><label>Adresse</label><input id="cl-adr" value="${f['Adresse']||''}"></div>
-        <div style="display:flex;gap:8px">
-          <button class="btn-sm" style="flex:1" onclick="sauvegarderClient('${id||''}')">💾 Enregistrer</button>
-          <button class="mclose" style="width:auto;flex:1" onclick="document.getElementById('mbg').classList.remove('show')">Annuler</button>
-        </div>
-      </div>`;
-    document.getElementById('mbg').classList.add('show');
-  };
-  fetchAndShow();
+// ===== SALARIÉS =====
+function renderSalaries(){
+  const rows=DATA.salaries.map(s=>{const f=s.fields;return`<tr>
+    <td><strong>${f['Nom']||'–'}</strong></td><td>${f['Email']||f['E-mail']||'–'}</td>
+    <td>${f['Téléphone']||'–'}</td><td><button class="btn-edit" onclick="editerSalarie('${s.id}')">✏️</button></td>
+  </tr>`;}).join('');
+  showContent(`<div class="card"><div class="card-tit">👷 Salariés (${DATA.salaries.length})</div>
+    <button class="btn-add" onclick="nouveauSalarie()">+ Nouveau salarié</button>
+    <table class="data-table"><thead><tr><th>Nom</th><th>Email</th><th>Téléphone</th><th>Action</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>`);
+}
+function nouveauSalarie(){['sId','sNom','sEmail','sTel','sMdp'].forEach(id=>document.getElementById(id).value='');document.getElementById('modalSalTit').textContent='Nouveau salarié';openModal('modalSalarie');}
+function editerSalarie(id){
+  const sal=DATA.salaries.find(s=>s.id===id);if(!sal)return;const f=sal.fields;
+  document.getElementById('sId').value=id;document.getElementById('sNom').value=f['Nom']||'';
+  document.getElementById('sEmail').value=f['Email']||f['E-mail']||'';document.getElementById('sTel').value=f['Téléphone']||'';
+  document.getElementById('sMdp').value=f['Mot de passe']||'';
+  document.getElementById('modalSalTit').textContent='Modifier salarié';openModal('modalSalarie');
+}
+async function saveSalarie(){
+  const id=document.getElementById('sId').value;
+  const fields={'Nom':document.getElementById('sNom').value,'Email':document.getElementById('sEmail').value,'Téléphone':document.getElementById('sTel').value,'Mot de passe':document.getElementById('sMdp').value};
+  if(id){await patchRecord('Salari%C3%A9s',id,fields);const sal=DATA.salaries.find(s=>s.id===id);if(sal)Object.assign(sal.fields,fields);toast('Salarié modifié');}
+  else{const res=await createRecord('Salari%C3%A9s',fields);DATA.salaries.push(res);toast('Salarié créé');}
+  closeModal('modalSalarie');renderSalaries();
 }
  
-async function sauvegarderClient(id){
-  const nom=document.getElementById('cl-nom').value.trim();
-  if(!nom){showToast('Le nom est obligatoire','err');return}
-  const fields={'Nom':nom,'E-mail':document.getElementById('cl-email').value,'Téléphone':document.getElementById('cl-tel').value,'Adresse':document.getElementById('cl-adr').value,'MOT DE PASSE':document.getElementById('cl-mdp').value};
-  showLoad('Enregistrement...');
-  try{
-    if(id)await patchRecord('Clients',id,fields);
-    else await createRecord('Clients',fields);
-    hideLoad();
-    document.getElementById('mbg').classList.remove('show');
-    showToast('Client enregistré !','ok');
-    chargerClients();
-  }catch(e){hideLoad();showToast('Erreur','err')}
-}
+// ===== CRÉNEAUX =====
+function renderCreneaux(){
+  const joursOrdre=['Lundi','Mardi','Mercredi','Jeudi','Vendredi'];
+  const semaine=getMonday(creneauxOffset);
+  const semLabel=semaineLabel(creneauxOffset);
+  const todayMon=getMonday(0);
+  const isPasse=semaine<todayMon;
  
-// ===== SALARIES =====
-async function chargerSalaries(){
-  showLoad('Chargement salariés...');
-  try{
-    const sals=await fetchAll('Salari%C3%A9s');
-    const cols='1fr 1fr 1fr 80px';
-    document.getElementById('salariesDiv').innerHTML=`
-      <div class="data-table">
-        <div class="dt-header" style="grid-template-columns:${cols}"><div>Nom</div><div>Email</div><div>Mot de passe</div><div>Actions</div></div>
-        ${sals.map(s=>{
-          const f=s.fields;
-          return`<div class="dt-row" style="grid-template-columns:${cols}">
-            <div class="dt-val bold">${f['Nom']||'–'}</div>
-            <div class="dt-val">${f['Email']||f['E-mail']||'–'}</div>
-            <div class="dt-val">${f['Mot de passe']?'••••••':'–'}</div>
-            <div class="dt-actions"><button class="btn-sm outline" style="font-size:11px;padding:5px 9px" onclick="ouvrirFormSalarie('${s.id}')">✏️</button></div>
-          </div>`;
-        }).join('')}
-      </div>
-      <button class="btn-sm outline" onclick="ouvrirFormSalarie(null)">+ Nouveau salarié</button>`;
-  }catch(e){showToast('Erreur','err')}
-  hideLoad();
-}
+  const joursHtml=joursOrdre.map(jour=>{
+    const actif=isCrenActif(semaine,jour);
+    const cmdJ=DATA.commandes.filter(c=>(c.fields['Semaine du']||'').includes(semaine)&&(c.fields['Créneau']||'').toLowerCase().includes(jour.toLowerCase()));
+    return`<div class="creneau-card${actif?' actif':''}${isPasse?' passe':''}">
+      <div class="creneau-day">${jour}</div>
+      <div class="creneau-slots">09h-12h · 13h-16h</div>
+      <div style="font-size:12px;color:var(--txl);margin-bottom:8px">${cmdJ.length} commande(s)</div>
+      ${isPasse
+        ?`<div style="font-size:11px;color:var(--txl);text-align:center">Semaine passée</div>`
+        :`<button class="creneau-toggle ${actif?'ct-on':'ct-off'}" onclick="toggleCreneau('${semaine}','${jour}',${actif})">${actif?'✓ Ouvert':'✗ Fermé'}</button>`
+      }
+    </div>`;
+  }).join('');
  
-function ouvrirFormSalarie(id){
-  const fetchAndShow=async()=>{
-    let f={};
-    if(id){const sals=await fetchAll('Salari%C3%A9s');const rec=sals.find(s=>s.id===id);f=rec?rec.fields:{}}
-    document.getElementById('mcont').innerHTML=`
-      <div class="mbody">
-        <div class="mtit">${id?'Modifier':'Nouveau'} salarié</div>
-        <div class="fg"><label>Nom *</label><input id="sal-nom" value="${f['Nom']||''}"></div>
-        <div class="fg"><label>Email</label><input type="email" id="sal-email" value="${f['Email']||f['E-mail']||''}"></div>
-        <div class="fg"><label>Mot de passe portail</label><input id="sal-mdp" value="${f['Mot de passe']||''}"></div>
-        <div style="display:flex;gap:8px">
-          <button class="btn-sm" style="flex:1" onclick="sauvegarderSalarie('${id||''}')">💾 Enregistrer</button>
-          <button class="mclose" style="width:auto;flex:1" onclick="document.getElementById('mbg').classList.remove('show')">Annuler</button>
-        </div>
-      </div>`;
-    document.getElementById('mbg').classList.add('show');
-  };
-  fetchAndShow();
+  showContent(`<div class="card">
+    <div class="card-tit">🕐 Créneaux disponibles</div>
+    <div class="semaine-nav" style="margin-bottom:14px">
+      <button class="snav-btn" onclick="changerSemaineCreneaux(-1)">◀</button>
+      <div class="snav-label">${semLabel}</div>
+      <button class="snav-btn" onclick="changerSemaineCreneaux(1)">▶</button>
+      ${creneauxOffset!==0?`<button class="snav-btn" onclick="changerSemaineCreneaux(${-creneauxOffset})" title="Semaine en cours">◎</button>`:''}
+    </div>
+    ${isPasse?`<div style="font-size:12px;color:#c62828;margin-bottom:12px;padding:8px 12px;background:#fff5f5;border-radius:8px">⚠️ Semaine passée — modification désactivée</div>`:''}
+    <div class="creneau-grid">${joursHtml}</div>
+    <p style="font-size:11px;color:var(--txl);margin-top:12px">Les créneaux fermés n'apparaissent pas dans le portail client.</p>
+  </div>`);
 }
- 
-async function sauvegarderSalarie(id){
-  const nom=document.getElementById('sal-nom').value.trim();
-  if(!nom){showToast('Le nom est obligatoire','err');return}
-  const fields={'Nom':nom,'Email':document.getElementById('sal-email').value,'Mot de passe':document.getElementById('sal-mdp').value};
-  showLoad('Enregistrement...');
-  try{
-    if(id)await patchRecord('Salari%C3%A9s',id,fields);
-    else await createRecord('Salari%C3%A9s',fields);
-    hideLoad();
-    document.getElementById('mbg').classList.remove('show');
-    showToast('Salarié enregistré !','ok');
-    chargerSalaries();
-    salaries=await fetchAll('Salari%C3%A9s');
-  }catch(e){hideLoad();showToast('Erreur','err')}
-}
+function changerSemaineCreneaux(delta){creneauxOffset+=delta;renderCreneaux()}
+function toggleCreneau(sem,jour,actif){setCrenActif(sem,jour,!actif);toast(actif?`${jour} fermé`:`${jour} ouvert`);renderCreneaux()}
  
 // ===== ARIA =====
-function openAria(){
-  document.getElementById('ariaPanel').classList.add('open');
-  document.getElementById('ariaOverlay').classList.add('show');
-  if(!ariaLoaded)ariaCharger();
-}
-function closeAria(){
-  document.getElementById('ariaPanel').classList.remove('open');
-  document.getElementById('ariaOverlay').classList.remove('show');
-  if(ariaSynth)ariaSynth.cancel();
+function toggleAria(){
+  const p=document.getElementById('ariaPanel');p.classList.toggle('open');
+  if(p.classList.contains('open'))setTimeout(()=>document.getElementById('aInput')?.focus(),350);
 }
  
-function ariaSetStatus(s,speaking=false){
-  document.getElementById('ariaStatus').textContent=s;
-  document.getElementById('ariaAv').className='aria-av'+(speaking?' speaking':'');
+function buildAriaSys(){
+  const now=new Date();const semaine=getMonday(0);
+  const cmdSem=DATA.commandes.filter(c=>(c.fields['Semaine du']||'').includes(semaine));
+  const resolveN=v=>{if(!v)return null;const val=Array.isArray(v)?v[0]:v;if(typeof val==='string'&&!val.startsWith('rec'))return val;return DATA.recettes.find(r=>r.id===val)?.fields['Nom du plat']||null;};
+  const cmdFmt=DATA.commandes.map(c=>{const f=c.fields;return{client:f['Client']||'',semaine:f['Semaine du']||'',creneau:f['Créneau']||'',statut:f['Statut']||'',assigne:f['Assigné à']||'',plats:[f['Plat 1'],f['Plat 2'],f['Plat 3'],f['Plat 4'],f['Plat 5']].map(resolveN).filter(Boolean)};});
+  const recFmt=DATA.recettes.map(r=>{
+    const f=r.fields;
+    const ings=DATA.ri.filter(x=>(x.fields['Nom ligne']||'').startsWith(f['Nom du plat']||'')).map(x=>{
+      const nl=x.fields['Nom ligne']||'';const nom=nl.includes(' - ')?nl.split(' - ').slice(1).join(' - '):'';
+      const q=x.fields['Quantité par portion']||0;const uR=x.fields['Unité par défaut'];const u=Array.isArray(uR)?uR[0]:(uR||'');
+      return`${nom}${q?` (${q}${u&&u!=='Unité par défaut'?' '+u:''})` :''}`;
+    });
+    return{nom:f['Nom du plat']||'',cat:f['Catégorie']||'',actif:!!f['Active ?'],frigo:f['Frigo en jours']||0,rechauffage:f['Instructions réchauffage']||'',conservation:f['Conservation']||'',preparation:f['Instructions préparation']||'',ings};
+  });
+  const actifs=recFmt.filter(r=>r.actif);
+  ariaSys=`Tu es ARIA, l'assistante d'Alizée, gérante de "Le Goût du Lien" (batch cooking à domicile, 60€/sem, 5 plats, 4 portions). Réponds en français, concis, chaleureux. Utilise **gras** pour les infos clés. Comprends le langage naturel et informel.
+ 
+AUJOURD'HUI: ${now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}
+SEMAINE: ${semaine}
+ 
+COMMANDES CETTE SEMAINE (${cmdSem.length}):
+${cmdSem.map(c=>{const f=c.fields;const plats=[f['Plat 1'],f['Plat 2'],f['Plat 3'],f['Plat 4'],f['Plat 5']].map(resolveN).filter(Boolean);return`- ${f['Client']||'?'} | ${f['Créneau']||'?'} | ${plats.join(', ')} | ${f['Statut']||'?'} | Assigné: ${f['Assigné à']||'–'}`;}).join('\n')||'Aucune'}
+ 
+PLATS ACTIFS (${actifs.length}/${recFmt.length}):
+${actifs.map(r=>`- ${r.nom} [${r.cat}]`).join('\n')}
+ 
+TOUTES LES RECETTES (ingrédients + instructions complètes):
+${recFmt.map(r=>`• ${r.nom} [${r.cat}] ${r.actif?'✓ ACTIF':'✗ INACTIF'}
+  Frigo: ${r.frigo}j | Conservation: ${r.conservation||'–'}
+  Ingrédients/portion: ${r.ings.join(', ')||'Aucun renseigné'}
+  Réchauffage: ${r.rechauffage||'Non renseigné'}
+  Préparation: ${r.preparation||'Non renseignée'}`).join('\n\n')}
+ 
+CLIENTS (${DATA.clients.length}):
+${DATA.clients.map(c=>`- ${c.fields['Nom']||''} | ${c.fields['E-mail']||''} | ${c.fields['Téléphone']||''} | ${c.fields['Adresse']||''}`).join('\n')}
+ 
+SALARIÉS (${DATA.salaries.length}):
+${DATA.salaries.map(s=>`- ${s.fields['Nom']||''} | ${s.fields['Email']||s.fields['E-mail']||''}`).join('\n')}
+ 
+HISTORIQUE (30 dernières commandes):
+${cmdFmt.slice(0,30).map(c=>`- ${c.semaine} | ${c.client} | ${c.creneau} | ${c.plats.join(', ')} | ${c.statut} | ${c.assigne||'–'}`).join('\n')}`;
 }
  
-function ariaSpeak(text){
-  if(!ariaSynth)return;
-  ariaSynth.cancel();
-  const utt=new SpeechSynthesisUtterance(text.replace(/\*\*/g,'').replace(/\n/g,' '));
-  utt.lang='fr-FR';utt.rate=1.0;utt.pitch=1.1;
-  const voices=ariaSynth.getVoices();
-  const v=voices.find(v=>v.lang.startsWith('fr')&&v.name.toLowerCase().includes('female'))||voices.find(v=>v.lang.startsWith('fr'));
-  if(v)utt.voice=v;
-  utt.onstart=()=>ariaSetStatus('Je réponds...',true);
-  utt.onend=()=>ariaSetStatus('Prête à vous aider',false);
-  ariaSynth.speak(utt);
-}
- 
-function ariaToggleMic(){
-  if(ariaRecording){if(ariaRec)ariaRec.stop();return}
-  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){ariaAddMsg('bot','Micro non supporté sur ce navigateur.');return}
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  ariaRec=new SR();ariaRec.lang='fr-FR';
-  ariaRec.onstart=()=>{ariaRecording=true;document.getElementById('ariaMic').classList.add('rec');document.getElementById('ariaMic').textContent='⏹️';ariaSetStatus('Je vous écoute...')}
-  ariaRec.onresult=e=>{document.getElementById('ariaInp').value=e.results[0][0].transcript;ariaRec.stop();ariaSend()}
-  ariaRec.onend=()=>{ariaRecording=false;document.getElementById('ariaMic').classList.remove('rec');document.getElementById('ariaMic').textContent='🎤';ariaSetStatus('Prête à vous aider')}
-  ariaRec.start();
-}
- 
-async function ariaCharger(){
-  ariaAddMsg('bot','Chargement de vos données...');
-  ariaSetStatus('Chargement...');
+async function reloadAriaData(){
+  document.getElementById('ariaStat').textContent='Actualisation...';
   try{
-    const clients=await fetchAll('Clients');
-    const now=new Date();
-    const y=now.getFullYear(),m=now.getMonth(),d=now.getDate();
-    const dow=(new Date(y,m,d)).getDay();
-    const nextMon=dow===1?0:(8-dow)%7;
-    const semaine=`${y}-${String(m+1).padStart(2,'0')}-${String(d+nextMon-(dow===1?7:0)).padStart(2,'0')}`;
-    const cmdSem=allCommandes.filter(c=>(c.fields['Semaine du']||'').includes(semaine));
-    const actifs=recettes.filter(r=>r.fields['Active ?']);
-    ariaSysPrompt=`Tu es ARIA, assistante d'Alizée de "Le Goût du Lien" (batch cooking à domicile, 60€/sem, 5 plats, 4 portions). Réponds en français, court et naturel (max 3 phrases). **gras** pour les chiffres.
-Aujourd'hui: ${now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}.
-Semaine: ${semaine}. Commandes (${cmdSem.length}): ${cmdSem.map(c=>`${c.fields['Client']}|${c.fields['Créneau']}|${[c.fields['Plat 1'],c.fields['Plat 2'],c.fields['Plat 3'],c.fields['Plat 4'],c.fields['Plat 5']].map(resolveNom).filter(Boolean).join(',')}`).join(' / ')||'aucune'}.
-Plats actifs (${actifs.length}): ${actifs.map(r=>r.fields['Nom du plat']).join(', ')}.
-Clients (${clients.length}): ${clients.map(c=>c.fields['Nom']||'').join(', ')}.
-Salariés (${salaries.length}): ${salaries.map(s=>s.fields['Nom']||'').join(', ')}.
-Historique: ${allCommandes.slice(0,15).map(c=>`${c.fields['Semaine du']}|${c.fields['Client']}|${c.fields['Statut']}`).join(' / ')}.`;
-    ariaLoaded=true;
-    document.getElementById('ariaMsgs').innerHTML='';
-    document.getElementById('ariaSend').disabled=false;
-    const msg=`**Bonjour Alizée !** **${actifs.length} plats actifs**, **${cmdSem.length} commandes** cette semaine, **${clients.length} clients**. Comment puis-je vous aider ?`;
-    ariaAddMsg('bot',msg);
-    ariaSpeak(msg.replace(/\*\*/g,''));
-    ariaSetStatus(`${actifs.length} plats · ${cmdSem.length} commandes`);
-  }catch(e){ariaAddMsg('bot','Erreur de chargement: '+e.message);ariaSetStatus('Erreur')}
+    const [commandes,recettes,ri,clients,salaries]=await Promise.all([
+      fetchAll('Commandes','sort%5B0%5D%5Bfield%5D=Semaine+du&sort%5B0%5D%5Bdirection%5D=desc'),
+      fetchAll('Recettes','sort%5B0%5D%5Bfield%5D=Nom+du+plat&sort%5B0%5D%5Bdirection%5D=asc'),
+      fetchAll('Recettes_Ingr%C3%A9dients','sort%5B0%5D%5Bfield%5D=Ordre&sort%5B0%5D%5Bdirection%5D=asc'),
+      fetchAll('Clients'),fetchAll('Salari%C3%A9s')
+    ]);
+    DATA={commandes,recettes,ri,clients,salaries};
+    buildAriaSys();
+    document.getElementById('ariaStat').textContent=`${DATA.recettes.filter(r=>r.fields['Active ?']).length} plats · données fraîches`;
+    addAriaMsg('bot','🔄 **Données actualisées !** Je connais maintenant toutes les dernières infos d\'Airtable.');
+  }catch(e){
+    document.getElementById('ariaStat').textContent='Erreur actualisation';
+    addAriaMsg('bot','Erreur lors de l\'actualisation.');
+  }
 }
  
-function ariaAddMsg(type,text){
-  const div=document.getElementById('ariaMsgs');
-  const m=document.createElement('div');m.className='aria-msg '+type;
+function addAriaMsg(type,text){
+  const div=document.getElementById('aMsgs');
+  const m=document.createElement('div');m.className='a-msg '+type;
   const html=text.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
-  m.innerHTML=`<div class="aria-mav">${type==='bot'?'👩‍🍳':'👤'}</div><div class="aria-bub">${html}</div>`;
+  m.innerHTML=`<div class="a-av">${type==='bot'?'🌿':'👤'}</div><div class="a-bub">${html}</div>`;
   div.appendChild(m);div.scrollTop=div.scrollHeight;
 }
- 
-function ariaAddTyping(){
-  const div=document.getElementById('ariaMsgs');
-  const t=document.createElement('div');t.className='aria-msg bot';t.id='ariaTyp';
-  t.innerHTML='<div class="aria-mav">👩‍🍳</div><div class="aria-bub"><div class="aria-typing"><span></span><span></span><span></span></div></div>';
+function addTypingAria(){
+  const div=document.getElementById('aMsgs');const t=document.createElement('div');
+  t.className='a-msg bot';t.id='atyping';
+  t.innerHTML='<div class="a-av">🌿</div><div class="a-bub"><div class="typing"><span></span><span></span><span></span></div></div>';
   div.appendChild(t);div.scrollTop=div.scrollHeight;
 }
+function removeTypingAria(){document.getElementById('atyping')?.remove()}
  
-function ariaUseSug(btn){document.getElementById('ariaInp').value=btn.textContent.replace(/^.\s/,'');ariaSend()}
+function useASug(btn){document.getElementById('aInput').value=btn.textContent.trim();sendAria();}
  
-async function ariaSend(){
-  const inp=document.getElementById('ariaInp');
-  const msg=inp.value.trim();
-  if(!msg||ariaBusy||!ariaLoaded)return;
-  inp.value='';ariaBusy=true;document.getElementById('ariaSend').disabled=true;
-  if(ariaSynth)ariaSynth.cancel();
-  ariaAddMsg('user',msg);ariaConv.push({role:'user',content:msg});
-  ariaAddTyping();ariaSetStatus('Je réfléchis...');
+async function sendAria(){
+  const inp=document.getElementById('aInput');const msg=inp.value.trim();
+  if(!msg||ariaBusy)return;
+  inp.value='';ariaBusy=true;document.getElementById('aSend').disabled=true;
+  addAriaMsg('user',msg);ariaConv.push({role:'user',content:msg});addTypingAria();
   try{
-    const r=await fetch('/.netlify/functions/claude',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:300,system:ariaSysPrompt,messages:ariaConv})});
-    const d=await r.json();
-    document.getElementById('ariaTyp')?.remove();
+    const r=await fetch('/.netlify/functions/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:800,system:ariaSys,messages:ariaConv})});
+    const d=await r.json();removeTypingAria();
     const reply=d.content?.[0]?.text||(d.error?'Erreur: '+d.error.message:'Pas de réponse.');
-    ariaAddMsg('bot',reply);ariaConv.push({role:'assistant',content:reply});
-    if(ariaConv.length>16)ariaConv=ariaConv.slice(-16);
-    ariaSpeak(reply.replace(/\*\*/g,''));
-  }catch(e){document.getElementById('ariaTyp')?.remove();ariaSetStatus('Prête à vous aider');ariaAddMsg('bot','Erreur de connexion.')}
-  ariaBusy=false;document.getElementById('ariaSend').disabled=false;inp.focus();
+    addAriaMsg('bot',reply);ariaConv.push({role:'assistant',content:reply});
+    if(ariaConv.length>20)ariaConv=ariaConv.slice(-20);
+    speak(reply);
+  }catch(e){removeTypingAria();addAriaMsg('bot','Erreur de connexion. Vérifiez Netlify.');}
+  ariaBusy=false;document.getElementById('aSend').disabled=false;inp.focus();
 }
  
-document.getElementById('iMdp').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
-document.getElementById('ariaInp').addEventListener('keydown',e=>{if(e.key==='Enter')ariaSend()});
+function resetAriaConv(){ariaConv=[];document.getElementById('aMsgs').innerHTML='';addAriaMsg('bot','Conversation réinitialisée 🌿');}
  
-if(sessionStorage.getItem('admin')==='1'){
+function speak(text){
+  if(!synth)return;synth.cancel();
+  const clean=text.replace(/\*\*/g,'').replace(/\n/g,' ');
+  const utt=new SpeechSynthesisUtterance(clean);
+  utt.lang='fr-FR';utt.rate=1.0;utt.pitch=1.0;
+  const voices=synth.getVoices();const frV=voices.find(v=>v.lang.startsWith('fr'))||voices[0];
+  if(frV)utt.voice=frV;synth.speak(utt);
+}
+ 
+function toggleMic(){
+  if(isRec){stopMic();return}
+  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){addAriaMsg('bot','Reconnaissance vocale disponible sur Chrome.');return;}
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  recognition=new SR();recognition.lang='fr-FR';recognition.continuous=false;recognition.interimResults=false;
+  recognition.onstart=()=>{isRec=true;document.getElementById('aMic').classList.add('rec');document.getElementById('aMic').textContent='⏹️';};
+  recognition.onresult=e=>{document.getElementById('aInput').value=e.results[0][0].transcript;stopMic();sendAria();};
+  recognition.onerror=()=>stopMic();recognition.onend=()=>stopMic();recognition.start();
+}
+function stopMic(){isRec=false;document.getElementById('aMic').classList.remove('rec');document.getElementById('aMic').textContent='🎤';recognition?.stop();}
+ 
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.activeElement===document.getElementById('aInput'))sendAria();});
+ 
+if(sessionStorage.getItem('adm')==='1'){
   document.getElementById('pLogin').style.display='none';
-  document.getElementById('pAdmin').style.display='block';
-  document.getElementById('ariaFab').style.display='flex';
-  initAdmin();
+  document.getElementById('pApp').style.display='flex';
+  chargerTout();
 }
 </script>
 </body>
