@@ -9,198 +9,345 @@
 :root{--vert:#3d6b4f;--vc:#5a8a6a;--vp:#eef4f0;--bg:#f8f4ee;--bgd:#ede7db;--tx:#2c2c2c;--txl:#6b6b6b;--wh:#fff;--sh:0 4px 24px rgba(0,0,0,.08);--r:16px}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh}
-header{background:var(--vert);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.15)}
-.logo{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#fff}
-.logo span{font-size:12px;font-weight:400;opacity:.7;display:block;margin-top:-2px}
-.hbtn{padding:7px 14px;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);border-radius:8px;font-size:13px;color:#fff;cursor:pointer;font-family:'DM Sans',sans-serif}
+header{background:var(--vert);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:62px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.15)}
+.logo{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;color:#fff}
+.logo span{font-size:11px;font-weight:400;opacity:.6;display:block;margin-top:-2px}
+.hbtn{padding:7px 14px;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.25);border-radius:8px;font-size:12px;color:#fff;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
 .hbtn:hover{background:rgba(255,255,255,.25)}
-#pLogin{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--bg),var(--vp));padding:20px}
-.lcard{background:var(--wh);border-radius:24px;padding:48px 40px;width:100%;max-width:400px;box-shadow:var(--sh);text-align:center}
-.llogo{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--vert);margin-bottom:4px}
-.ltag{font-size:13px;color:var(--txl);margin-bottom:32px}
-.fg{margin-bottom:16px;text-align:left}
-.fg label{display:block;font-size:12px;font-weight:500;color:var(--txl);margin-bottom:7px;text-transform:uppercase;letter-spacing:.5px}
-.fg input{width:100%;padding:13px 16px;border:1.5px solid var(--bgd);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--tx);background:var(--bg);outline:none;transition:border-color .2s}
-.fg input:focus{border-color:var(--vert);background:var(--wh)}
-.btnLogin{width:100%;padding:14px;background:var(--vert);color:#fff;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer}
-.btnLogin:hover{background:var(--vc)}
-.lerr{background:#fdecea;color:#c62828;padding:11px;border-radius:9px;font-size:13px;margin-top:12px;display:none}
-#pAdmin{display:none}
-.main{padding:32px;max-width:1200px;margin:0 auto}
-.nav-tabs{display:flex;gap:6px;margin-bottom:28px;background:var(--wh);border-radius:12px;padding:5px;box-shadow:var(--sh);width:fit-content}
-.ntab{padding:10px 20px;border:none;background:transparent;cursor:pointer;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--txl);transition:all .2s}
+.main{padding:28px;max-width:1200px;margin:0 auto}
+/* Nav tabs */
+.nav-tabs{display:flex;gap:5px;margin-bottom:26px;background:var(--wh);border-radius:12px;padding:5px;box-shadow:var(--sh);flex-wrap:wrap}
+.ntab{padding:9px 18px;border:none;background:transparent;cursor:pointer;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--txl);transition:all .2s;white-space:nowrap}
 .ntab.on{background:var(--vert);color:#fff}
 .npage{display:none}.npage.on{display:block}
-.sem-nav{display:flex;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap}
-.sem-nav label{font-size:13px;color:var(--txl);font-weight:500}
+/* Sem nav */
+.sem-nav{display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
 .sem-select{padding:9px 14px;border:1.5px solid var(--bgd);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:14px;background:var(--wh);color:var(--tx);cursor:pointer;outline:none}
 .sem-select:focus{border-color:var(--vert)}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:28px}
-.stat-card{background:var(--wh);border-radius:var(--r);padding:18px;box-shadow:var(--sh);text-align:center}
-.stat-num{font-family:'Playfair Display',serif;font-size:30px;font-weight:700;color:var(--vert)}
-.stat-lbl{font-size:12px;color:var(--txl);margin-top:4px}
-.stit{font-family:'Playfair Display',serif;font-size:18px;font-weight:600;margin-bottom:16px}
-/* Commandes avec assignation */
-.cmd-cards{display:flex;flex-direction:column;gap:14px;margin-bottom:32px}
-.cmd-card{background:var(--wh);border-radius:var(--r);padding:20px 24px;box-shadow:var(--sh)}
-.cmd-card-top{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:16px;align-items:start;margin-bottom:14px}
-.cmd-label{font-size:11px;color:var(--txl);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
-.cmd-val{font-size:14px;font-weight:500}
-.cmd-val.small{font-size:13px;color:var(--txl);font-weight:400}
-.cmd-plats-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:24px}
+.stat-card{background:var(--wh);border-radius:var(--r);padding:16px;box-shadow:var(--sh);text-align:center}
+.stat-num{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--vert)}
+.stat-lbl{font-size:12px;color:var(--txl);margin-top:3px}
+.stit{font-family:'Playfair Display',serif;font-size:17px;font-weight:600;margin-bottom:14px}
+/* Commandes */
+.cmd-cards{display:flex;flex-direction:column;gap:12px;margin-bottom:28px}
+.cmd-card{background:var(--wh);border-radius:var(--r);padding:18px 22px;box-shadow:var(--sh)}
+.cmd-card-top{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:14px;align-items:start;margin-bottom:12px}
+.cmd-label{font-size:10px;color:var(--txl);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.cmd-val{font-size:13px;font-weight:500}
+.cmd-val.sm{font-size:12px;color:var(--txl);font-weight:400}
+.cmd-plats-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
 .ptag{font-size:11px;background:var(--vp);color:var(--vert);padding:3px 9px;border-radius:10px;cursor:pointer;transition:background .15s}
 .ptag:hover{background:#c8e6c9}
-.assign-row{display:flex;align-items:center;gap:10px;padding-top:12px;border-top:1px solid var(--bgd)}
-.assign-label{font-size:13px;color:var(--txl)}
-.assign-select{padding:8px 12px;border:1.5px solid var(--bgd);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--wh);color:var(--tx);cursor:pointer;outline:none;flex:1;max-width:200px}
+.assign-row{display:flex;align-items:center;gap:9px;padding-top:10px;border-top:1px solid var(--bgd);flex-wrap:wrap}
+.assign-select{padding:7px 12px;border:1.5px solid var(--bgd);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--wh);color:var(--tx);cursor:pointer;outline:none;flex:1;max-width:200px}
 .assign-select:focus{border-color:var(--vert)}
-.btn-assign{padding:8px 16px;background:var(--vert);color:#fff;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer}
-.btn-assign:hover{background:var(--vc)}
+.btn-sm{padding:7px 14px;background:var(--vert);color:#fff;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:background .2s}
+.btn-sm:hover{background:var(--vc)}
+.btn-sm.outline{background:transparent;color:var(--vert);border:1.5px solid var(--vert)}
+.btn-sm.outline:hover{background:var(--vp)}
+.btn-sm.danger{background:#c62828}
 .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500}
 .badge.ok{background:#e8f5e9;color:#2e7d32}
 .badge.wait{background:#fff3e0;color:#e65100}
-/* Modal ingrédients */
-.mbg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
-.mbg.show{display:flex}
-.mbox{background:var(--wh);border-radius:20px;max-width:500px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
-.mbody{padding:24px}
-.mtit{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:16px}
-.ing-list{list-style:none}
-.ing-list li{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bgd);font-size:14px}
-.ing-list li:last-child{border-bottom:none}
-.ing-qte{color:var(--txl);font-size:13px}
-.mclose{width:100%;padding:12px;background:var(--bgd);border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;margin-top:16px}
-/* Plats */
-.plats-admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
-.plat-admin-card{background:var(--wh);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);transition:transform .2s}
-.plat-admin-card:hover{transform:translateY(-2px)}
-.plat-admin-img{width:100%;height:130px;object-fit:cover}
-.plat-admin-ph{width:100%;height:130px;background:linear-gradient(135deg,var(--bgd),var(--vp));display:flex;align-items:center;justify-content:center;font-size:32px}
-.plat-admin-info{padding:12px}
-.plat-admin-nom{font-family:'Playfair Display',serif;font-size:13px;font-weight:600;margin-bottom:8px}
-.toggle-wrap{display:flex;align-items:center;justify-content:space-between}
+/* Calendrier */
+.cal-semaine{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-bottom:22px}
+.cal-jour{background:var(--wh);border-radius:12px;overflow:hidden;box-shadow:var(--sh)}
+.cal-jour-header{background:var(--vert);color:#fff;padding:9px 11px;font-size:12px;font-weight:600}
+.cal-jour-header span{font-size:10px;opacity:.7;display:block}
+.cal-slot{padding:7px 9px;border-bottom:1px solid var(--bgd);font-size:11px;cursor:pointer;transition:background .15s}
+.cal-slot:hover{background:var(--vp)}
+.cal-slot:last-child{border-bottom:none}
+.cal-slot-heure{font-weight:600;color:var(--vert);font-size:10px;margin-bottom:1px}
+.cal-slot.vide{color:var(--txl);font-style:italic}
+.cal-mois{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cmh{text-align:center;font-size:10px;font-weight:600;color:var(--txl);text-transform:uppercase;padding:5px 0}
+.cmd{background:var(--wh);border-radius:7px;min-height:70px;padding:5px;box-shadow:var(--sh)}
+.cmd.autre{opacity:.35}
+.cmd.today{border:2px solid var(--vert)}
+.cmd-num{font-size:11px;font-weight:600;margin-bottom:3px}
+.cmd-ev{font-size:9px;background:var(--vp);color:var(--vert);border-radius:3px;padding:1px 4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Plats gestion */
+.plats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.plat-card{background:var(--wh);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);transition:transform .2s}
+.plat-card:hover{transform:translateY(-2px)}
+.plat-img{width:100%;height:130px;object-fit:cover}
+.plat-ph{width:100%;height:130px;background:linear-gradient(135deg,var(--bgd),var(--vp));display:flex;align-items:center;justify-content:center;font-size:32px}
+.plat-info{padding:12px}
+.plat-nom{font-family:'Playfair Display',serif;font-size:13px;font-weight:600;margin-bottom:6px}
+.plat-cat{font-size:11px;color:var(--txl);margin-bottom:8px}
+.toggle-wrap{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .toggle-lbl{font-size:12px;color:var(--txl)}
-.toggle{position:relative;width:42px;height:22px;cursor:pointer}
+.toggle{position:relative;width:40px;height:22px;cursor:pointer}
 .toggle input{opacity:0;width:0;height:0}
 .toggle-slider{position:absolute;inset:0;background:var(--bgd);border-radius:11px;transition:.3s}
 .toggle-slider:before{position:absolute;content:"";height:16px;width:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
 .toggle input:checked+.toggle-slider{background:var(--vert)}
-.toggle input:checked+.toggle-slider:before{transform:translateX(20px)}
-/* Calendrier */
-.cal-semaine{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:24px}
-.cal-jour{background:var(--wh);border-radius:12px;overflow:hidden;box-shadow:var(--sh);min-height:120px}
-.cal-jour-header{background:var(--vert);color:#fff;padding:10px 12px;font-size:13px;font-weight:600}
-.cal-jour-header span{font-size:11px;opacity:.7;display:block}
-.cal-slot{padding:8px 10px;border-bottom:1px solid var(--bgd);font-size:12px;cursor:pointer;transition:background .15s}
-.cal-slot:hover{background:var(--vp)}
-.cal-slot:last-child{border-bottom:none}
-.cal-slot-heure{font-weight:600;color:var(--vert);font-size:11px;margin-bottom:2px}
-.cal-slot-client{font-weight:500;font-size:12px}
-.cal-slot-salar{font-size:11px;color:var(--txl)}
-.cal-slot.vide{color:var(--txl);font-style:italic;font-size:11px;padding:8px 10px}
-.cal-mois{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
-.cal-mois-header{text-align:center;font-size:11px;font-weight:600;color:var(--txl);text-transform:uppercase;padding:6px 0}
-.cal-mois-day{background:var(--wh);border-radius:8px;min-height:80px;padding:6px;box-shadow:var(--sh)}
-.cal-mois-day.autre-mois{opacity:.4}
-.cal-mois-day.today{border:2px solid var(--vert)}
-.cal-mois-num{font-size:12px;font-weight:600;margin-bottom:4px}
-.cal-mois-event{font-size:10px;background:var(--vp);color:var(--vert);border-radius:4px;padding:2px 5px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
-.cal-mois-event:hover{background:#c8e6c9}
+.toggle input:checked+.toggle-slider:before{transform:translateX(18px)}
+.plat-btns{display:flex;gap:5px}
+/* Formulaires */
+.form-card{background:var(--wh);border-radius:var(--r);padding:22px;box-shadow:var(--sh);margin-bottom:20px}
+.form-card h3{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;margin-bottom:16px;color:var(--vert)}
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:11px;font-weight:500;color:var(--txl);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.fg input,.fg textarea,.fg select{width:100%;padding:10px 14px;border:1.5px solid var(--bgd);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--tx);background:var(--bg);outline:none;transition:border-color .2s}
+.fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--vert);background:var(--wh)}
+.fg textarea{resize:vertical;min-height:80px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+/* Table clients/salaries */
+.data-table{background:var(--wh);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:20px}
+.dt-header{display:grid;gap:0;background:var(--bgd);padding:11px 18px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--txl)}
+.dt-row{padding:13px 18px;border-top:1px solid var(--bgd);display:grid;gap:14px;align-items:center;transition:background .15s}
+.dt-row:hover{background:var(--bg)}
+.dt-val{font-size:13px}
+.dt-val.bold{font-weight:600}
+.dt-actions{display:flex;gap:6px}
+/* Modal */
+.mbg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+.mbg.show{display:flex}
+.mbox{background:var(--wh);border-radius:20px;max-width:520px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.mimg{width:100%;height:170px;object-fit:cover}
+.mph{width:100%;height:170px;background:var(--bgd);display:flex;align-items:center;justify-content:center;font-size:36px}
+.mbody{padding:22px}
+.mtit{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;margin-bottom:4px}
+.mstit{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--txl);margin-bottom:7px;margin-top:13px}
+.ing-list{list-style:none}
+.ing-list li{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bgd);font-size:13px}
+.ing-list li:last-child{border-bottom:none}
+.prep-box{background:#fff8e7;border-left:3px solid #f9c74f;border-radius:9px;padding:12px 14px;font-size:13px;line-height:1.6;margin-bottom:4px}
+.rec-box{background:var(--vp);border-radius:9px;padding:12px 14px;font-size:13px;line-height:1.6}
+.mclose{width:100%;padding:11px;background:var(--bgd);border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;margin-top:13px}
+/* ARIA Panel */
+.aria-fab{position:fixed;bottom:26px;right:26px;width:54px;height:54px;background:linear-gradient(135deg,var(--vert),var(--vc));border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;z-index:500;box-shadow:0 4px 20px rgba(45,90,61,.4);transition:all .2s;animation:fabPulse 3s ease-in-out infinite}
+.aria-fab:hover{transform:scale(1.1)}
+@keyframes fabPulse{0%,100%{box-shadow:0 4px 20px rgba(45,90,61,.4)}50%{box-shadow:0 4px 32px rgba(45,90,61,.7)}}
+.aria-overlay{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:499;display:none;backdrop-filter:blur(2px)}
+.aria-overlay.show{display:block}
+.aria-panel{position:fixed;top:0;right:-420px;width:420px;height:100vh;background:var(--wh);z-index:600;box-shadow:-8px 0 40px rgba(0,0,0,.15);display:flex;flex-direction:column;transition:right .35s cubic-bezier(.4,0,.2,1)}
+.aria-panel.open{right:0}
+.aria-ph{background:linear-gradient(135deg,#0d1f13,#1a3325);padding:15px 18px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.aria-av{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--vert),var(--vc));display:flex;align-items:center;justify-content:center;font-size:18px;animation:ariaBreath 3s ease-in-out infinite}
+@keyframes ariaBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.aria-av.speaking{animation:ariaTalk .3s ease-in-out infinite}
+@keyframes ariaTalk{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.aria-ph-info h3{font-family:'Playfair Display',serif;font-size:17px;font-weight:300;color:#fff;letter-spacing:1px}
+.aria-ph-info p{font-size:11px;color:rgba(255,255,255,.4)}
+.aria-close{margin-left:auto;background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.5);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center}
+.aria-close:hover{background:rgba(255,255,255,.2);color:#fff}
+.aria-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:11px;background:#f4f7f4}
+.aria-msgs::-webkit-scrollbar{width:3px}
+.aria-msgs::-webkit-scrollbar-thumb{background:var(--bgd)}
+.aria-msg{display:flex;gap:8px;align-items:flex-end;animation:fadeUp .2s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.aria-msg.user{flex-direction:row-reverse}
+.aria-mav{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.aria-msg.bot .aria-mav{background:linear-gradient(135deg,var(--vert),var(--vc))}
+.aria-msg.user .aria-mav{background:var(--bgd);color:var(--txl)}
+.aria-bub{padding:9px 13px;border-radius:14px;font-size:13px;line-height:1.6;max-width:83%}
+.aria-msg.bot .aria-bub{background:var(--wh);border:1px solid rgba(45,90,61,.07);border-bottom-left-radius:3px;box-shadow:0 1px 6px rgba(0,0,0,.05)}
+.aria-msg.user .aria-bub{background:var(--vert);color:#fff;border-bottom-right-radius:3px}
+.aria-bub strong{font-weight:600;color:var(--vert)}
+.aria-msg.user .aria-bub strong{color:#c8e6c9}
+.aria-typing{display:flex;gap:3px;padding:3px}
+.aria-typing span{width:5px;height:5px;background:var(--bgd);border-radius:50%;animation:td .7s infinite}
+.aria-typing span:nth-child(2){animation-delay:.12s}
+.aria-typing span:nth-child(3){animation-delay:.24s}
+@keyframes td{0%,60%,100%{transform:scale(1)}30%{transform:scale(1.4)}}
+.aria-sugs{padding:8px 12px;display:flex;gap:6px;flex-wrap:wrap;background:var(--wh);border-top:1px solid var(--bgd);flex-shrink:0}
+.aria-sug{padding:5px 10px;background:var(--bg);border:1.5px solid var(--bgd);border-radius:12px;font-size:11px;color:var(--vert);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+.aria-sug:hover{background:var(--vp);border-color:var(--vc)}
+.aria-bottom{padding:11px 13px;background:var(--wh);border-top:1px solid var(--bgd);display:flex;gap:8px;align-items:center;flex-shrink:0}
+.aria-inp{flex:1;padding:9px 14px;border:1.5px solid var(--bgd);border-radius:20px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;background:var(--bg);color:var(--tx)}
+.aria-inp:focus{border-color:var(--vc);background:var(--wh)}
+.aria-send{width:36px;height:36px;background:linear-gradient(135deg,var(--vert),var(--vc));border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.aria-send:disabled{opacity:.4;cursor:not-allowed}
+.aria-send svg{fill:#fff;width:13px;height:13px;margin-left:2px}
+.aria-mic{width:36px;height:36px;background:var(--bg);border:1.5px solid var(--bgd);border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;transition:all .2s}
+.aria-mic.rec{background:#fdecea;border-color:#c62828;animation:micP 1s infinite}
+@keyframes micP{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
 /* Utils */
 .lov{position:fixed;inset:0;background:rgba(255,255,255,.85);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:999}
 .spin{width:34px;height:34px;border:3px solid var(--bgd);border-top-color:var(--vert);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:12px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .ltxt{font-size:14px;color:var(--txl)}
-.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--tx);color:#fff;padding:12px 22px;border-radius:10px;font-size:14px;z-index:999;transition:transform .3s}
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--tx);color:#fff;padding:11px 20px;border-radius:10px;font-size:13px;z-index:999;transition:transform .3s;white-space:nowrap}
 .toast.show{transform:translateX(-50%) translateY(0)}
 .toast.ok{background:var(--vert)}
+.toast.err{background:#c62828}
 .empty{text-align:center;padding:40px;color:var(--txl);font-size:14px}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
 @media(max-width:768px){
-  .main{padding:20px 16px}header{padding:0 16px}
-  .cmd-card-top{grid-template-columns:1fr 1fr;gap:12px}
-  .nav-tabs{width:100%}.ntab{flex:1;text-align:center;font-size:12px;padding:9px 8px}
-  .plats-admin-grid{grid-template-columns:1fr 1fr}
+  .main{padding:16px}header{padding:0 16px}
+  .cmd-card-top{grid-template-columns:1fr 1fr}
+  .nav-tabs{gap:3px}.ntab{padding:8px 12px;font-size:12px}
+  .plats-grid{grid-template-columns:1fr 1fr}
+  .fgrid{grid-template-columns:1fr}
+  .cal-semaine{grid-template-columns:1fr}
+  .aria-panel{width:100vw;right:-100vw}
 }
 </style>
 </head>
 <body>
 <div class="lov" id="lov"><div class="spin"></div><div class="ltxt" id="ltxt">Chargement...</div></div>
 <div class="toast" id="toast"></div>
-<div class="mbg" id="mbg" onclick="closeMod(event)">
-  <div class="mbox"><div id="mcont"></div></div>
-</div>
-
+<div class="mbg" id="mbg" onclick="closeMod(event)"><div class="mbox"><div id="mcont"></div></div></div>
+ 
 <!-- LOGIN -->
-<div id="pLogin">
-  <div class="lcard">
-    <div class="llogo">Le Goût du Lien</div>
-    <div class="ltag">Espace administration</div>
+<div id="pLogin" style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--bg),var(--vp));padding:20px">
+  <div style="background:var(--wh);border-radius:24px;padding:44px 36px;width:100%;max-width:380px;box-shadow:var(--sh);text-align:center">
+    <div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--vert);margin-bottom:4px">Le Goût du Lien</div>
+    <div style="font-size:13px;color:var(--txl);margin-bottom:28px">Espace administration</div>
     <div class="fg"><label>Mot de passe admin</label><input type="password" id="iMdp" placeholder="••••••••"></div>
-    <button class="btnLogin" onclick="login()">Accéder</button>
-    <div class="lerr" id="lerr">Mot de passe incorrect.</div>
+    <button class="btn-sm" style="width:100%;padding:13px;font-size:15px" onclick="login()">Accéder</button>
+    <div id="lerr" style="background:#fdecea;color:#c62828;padding:10px;border-radius:9px;font-size:13px;margin-top:12px;display:none">Mot de passe incorrect.</div>
   </div>
 </div>
-
+ 
 <!-- ADMIN -->
-<div id="pAdmin">
+<div id="pAdmin" style="display:none">
   <header>
     <div class="logo">Le Goût du Lien <span>Dashboard Admin</span></div>
     <button class="hbtn" onclick="logout()">Déconnexion</button>
   </header>
   <div class="main">
     <div class="nav-tabs">
-      <button class="ntab on" onclick="chgPage('planning',this)">📋 Commandes</button>
-      <button class="ntab" onclick="chgPage('calendrier',this)">📅 Calendrier</button>
-      <button class="ntab" onclick="chgPage('plats',this)">🍽️ Plats</button>
+      <button class="ntab on" onclick="chgPage('planning',this)">📅 Planning</button>
+      <button class="ntab" onclick="chgPage('calendrier',this)">🗓️ Calendrier</button>
+      <button class="ntab" onclick="chgPage('recettes',this)">🍽️ Recettes</button>
+      <button class="ntab" onclick="chgPage('clients',this)">👥 Clients</button>
+      <button class="ntab" onclick="chgPage('salaries',this)">👷 Salariés</button>
+      <button class="ntab" onclick="chgPage('creneaux',this)">🕐 Créneaux</button>
     </div>
-
+ 
+    <!-- PLANNING -->
     <div id="np-planning" class="npage on">
       <div class="sem-nav">
-        <label>Semaine :</label>
         <select class="sem-select" id="semSelect" onchange="chargerPlanning()"></select>
-        <button class="hbtn" style="background:var(--vert);border-color:var(--vert)" onclick="chargerPlanning()">↺ Actualiser</button>
+        <button class="btn-sm" onclick="chargerPlanning()">↺ Actualiser</button>
       </div>
       <div class="stats-grid" id="statsGrid"></div>
       <div class="stit">📋 Commandes & assignations</div>
       <div id="commandesDiv"></div>
     </div>
-
+ 
+    <!-- CALENDRIER -->
     <div id="np-calendrier" class="npage">
-      <div class="sem-nav" style="margin-bottom:20px">
-        <label>Mois :</label>
-        <select class="sem-select" id="moisSelect" onchange="renderCalendrier()"></select>
-      </div>
-      <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap">
-        <button onclick="setCalView('semaine')" id="btnSem" class="btn-assign" style="background:var(--vert)">Vue semaine</button>
-        <button onclick="setCalView('mois')" id="btnMois" class="btn-assign" style="background:var(--bgd);color:var(--tx)">Vue mois</button>
+      <div class="sem-nav">
+        <select class="sem-select" id="calMoisSel" onchange="renderCalMois()"></select>
+        <button class="btn-sm" style="background:var(--bgd);color:var(--tx)" id="btnSem" onclick="setCalView('semaine')">Vue semaine</button>
+        <button class="btn-sm" id="btnMois" onclick="setCalView('mois')">Vue mois</button>
       </div>
       <div id="calDiv"></div>
     </div>
-
-    <div id="np-plats" class="npage">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
-        <div class="stit" style="margin-bottom:0">Activer / désactiver les plats du menu</div>
-        <div style="font-size:13px;color:var(--txl)" id="platsCount"></div>
+ 
+    <!-- RECETTES -->
+    <div id="np-recettes" class="npage">
+      <div class="section-header">
+        <div class="stit" style="margin-bottom:0">🍽️ Gestion des recettes</div>
+        <div style="display:flex;gap:8px">
+          <span id="platsCount" style="font-size:13px;color:var(--txl);align-self:center"></span>
+          <button class="btn-sm" onclick="ouvrirFormRecette(null)">+ Nouvelle recette</button>
+        </div>
       </div>
-      <div class="plats-admin-grid" id="platsGrid"></div>
+      <div class="plats-grid" id="platsGrid"></div>
+    </div>
+ 
+    <!-- CLIENTS -->
+    <div id="np-clients" class="npage">
+      <div class="section-header">
+        <div class="stit" style="margin-bottom:0">👥 Gestion des clients</div>
+        <button class="btn-sm" onclick="ouvrirFormClient(null)">+ Nouveau client</button>
+      </div>
+      <div id="clientsDiv"></div>
+    </div>
+ 
+    <!-- SALARIES -->
+    <div id="np-salaries" class="npage">
+      <div class="section-header">
+        <div class="stit" style="margin-bottom:0">👷 Gestion des salariés</div>
+        <button class="btn-sm" onclick="ouvrirFormSalarie(null)">+ Nouveau salarié</button>
+      </div>
+      <div id="salariesDiv"></div>
+    </div>
+ 
+    <!-- CRENEAUX -->
+    <div id="np-creneaux" class="npage">
+      <div class="stit">🕐 Créneaux disponibles</div>
+      <div class="form-card">
+        <h3>Jours d'intervention</h3>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer"><input type="checkbox" id="cr-lundi" checked> Lundi</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer"><input type="checkbox" id="cr-mardi" checked> Mardi</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer"><input type="checkbox" id="cr-mercredi"> Mercredi</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer"><input type="checkbox" id="cr-jeudi" checked> Jeudi</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer"><input type="checkbox" id="cr-vendredi" checked> Vendredi</label>
+        </div>
+        <h3>Plages horaires</h3>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer"><input type="checkbox" id="cr-matin" checked> Matin 9h00 - 12h00</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer"><input type="checkbox" id="cr-aprem" checked> Après-midi 13h00 - 16h00</label>
+        </div>
+        <h3>Capacité max par semaine</h3>
+        <div class="fg" style="max-width:200px">
+          <label>Nombre max de commandes</label>
+          <input type="number" id="cr-max" value="12" min="1" max="20">
+        </div>
+        <button class="btn-sm" onclick="showToast('Créneaux enregistrés !','ok')">Enregistrer</button>
+      </div>
     </div>
   </div>
 </div>
-
+ 
+<!-- ARIA FAB -->
+<button class="aria-fab" id="ariaFab" style="display:none" onclick="openAria()" title="Parler à ARIA">🌿</button>
+<div class="aria-overlay" id="ariaOverlay" onclick="closeAria()"></div>
+<div class="aria-panel" id="ariaPanel">
+  <div class="aria-ph">
+    <div class="aria-av" id="ariaAv">👩‍🍳</div>
+    <div class="aria-ph-info">
+      <h3>ARIA</h3>
+      <p id="ariaStatus">Prête à vous aider</p>
+    </div>
+    <button class="aria-close" onclick="closeAria()">✕</button>
+  </div>
+  <div class="aria-msgs" id="ariaMsgs"></div>
+  <div class="aria-sugs" id="ariaSugs">
+    <button class="aria-sug" onclick="ariaUseSug(this)">📅 Commandes semaine</button>
+    <button class="aria-sug" onclick="ariaUseSug(this)">🍽️ Plats actifs</button>
+    <button class="aria-sug" onclick="ariaUseSug(this)">👥 Clients</button>
+    <button class="aria-sug" onclick="ariaUseSug(this)">📊 Résumé activité</button>
+  </div>
+  <div class="aria-bottom">
+    <button class="aria-mic" id="ariaMic" onclick="ariaToggleMic()">🎤</button>
+    <input class="aria-inp" type="text" id="ariaInp" placeholder="Posez votre question...">
+    <button class="aria-send" id="ariaSend" onclick="ariaSend()" disabled>
+      <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
+  </div>
+</div>
+ 
 <script>
 const AK='patvhOGv8O9szhfm9.2b3cb31f20ecd6c0271669df216fa0224adc9b1e16c7f98ce6f5b14575a75905';
 const BID='appTNygSM2x5VdNy6';
 const AT=`https://api.airtable.com/v0/${BID}`;
 const H={'Authorization':`Bearer ${AK}`,'Content-Type':'application/json'};
 const ADMIN_PWD='legoutdulien2026';
-
-let salaries=[],recettes=[],riRecs=[];
-
+const JOURS=['Lundi','Mardi','Jeudi','Vendredi'];
+const JMAP={Lundi:0,Mardi:1,Jeudi:3,Vendredi:4};
+const HEURES=['9h00 - 12h00','13h00 - 16h00'];
+const COULEURS=['#3d6b4f','#1565c0','#e65100','#6a1b9a','#00695c'];
+ 
+let salaries=[],recettes=[],riRecs=[],allCommandes=[];
+let calView='semaine',ariaConv=[],ariaSysPrompt='',ariaLoaded=false,ariaBusy=false;
+let ariaRec=null,ariaRecording=false;
+const ariaSynth=window.speechSynthesis;
+ 
 function showLoad(t){document.getElementById('lov').style.display='flex';document.getElementById('ltxt').textContent=t||'Chargement...'}
 function hideLoad(){document.getElementById('lov').style.display='none'}
-function showToast(m,t){const el=document.getElementById('toast');el.textContent=m;el.className='toast show '+(t||'');setTimeout(()=>{el.className='toast'},3000)}
+function showToast(m,t){const el=document.getElementById('toast');el.textContent=m;el.className='toast show '+(t||'');setTimeout(()=>{el.className='toast'},3200)}
 function closeMod(e){if(e.target===document.getElementById('mbg'))document.getElementById('mbg').classList.remove('show')}
-
+ 
 async function fetchAll(tbl,sort=''){
   let recs=[],offset=null;
   do{
@@ -213,28 +360,45 @@ async function fetchAll(tbl,sort=''){
   }while(offset);
   return recs;
 }
-
+ 
+async function patchRecord(tbl,id,fields){
+  const r=await fetch(`${AT}/${tbl}/${id}`,{method:'PATCH',headers:H,body:JSON.stringify({fields})});
+  return r.json();
+}
+async function createRecord(tbl,fields){
+  const r=await fetch(`${AT}/${tbl}`,{method:'POST',headers:H,body:JSON.stringify({fields})});
+  return r.json();
+}
+async function deleteRecord(tbl,id){
+  const r=await fetch(`${AT}/${tbl}/${id}`,{method:'DELETE',headers:H});
+  return r.json();
+}
+ 
+// AUTH
 function login(){
-  const mdp=document.getElementById('iMdp').value.trim();
-  if(mdp===ADMIN_PWD){
+  if(document.getElementById('iMdp').value.trim()===ADMIN_PWD){
     sessionStorage.setItem('admin','1');
     document.getElementById('pLogin').style.display='none';
     document.getElementById('pAdmin').style.display='block';
+    document.getElementById('ariaFab').style.display='flex';
     initAdmin();
-  }else{
-    document.getElementById('lerr').style.display='block';
-  }
+  }else{document.getElementById('lerr').style.display='block'}
 }
 function logout(){sessionStorage.removeItem('admin');location.reload()}
+ 
+// NAV
 function chgPage(p,btn){
   document.querySelectorAll('.ntab').forEach(x=>x.classList.remove('on'));
   document.querySelectorAll('.npage').forEach(x=>x.classList.remove('on'));
   btn.classList.add('on');
-  const page=document.getElementById('np-'+p);
-  if(page)page.classList.add('on');
-  if(p==='calendrier')setTimeout(()=>initCalendrier(),50);
+  document.getElementById('np-'+p).classList.add('on');
+  if(p==='calendrier')initCalendrier();
+  if(p==='recettes')chargerPlats();
+  if(p==='clients')chargerClients();
+  if(p==='salaries')chargerSalaries();
 }
-
+ 
+// INIT
 function getLundis(){
   const res=[];
   const now=new Date();
@@ -244,31 +408,30 @@ function getLundis(){
   for(let i=-4;i<8;i++){
     const l=new Date(y,m,d+nextMon+i*7);
     const yy=l.getFullYear(),mm=String(l.getMonth()+1).padStart(2,'0'),dd=String(l.getDate()).padStart(2,'0');
-    res.push({id:`${yy}-${mm}-${dd}`,label:l.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})});
+    res.push({id:`${yy}-${mm}-${dd}`,label:`Semaine du ${l.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}`});
   }
   return res;
 }
-
+ 
 async function initAdmin(){
   showLoad('Initialisation...');
   const sel=document.getElementById('semSelect');
-  const lundis=getLundis();
-  lundis.forEach((s,i)=>{
+  getLundis().forEach((s,i)=>{
     const opt=document.createElement('option');
-    opt.value=s.id;opt.textContent='Semaine du '+s.label;
+    opt.value=s.id;opt.textContent=s.label;
     if(i===4)opt.selected=true;
     sel.appendChild(opt);
   });
-  // Charger données globales
-  [salaries,recettes,riRecs]=await Promise.all([
+  [salaries,recettes,riRecs,allCommandes]=await Promise.all([
     fetchAll('Salari%C3%A9s'),
     fetchAll('Recettes','sort%5B0%5D%5Bfield%5D=Nom+du+plat&sort%5B0%5D%5Bdirection%5D=asc'),
-    fetchAll('Recettes_Ingr%C3%A9dients','sort%5B0%5D%5Bfield%5D=Ordre&sort%5B0%5D%5Bdirection%5D=asc')
+    fetchAll('Recettes_Ingr%C3%A9dients','sort%5B0%5D%5Bfield%5D=Ordre&sort%5B0%5D%5Bdirection%5D=asc'),
+    fetchAll('Commandes','sort%5B0%5D%5Bfield%5D=Cr%C3%A9neau&sort%5B0%5D%5Bdirection%5D=asc')
   ]);
   hideLoad();
-  await Promise.all([chargerPlanning(),chargerPlats()]);
+  chargerPlanning();
 }
-
+ 
 function resolveNom(val){
   if(!val)return null;
   const v=Array.isArray(val)?val[0]:val;
@@ -276,47 +439,39 @@ function resolveNom(val){
   if(typeof v==='string'&&!v.startsWith('rec'))return v;
   return recettes.find(r=>r.id===v)?.fields['Nom du plat']||null;
 }
-
+ 
+// ===== PLANNING =====
 async function chargerPlanning(){
   const semId=document.getElementById('semSelect').value;
   showLoad('Chargement...');
   try{
-    const [commandes,clients]=await Promise.all([
-      fetchAll('Commandes','sort%5B0%5D%5Bfield%5D=Cr%C3%A9neau&sort%5B0%5D%5Bdirection%5D=asc'),
-      fetchAll('Clients')
-    ]);
-    const cmdSem=commandes.filter(c=>(c.fields['Semaine du']||'').includes(semId));
-
-    // Stats
+    allCommandes=await fetchAll('Commandes','sort%5B0%5D%5Bfield%5D=Cr%C3%A9neau&sort%5B0%5D%5Bdirection%5D=asc');
+    const clients=await fetchAll('Clients');
+    const cmdSem=allCommandes.filter(c=>(c.fields['Semaine du']||'').includes(semId));
+ 
     document.getElementById('statsGrid').innerHTML=`
       <div class="stat-card"><div class="stat-num">${cmdSem.length}</div><div class="stat-lbl">Commandes</div></div>
       <div class="stat-card"><div class="stat-num">${cmdSem.filter(c=>c.fields['Statut']==='Confirmée').length}</div><div class="stat-lbl">Confirmées</div></div>
       <div class="stat-card"><div class="stat-num">${cmdSem.filter(c=>c.fields['Statut']==='En attente de paiement').length}</div><div class="stat-lbl">En attente</div></div>
       <div class="stat-card"><div class="stat-num">${cmdSem.length*5}</div><div class="stat-lbl">Plats à préparer</div></div>`;
-
-    if(cmdSem.length===0){
-      document.getElementById('commandesDiv').innerHTML='<div class="empty">Aucune commande pour cette semaine.</div>';
-      hideLoad();return;
-    }
-
-    const salarOptions=`<option value="">-- Non assigné --</option>`+
-      salaries.map(s=>`<option value="${s.fields['Nom']||''}">${s.fields['Nom']||''}</option>`).join('');
-
+ 
+    if(!cmdSem.length){document.getElementById('commandesDiv').innerHTML='<div class="empty">Aucune commande cette semaine.</div>';hideLoad();return;}
+ 
+    const salOpts=salaries.map(s=>`<option value="${s.fields['Nom']||''}">${s.fields['Nom']||''}</option>`).join('')+`<option value="">-- Non assigné --</option>`;
+ 
     document.getElementById('commandesDiv').innerHTML=`<div class="cmd-cards">${cmdSem.map(cmd=>{
       const f=cmd.fields;
       const plats=[f['Plat 1'],f['Plat 2'],f['Plat 3'],f['Plat 4'],f['Plat 5']].map(resolveNom).filter(Boolean);
-      // Trouver le client pour adresse et téléphone
       const clientLie=Array.isArray(f['Client lié'])?f['Client lié'][0]:f['Client lié'];
-      const clientRec=clients.find(c=>c.id===clientLie);
-      const cf=clientRec?clientRec.fields:{};
+      const cf=clients.find(c=>c.id===clientLie)?.fields||{};
       const assigneActuel=f['Assigné à']||'';
       return`<div class="cmd-card" id="cmd-${cmd.id}">
         <div class="cmd-card-top">
           <div>
             <div class="cmd-label">Client</div>
             <div class="cmd-val">${f['Client']||'–'}</div>
-            ${cf['Téléphone']?`<div class="cmd-val small">📞 ${cf['Téléphone']}</div>`:''}
-            ${cf['Adresse']?`<div class="cmd-val small">📍 ${cf['Adresse']}</div>`:''}
+            ${cf['Téléphone']?`<div class="cmd-val sm">📞 ${cf['Téléphone']}</div>`:''}
+            ${cf['Adresse']?`<div class="cmd-val sm">📍 ${cf['Adresse']}</div>`:''}
           </div>
           <div>
             <div class="cmd-label">Créneau</div>
@@ -331,137 +486,72 @@ async function chargerPlanning(){
             <div class="cmd-val">${assigneActuel||'<span style="color:var(--txl)">Non assigné</span>'}</div>
           </div>
         </div>
-        <div class="cmd-label" style="margin-bottom:6px">Plats (cliquez pour voir les ingrédients)</div>
-        <div class="cmd-plats-tags">
-          ${plats.map(p=>`<span class="ptag" onclick="voirIngredients('${p.replace(/'/g,"\\'")}',4)">${p}</span>`).join('')}
-        </div>
+        <div class="cmd-label" style="margin-bottom:6px">Plats (cliquez pour détails)</div>
+        <div class="cmd-plats-tags">${plats.map(p=>`<span class="ptag" onclick="voirIngredients('${p.replace(/'/g,"\\'")}',4)">${p}</span>`).join('')}</div>
         <div class="assign-row">
-          <span class="assign-label">Assigner à :</span>
-          <select class="assign-select" id="sel-${cmd.id}">
-            ${salaries.map(s=>`<option value="${s.fields['Nom']||''}" ${assigneActuel===s.fields['Nom']?'selected':''}>${s.fields['Nom']||''}</option>`).join('')}
-            <option value="" ${!assigneActuel?'selected':''}>-- Non assigné --</option>
-          </select>
-          <button class="btn-assign" onclick="assigner('${cmd.id}')">Enregistrer</button>
+          <span style="font-size:13px;color:var(--txl)">Assigner à :</span>
+          <select class="assign-select" id="sel-${cmd.id}">${salaries.map(s=>`<option value="${s.fields['Nom']||''}" ${assigneActuel===s.fields['Nom']?'selected':''}>${s.fields['Nom']||''}</option>`).join('')}<option value="" ${!assigneActuel?'selected':''}>-- Non assigné --</option></select>
+          <button class="btn-sm" onclick="assigner('${cmd.id}')">Enregistrer</button>
+          <button class="btn-sm outline" onclick="supprimerCommande('${cmd.id}')">Supprimer</button>
         </div>
       </div>`;
     }).join('')}</div>`;
-
-  }catch(e){showToast('Erreur: '+e.message)}
+  }catch(e){showToast('Erreur: '+e.message,'err')}
   hideLoad();
 }
-
-async function assigner(cmdId){
-  const sel=document.getElementById('sel-'+cmdId);
-  const nom=sel.value;
+ 
+async function assigner(id){
+  const nom=document.getElementById('sel-'+id).value;
   try{
-    await fetch(`${AT}/Commandes/${cmdId}`,{
-      method:'PATCH',headers:H,
-      body:JSON.stringify({fields:{'Assigné à':nom||null}})
-    });
+    await patchRecord('Commandes',id,{'Assigné à':nom||null});
     showToast(nom?`Assigné à ${nom} !`:'Assignation retirée','ok');
-    // Mettre à jour l'affichage
-    const card=document.getElementById('cmd-'+cmdId);
-    const valEl=card.querySelector('.cmd-card-top > div:last-child .cmd-val');
-    if(valEl)valEl.innerHTML=nom||'<span style="color:var(--txl)">Non assigné</span>';
-  }catch(e){showToast('Erreur: '+e.message)}
+    const card=document.getElementById('cmd-'+id);
+    card.querySelector('.cmd-card-top > div:last-child .cmd-val').innerHTML=nom||'<span style="color:var(--txl)">Non assigné</span>';
+  }catch(e){showToast('Erreur','err')}
 }
-
+ 
+async function supprimerCommande(id){
+  if(!confirm('Supprimer cette commande ?'))return;
+  try{
+    await deleteRecord('Commandes',id);
+    showToast('Commande supprimée','ok');
+    chargerPlanning();
+  }catch(e){showToast('Erreur','err')}
+}
+ 
+// ===== INGREDIENTS MODAL =====
 async function voirIngredients(nomPlat,portions){
   document.getElementById('mcont').innerHTML='<div style="padding:30px;text-align:center"><div class="spin" style="margin:0 auto"></div></div>';
   document.getElementById('mbg').classList.add('show');
   const ings=riRecs.filter(r=>(r.fields['Nom ligne']||'').startsWith(nomPlat));
   const platRec=recettes.find(r=>r.fields['Nom du plat']===nomPlat);
   const pf=platRec?platRec.fields:{};
-
-  // Charger le cache ingrédients pour les rayons
   const ingRecs=await fetchAll('Ingr%C3%A9dients');
   const ingCache={};
   ingRecs.forEach(r=>{const n=r.fields['Nom ingrédient']||'';if(n)ingCache[n]=r.fields['Rayon']||'Autres'});
-
   document.getElementById('mcont').innerHTML=`
-    ${pf['Photo']&&pf['Photo'][0]?`<img src="${pf['Photo'][0].url}" style="width:100%;height:180px;object-fit:cover">`:
-    `<div style="width:100%;height:180px;background:var(--bgd);display:flex;align-items:center;justify-content:center;font-size:40px">🍽️</div>`}
+    ${pf['Photo']&&pf['Photo'][0]?`<img src="${pf['Photo'][0].url}" style="width:100%;height:175px;object-fit:cover">`:`<div class="mph">🍽️</div>`}
     <div class="mbody">
       <div class="mtit">${nomPlat}</div>
-      <div style="font-size:12px;color:var(--txl);margin-bottom:12px">Quantités pour ${portions} portions</div>
-      ${ings.length?`<ul class="ing-list">${ings.map(r=>{
-        const f=r.fields;
-        const nl=f['Nom ligne']||'';
-        const ingNom=nl.includes(' - ')?nl.split(' - ').slice(1).join(' - '):'–';
-        const qte=(f['Quantité par portion']||0)*portions;
-        const uRaw=f['Unité par défaut'];
-        const u=Array.isArray(uRaw)?uRaw[0]:(uRaw||'');
-        const uFinal=u&&u!=='Unité par défaut'?u:'';
-        const rayon=ingCache[ingNom]||'';
-        return`<li>
-          <span>${ingNom}${rayon?` <span style="font-size:10px;color:var(--txl)">(${rayon})</span>`:''}</span>
-          <span class="ing-qte">${qte>0?(Number.isInteger(qte)?qte:qte.toFixed(2))+(uFinal?' '+uFinal:''):'–'}</span>
-        </li>`;
-      }).join('')}</ul>`:'<p style="color:var(--txl)">Ingrédients non disponibles.</p>'}
+      <div style="font-size:12px;color:var(--txl);margin-bottom:12px">Pour ${portions} portions</div>
+      ${pf['Instructions préparation']?`<div class="mstit">👩‍🍳 Préparation</div><div class="prep-box">${pf['Instructions préparation']}</div>`:''}
+      ${ings.length?`<div class="mstit">🥕 Ingrédients</div><ul class="ing-list">${ings.map(r=>{
+        const nl=r.fields['Nom ligne']||'';
+        const nom=nl.includes(' - ')?nl.split(' - ').slice(1).join(' - '):'–';
+        const qte=(r.fields['Quantité par portion']||0)*portions;
+        const uR=r.fields['Unité par défaut'];const u=Array.isArray(uR)?uR[0]:(uR||'');
+        const uF=u&&u!=='Unité par défaut'?u:'';
+        return`<li><span>${nom}<span style="font-size:10px;color:var(--txl);margin-left:4px">(${ingCache[nom]||''})</span></span><span style="color:var(--txl)">${qte>0?(Number.isInteger(qte)?qte:qte.toFixed(2))+(uF?' '+uF:''):'–'}</span></li>`;
+      }).join('')}</ul>`:''}
+      ${pf['Instructions réchauffage']?`<div class="mstit">♨️ Réchauffage</div><div class="rec-box">${pf['Instructions réchauffage']}</div>`:''}
       <button class="mclose" onclick="document.getElementById('mbg').classList.remove('show')">Fermer</button>
     </div>`;
 }
-
-async function chargerPlats(){
-  const grid=document.getElementById('platsGrid');
-  grid.innerHTML='';
-  const actifs=recettes.filter(r=>r.fields['Active ?']).length;
-  document.getElementById('platsCount').textContent=`${actifs} plat${actifs>1?'s':''} actif${actifs>1?'s':''} cette semaine`;
-  recettes.forEach(rec=>{
-    const f=rec.fields;
-    const nom=f['Nom du plat']||'';
-    const actif=!!f['Active ?'];
-    const img=f['Photo']&&f['Photo'][0]?f['Photo'][0].url:null;
-    const card=document.createElement('div');
-    card.className='plat-admin-card';
-    card.style.opacity=actif?'1':'0.55';
-    card.innerHTML=`
-      ${img?`<img class="plat-admin-img" src="${img}" alt="${nom}">`:`<div class="plat-admin-ph">🍽️</div>`}
-      <div class="plat-admin-info">
-        <div class="plat-admin-nom">${nom}</div>
-        <div class="toggle-wrap">
-          <span class="toggle-lbl" id="lbl-${rec.id}">${actif?'<b style="color:var(--vert)">Actif</b>':'Inactif'}</span>
-          <label class="toggle">
-            <input type="checkbox" ${actif?'checked':''} onchange="togglePlat('${rec.id}',this.checked,this)">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-      </div>`;
-    grid.appendChild(card);
-  });
-}
-
-async function togglePlat(id,actif,input){
-  const card=input.closest('.plat-admin-card');
-  input.disabled=true;
-  try{
-    await fetch(`${AT}/Recettes/${id}`,{method:'PATCH',headers:H,body:JSON.stringify({fields:{'Active ?':actif}})});
-    card.style.opacity=actif?'1':'0.55';
-    document.getElementById('lbl-'+id).innerHTML=actif?'<b style="color:var(--vert)">Actif</b>':'Inactif';
-    const actifs=document.querySelectorAll('#platsGrid input:checked').length;
-    document.getElementById('platsCount').textContent=`${actifs} plat${actifs>1?'s':''} actif${actifs>1?'s':''} cette semaine`;
-    showToast(actif?'Plat activé !':'Plat désactivé','ok');
-  }catch(e){input.checked=!actif;showToast('Erreur','err')}
-  input.disabled=false;
-}
-
+ 
 // ===== CALENDRIER =====
-let calView='semaine';
-let allCommandes=[];
-
-function setCalView(v){
-  calView=v;
-  document.getElementById('btnSem').style.background=v==='semaine'?'var(--vert)':'var(--bgd)';
-  document.getElementById('btnSem').style.color=v==='semaine'?'#fff':'var(--tx)';
-  document.getElementById('btnMois').style.background=v==='mois'?'var(--vert)':'var(--bgd)';
-  document.getElementById('btnMois').style.color=v==='mois'?'#fff':'var(--tx)';
-  renderCalendrier();
-}
-
-async function initCalendrier(){
-  const sel=document.getElementById('moisSelect');
-  if(!sel)return;
-  sel.innerHTML='';
+function initCalendrier(){
+  const sel=document.getElementById('calMoisSel');
+  if(sel.options.length)return;
   const now=new Date();
   for(let i=-2;i<6;i++){
     const d=new Date(now.getFullYear(),now.getMonth()+i,1);
@@ -471,28 +561,48 @@ async function initCalendrier(){
     if(i===0)opt.selected=true;
     sel.appendChild(opt);
   }
-  if(!allCommandes.length){
-    allCommandes=await fetchAll('Commandes','sort%5B0%5D%5Bfield%5D=Cr%C3%A9neau&sort%5B0%5D%5Bdirection%5D=asc');
+  renderCalSemaine();
+}
+ 
+function setCalView(v){
+  calView=v;
+  document.getElementById('btnSem').style.background=v==='semaine'?'var(--bgd)':'var(--vert)';
+  document.getElementById('btnSem').style.color=v==='semaine'?'var(--tx)':'#fff';
+  document.getElementById('btnMois').style.background=v==='mois'?'var(--bgd)':'var(--vert)';
+  document.getElementById('btnMois').style.color=v==='mois'?'var(--tx)':'#fff';
+  if(v==='semaine')renderCalSemaine();else renderCalMois();
+}
+ 
+function renderCalMois(){
+  const val=document.getElementById('calMoisSel').value;
+  const [y,m]=val.split('-').map(Number);
+  const premier=new Date(y,m-1,1);const dernier=new Date(y,m,0);
+  const today=new Date();
+  let dow=premier.getDay();if(dow===0)dow=7;
+  const jours=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+  let html=`<div class="cal-mois">`;
+  jours.forEach(j=>{html+=`<div class="cmh">${j}</div>`});
+  for(let i=1;i<dow;i++)html+=`<div class="cmd autre"></div>`;
+  for(let d=1;d<=dernier.getDate();d++){
+    const isT=today.getFullYear()===y&&today.getMonth()===m-1&&today.getDate()===d;
+    const cmdsJ=allCommandes.filter(c=>{
+      const cren=c.fields['Créneau']||'';const sem=c.fields['Semaine du']||'';
+      if(!sem)return false;
+      const[sy,sm,sd]=sem.split('-').map(Number);
+      for(let i=0;i<5;i++){const jd=new Date(sy,sm-1,sd+i);if(jd.getFullYear()===y&&jd.getMonth()===m-1&&jd.getDate()===d){const jl=jd.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});return cren.startsWith(jl)}}
+      return false;
+    });
+    html+=`<div class="cmd ${isT?'today':''}"><div class="cmd-num">${d}</div>${cmdsJ.map(c=>`<div class="cmd-ev">${c.fields['Client']||'?'}</div>`).join('')}</div>`;
   }
-  renderCalendrier();
+  html+=`</div>`;
+  document.getElementById('calDiv').innerHTML=html;
 }
-
-function renderCalendrier(){
-  if(!allCommandes.length)return;
-  if(calView==='semaine')renderSemaine();
-  else renderMois();
-}
-
-function renderSemaine(){
+ 
+function renderCalSemaine(){
   const semId=document.getElementById('semSelect').value;
-  const [y,m,d]=semId.split('-').map(Number);
-  const JOURS=['Lundi','Mardi','Mercredi','Jeudi','Vendredi'];
-  const JMAP={Lundi:0,Mardi:1,Mercredi:2,Jeudi:3,Vendredi:4};
-  const HEURES=['9h00 - 12h00','13h00 - 16h00'];
-
+  const[y,m,d]=semId.split('-').map(Number);
   const cmdSem=allCommandes.filter(c=>(c.fields['Semaine du']||'').includes(semId));
-
-  const html=`<div class="cal-semaine">${JOURS.map(j=>{
+  document.getElementById('calDiv').innerHTML=`<div class="cal-semaine">${JOURS.map(j=>{
     const jd=new Date(y,m-1,d+JMAP[j]);
     const jl=jd.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
     return`<div class="cal-jour">
@@ -500,77 +610,349 @@ function renderSemaine(){
       ${HEURES.map(h=>{
         const lbl=`${jl} · ${h}`;
         const cmd=cmdSem.find(c=>(c.fields['Créneau']||'').trim()===lbl.trim());
-        if(cmd){
-          return`<div class="cal-slot" onclick="voirIngredients('${(cmd.fields['Plat 1']&&!String(cmd.fields['Plat 1']).startsWith('[')?resolveNom(cmd.fields['Plat 1']):'').replace(/'/g,"\'")}',4)">
-            <div class="cal-slot-heure">${h}</div>
-            <div class="cal-slot-client">${cmd.fields['Client']||'Client'}</div>
-            <div class="cal-slot-salar">${cmd.fields['Assigné à']||'Non assigné'}</div>
-          </div>`;
-        }
-        return`<div class="cal-slot vide">${h}<br>Disponible</div>`;
+        if(cmd)return`<div class="cal-slot"><div class="cal-slot-heure">${h}</div><div style="font-size:11px;font-weight:500">${cmd.fields['Client']||''}</div><div style="font-size:10px;color:var(--txl)">${cmd.fields['Assigné à']||'Non assigné'}</div></div>`;
+        return`<div class="cal-slot vide">${h} — Libre</div>`;
       }).join('')}
     </div>`;
   }).join('')}</div>`;
-  document.getElementById('calDiv').innerHTML=html;
 }
-
-function renderMois(){
-  const val=document.getElementById('moisSelect').value;
-  const [y,m]=val.split('-').map(Number);
-  const premier=new Date(y,m-1,1);
-  const dernier=new Date(y,m,0);
-  const today=new Date();
-
-  let dow=premier.getDay();
-  if(dow===0)dow=7;
-  const jours=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
-
-  let html=`<div class="cal-mois">`;
-  jours.forEach(j=>{html+=`<div class="cal-mois-header">${j}</div>`});
-
-  // Jours du mois précédent
-  for(let i=1;i<dow;i++){
-    html+=`<div class="cal-mois-day autre-mois"></div>`;
-  }
-
-  // Jours du mois
-  for(let d=1;d<=dernier.getDate();d++){
-    const dateStr=`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const isToday=today.getFullYear()===y&&today.getMonth()===m-1&&today.getDate()===d;
-    const cmdsJour=allCommandes.filter(c=>{
-      const cren=c.fields['Créneau']||'';
-      const semaine=c.fields['Semaine du']||'';
-      // Vérifier si ce jour est dans la semaine de cette commande
-      if(!semaine)return false;
-      const [sy,sm,sd]=semaine.split('-').map(Number);
-      const lundiDate=new Date(sy,sm-1,sd);
-      for(let i=0;i<5;i++){
-        const jd=new Date(sy,sm-1,sd+i);
-        if(jd.getFullYear()===y&&jd.getMonth()===m-1&&jd.getDate()===d){
-          const jl=jd.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
-          return cren.startsWith(jl);
-        }
-      }
-      return false;
-    });
-    html+=`<div class="cal-mois-day ${isToday?'today':''}">
-      <div class="cal-mois-num">${d}</div>
-      ${cmdsJour.map(c=>`<div class="cal-mois-event" title="${c.fields['Client']||''} - ${c.fields['Créneau']||''}">${c.fields['Client']||'Client'}</div>`).join('')}
+ 
+// ===== RECETTES =====
+async function chargerPlats(){
+  const actifs=recettes.filter(r=>r.fields['Active ?']).length;
+  document.getElementById('platsCount').textContent=`${actifs} actif${actifs>1?'s':''} / ${recettes.length}`;
+  const grid=document.getElementById('platsGrid');
+  grid.innerHTML='';
+  recettes.forEach(rec=>{
+    const f=rec.fields;const actif=!!f['Active ?'];
+    const img=f['Photo']&&f['Photo'][0]?f['Photo'][0].url:null;
+    const card=document.createElement('div');
+    card.className='plat-card';card.style.opacity=actif?'1':'0.55';
+    card.innerHTML=`
+      ${img?`<img class="plat-img" src="${img}" alt="${f['Nom du plat']||''}">`:`<div class="plat-ph">🍽️</div>`}
+      <div class="plat-info">
+        <div class="plat-nom">${f['Nom du plat']||''}</div>
+        <div class="plat-cat">${f['Catégorie']||''} · Frigo: ${f['Frigo en jours']||0}j</div>
+        <div class="toggle-wrap">
+          <span class="toggle-lbl" id="lbl-${rec.id}">${actif?'<b style="color:var(--vert)">Actif</b>':'Inactif'}</span>
+          <label class="toggle"><input type="checkbox" ${actif?'checked':''} onchange="togglePlat('${rec.id}',this.checked,this)"><span class="toggle-slider"></span></label>
+        </div>
+        <div class="plat-btns">
+          <button class="btn-sm outline" style="flex:1;font-size:11px" onclick="ouvrirFormRecette('${rec.id}')">✏️ Modifier</button>
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+ 
+async function togglePlat(id,actif,input){
+  input.disabled=true;
+  const card=input.closest('.plat-card');
+  try{
+    await patchRecord('Recettes',id,{'Active ?':actif});
+    card.style.opacity=actif?'1':'0.55';
+    document.getElementById('lbl-'+id).innerHTML=actif?'<b style="color:var(--vert)">Actif</b>':'Inactif';
+    showToast(actif?'Plat activé !':'Plat désactivé','ok');
+    const actifs=recettes.filter((r,i)=>{if(r.id===id)recettes[i].fields['Active ?']=actif;return recettes[i].fields['Active ?']}).length;
+    document.getElementById('platsCount').textContent=`${actifs} actif${actifs>1?'s':''} / ${recettes.length}`;
+  }catch(e){input.checked=!actif;showToast('Erreur','err')}
+  input.disabled=false;
+}
+ 
+function ouvrirFormRecette(id){
+  const rec=id?recettes.find(r=>r.id===id):null;
+  const f=rec?rec.fields:{};
+  document.getElementById('mcont').innerHTML=`
+    <div class="mbody">
+      <div class="mtit">${id?'Modifier':'Nouvelle'} recette</div>
+      <div class="fg"><label>Nom du plat *</label><input id="r-nom" value="${f['Nom du plat']||''}"></div>
+      <div class="fgrid">
+        <div class="fg"><label>Catégorie</label><select id="r-cat"><option ${f['Catégorie']==='Végé'?'selected':''}>Végé</option><option ${f['Catégorie']==='Viande'?'selected':''}>Viande</option><option ${f['Catégorie']==='Poisson'?'selected':''}>Poisson</option><option ${f['Catégorie']==='Poulet'?'selected':''}>Poulet</option><option ${f['Catégorie']==='Cuisine du monde'?'selected':''}>Cuisine du monde</option></select></div>
+        <div class="fg"><label>Frigo (jours)</label><input type="number" id="r-frigo" value="${f['Frigo en jours']||3}"></div>
+      </div>
+      <div class="fg"><label>Instructions préparation</label><textarea id="r-prep">${f['Instructions préparation']||''}</textarea></div>
+      <div class="fg"><label>Instructions réchauffage</label><textarea id="r-rech">${f['Instructions réchauffage']||''}</textarea></div>
+      <div class="fg"><label>Conservation</label><textarea id="r-cons" style="min-height:60px">${f['Conservation']||''}</textarea></div>
+      <div class="fg"><label>Congélation</label><textarea id="r-cong" style="min-height:60px">${f['Congélation']||''}</textarea></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-sm" style="flex:1" onclick="sauvegarderRecette('${id||''}')">💾 Enregistrer</button>
+        <button class="mclose" style="width:auto;flex:1" onclick="document.getElementById('mbg').classList.remove('show')">Annuler</button>
+      </div>
     </div>`;
-  }
-  html+=`</div>`;
-  document.getElementById('calDiv').innerHTML=html;
+  document.getElementById('mbg').classList.add('show');
 }
-
-// calendrier initialisé dans chgPage
-
+ 
+async function sauvegarderRecette(id){
+  const nom=document.getElementById('r-nom').value.trim();
+  if(!nom){showToast('Le nom est obligatoire','err');return}
+  const fields={
+    'Nom du plat':nom,
+    'Catégorie':document.getElementById('r-cat').value,
+    'Frigo en jours':parseInt(document.getElementById('r-frigo').value)||3,
+    'Instructions préparation':document.getElementById('r-prep').value,
+    'Instructions réchauffage':document.getElementById('r-rech').value,
+    'Conservation':document.getElementById('r-cons').value,
+    'Congélation':document.getElementById('r-cong').value,
+  };
+  showLoad('Enregistrement...');
+  try{
+    if(id){
+      await patchRecord('Recettes',id,fields);
+      const idx=recettes.findIndex(r=>r.id===id);
+      if(idx>=0)recettes[idx].fields={...recettes[idx].fields,...fields};
+    }else{
+      const d=await createRecord('Recettes',fields);
+      if(d.id)recettes.push(d);
+    }
+    hideLoad();
+    document.getElementById('mbg').classList.remove('show');
+    showToast('Recette enregistrée !','ok');
+    chargerPlats();
+  }catch(e){hideLoad();showToast('Erreur: '+e.message,'err')}
+}
+ 
+// ===== CLIENTS =====
+async function chargerClients(){
+  showLoad('Chargement clients...');
+  try{
+    const clients=await fetchAll('Clients','sort%5B0%5D%5Bfield%5D=Nom&sort%5B0%5D%5Bdirection%5D=asc');
+    const cols='1fr 1fr 1fr 1fr 80px';
+    document.getElementById('clientsDiv').innerHTML=`
+      <div class="data-table">
+        <div class="dt-header" style="grid-template-columns:${cols}"><div>Nom</div><div>Email</div><div>Téléphone</div><div>Adresse</div><div>Actions</div></div>
+        ${clients.map(c=>{
+          const f=c.fields;
+          return`<div class="dt-row" style="grid-template-columns:${cols}">
+            <div class="dt-val bold">${f['Nom']||'–'}</div>
+            <div class="dt-val">${f['E-mail']||'–'}</div>
+            <div class="dt-val">${f['Téléphone']||'–'}</div>
+            <div class="dt-val" style="font-size:12px">${f['Adresse']||'–'}</div>
+            <div class="dt-actions"><button class="btn-sm outline" style="font-size:11px;padding:5px 9px" onclick="ouvrirFormClient('${c.id}')">✏️</button></div>
+          </div>`;
+        }).join('')}
+      </div>
+      <button class="btn-sm outline" onclick="ouvrirFormClient(null)">+ Nouveau client</button>`;
+  }catch(e){showToast('Erreur','err')}
+  hideLoad();
+}
+ 
+function ouvrirFormClient(id){
+  const fetchAndShow=async()=>{
+    let f={};
+    if(id){const clients=await fetchAll('Clients');const rec=clients.find(c=>c.id===id);f=rec?rec.fields:{}}
+    document.getElementById('mcont').innerHTML=`
+      <div class="mbody">
+        <div class="mtit">${id?'Modifier':'Nouveau'} client</div>
+        <div class="fgrid">
+          <div class="fg"><label>Nom *</label><input id="cl-nom" value="${f['Nom']||''}"></div>
+          <div class="fg"><label>Email</label><input type="email" id="cl-email" value="${f['E-mail']||''}"></div>
+        </div>
+        <div class="fgrid">
+          <div class="fg"><label>Téléphone</label><input id="cl-tel" value="${f['Téléphone']||''}"></div>
+          <div class="fg"><label>Mot de passe portail</label><input id="cl-mdp" value="${f['MOT DE PASSE']||''}"></div>
+        </div>
+        <div class="fg"><label>Adresse</label><input id="cl-adr" value="${f['Adresse']||''}"></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn-sm" style="flex:1" onclick="sauvegarderClient('${id||''}')">💾 Enregistrer</button>
+          <button class="mclose" style="width:auto;flex:1" onclick="document.getElementById('mbg').classList.remove('show')">Annuler</button>
+        </div>
+      </div>`;
+    document.getElementById('mbg').classList.add('show');
+  };
+  fetchAndShow();
+}
+ 
+async function sauvegarderClient(id){
+  const nom=document.getElementById('cl-nom').value.trim();
+  if(!nom){showToast('Le nom est obligatoire','err');return}
+  const fields={'Nom':nom,'E-mail':document.getElementById('cl-email').value,'Téléphone':document.getElementById('cl-tel').value,'Adresse':document.getElementById('cl-adr').value,'MOT DE PASSE':document.getElementById('cl-mdp').value};
+  showLoad('Enregistrement...');
+  try{
+    if(id)await patchRecord('Clients',id,fields);
+    else await createRecord('Clients',fields);
+    hideLoad();
+    document.getElementById('mbg').classList.remove('show');
+    showToast('Client enregistré !','ok');
+    chargerClients();
+  }catch(e){hideLoad();showToast('Erreur','err')}
+}
+ 
+// ===== SALARIES =====
+async function chargerSalaries(){
+  showLoad('Chargement salariés...');
+  try{
+    const sals=await fetchAll('Salari%C3%A9s');
+    const cols='1fr 1fr 1fr 80px';
+    document.getElementById('salariesDiv').innerHTML=`
+      <div class="data-table">
+        <div class="dt-header" style="grid-template-columns:${cols}"><div>Nom</div><div>Email</div><div>Mot de passe</div><div>Actions</div></div>
+        ${sals.map(s=>{
+          const f=s.fields;
+          return`<div class="dt-row" style="grid-template-columns:${cols}">
+            <div class="dt-val bold">${f['Nom']||'–'}</div>
+            <div class="dt-val">${f['Email']||f['E-mail']||'–'}</div>
+            <div class="dt-val">${f['Mot de passe']?'••••••':'–'}</div>
+            <div class="dt-actions"><button class="btn-sm outline" style="font-size:11px;padding:5px 9px" onclick="ouvrirFormSalarie('${s.id}')">✏️</button></div>
+          </div>`;
+        }).join('')}
+      </div>
+      <button class="btn-sm outline" onclick="ouvrirFormSalarie(null)">+ Nouveau salarié</button>`;
+  }catch(e){showToast('Erreur','err')}
+  hideLoad();
+}
+ 
+function ouvrirFormSalarie(id){
+  const fetchAndShow=async()=>{
+    let f={};
+    if(id){const sals=await fetchAll('Salari%C3%A9s');const rec=sals.find(s=>s.id===id);f=rec?rec.fields:{}}
+    document.getElementById('mcont').innerHTML=`
+      <div class="mbody">
+        <div class="mtit">${id?'Modifier':'Nouveau'} salarié</div>
+        <div class="fg"><label>Nom *</label><input id="sal-nom" value="${f['Nom']||''}"></div>
+        <div class="fg"><label>Email</label><input type="email" id="sal-email" value="${f['Email']||f['E-mail']||''}"></div>
+        <div class="fg"><label>Mot de passe portail</label><input id="sal-mdp" value="${f['Mot de passe']||''}"></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn-sm" style="flex:1" onclick="sauvegarderSalarie('${id||''}')">💾 Enregistrer</button>
+          <button class="mclose" style="width:auto;flex:1" onclick="document.getElementById('mbg').classList.remove('show')">Annuler</button>
+        </div>
+      </div>`;
+    document.getElementById('mbg').classList.add('show');
+  };
+  fetchAndShow();
+}
+ 
+async function sauvegarderSalarie(id){
+  const nom=document.getElementById('sal-nom').value.trim();
+  if(!nom){showToast('Le nom est obligatoire','err');return}
+  const fields={'Nom':nom,'Email':document.getElementById('sal-email').value,'Mot de passe':document.getElementById('sal-mdp').value};
+  showLoad('Enregistrement...');
+  try{
+    if(id)await patchRecord('Salari%C3%A9s',id,fields);
+    else await createRecord('Salari%C3%A9s',fields);
+    hideLoad();
+    document.getElementById('mbg').classList.remove('show');
+    showToast('Salarié enregistré !','ok');
+    chargerSalaries();
+    salaries=await fetchAll('Salari%C3%A9s');
+  }catch(e){hideLoad();showToast('Erreur','err')}
+}
+ 
+// ===== ARIA =====
+function openAria(){
+  document.getElementById('ariaPanel').classList.add('open');
+  document.getElementById('ariaOverlay').classList.add('show');
+  if(!ariaLoaded)ariaCharger();
+}
+function closeAria(){
+  document.getElementById('ariaPanel').classList.remove('open');
+  document.getElementById('ariaOverlay').classList.remove('show');
+  if(ariaSynth)ariaSynth.cancel();
+}
+ 
+function ariaSetStatus(s,speaking=false){
+  document.getElementById('ariaStatus').textContent=s;
+  document.getElementById('ariaAv').className='aria-av'+(speaking?' speaking':'');
+}
+ 
+function ariaSpeak(text){
+  if(!ariaSynth)return;
+  ariaSynth.cancel();
+  const utt=new SpeechSynthesisUtterance(text.replace(/\*\*/g,'').replace(/\n/g,' '));
+  utt.lang='fr-FR';utt.rate=1.0;utt.pitch=1.1;
+  const voices=ariaSynth.getVoices();
+  const v=voices.find(v=>v.lang.startsWith('fr')&&v.name.toLowerCase().includes('female'))||voices.find(v=>v.lang.startsWith('fr'));
+  if(v)utt.voice=v;
+  utt.onstart=()=>ariaSetStatus('Je réponds...',true);
+  utt.onend=()=>ariaSetStatus('Prête à vous aider',false);
+  ariaSynth.speak(utt);
+}
+ 
+function ariaToggleMic(){
+  if(ariaRecording){if(ariaRec)ariaRec.stop();return}
+  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){ariaAddMsg('bot','Micro non supporté sur ce navigateur.');return}
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  ariaRec=new SR();ariaRec.lang='fr-FR';
+  ariaRec.onstart=()=>{ariaRecording=true;document.getElementById('ariaMic').classList.add('rec');document.getElementById('ariaMic').textContent='⏹️';ariaSetStatus('Je vous écoute...')}
+  ariaRec.onresult=e=>{document.getElementById('ariaInp').value=e.results[0][0].transcript;ariaRec.stop();ariaSend()}
+  ariaRec.onend=()=>{ariaRecording=false;document.getElementById('ariaMic').classList.remove('rec');document.getElementById('ariaMic').textContent='🎤';ariaSetStatus('Prête à vous aider')}
+  ariaRec.start();
+}
+ 
+async function ariaCharger(){
+  ariaAddMsg('bot','Chargement de vos données...');
+  ariaSetStatus('Chargement...');
+  try{
+    const clients=await fetchAll('Clients');
+    const now=new Date();
+    const y=now.getFullYear(),m=now.getMonth(),d=now.getDate();
+    const dow=(new Date(y,m,d)).getDay();
+    const nextMon=dow===1?0:(8-dow)%7;
+    const semaine=`${y}-${String(m+1).padStart(2,'0')}-${String(d+nextMon-(dow===1?7:0)).padStart(2,'0')}`;
+    const cmdSem=allCommandes.filter(c=>(c.fields['Semaine du']||'').includes(semaine));
+    const actifs=recettes.filter(r=>r.fields['Active ?']);
+    ariaSysPrompt=`Tu es ARIA, assistante d'Alizée de "Le Goût du Lien" (batch cooking à domicile, 60€/sem, 5 plats, 4 portions). Réponds en français, court et naturel (max 3 phrases). **gras** pour les chiffres.
+Aujourd'hui: ${now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}.
+Semaine: ${semaine}. Commandes (${cmdSem.length}): ${cmdSem.map(c=>`${c.fields['Client']}|${c.fields['Créneau']}|${[c.fields['Plat 1'],c.fields['Plat 2'],c.fields['Plat 3'],c.fields['Plat 4'],c.fields['Plat 5']].map(resolveNom).filter(Boolean).join(',')}`).join(' / ')||'aucune'}.
+Plats actifs (${actifs.length}): ${actifs.map(r=>r.fields['Nom du plat']).join(', ')}.
+Clients (${clients.length}): ${clients.map(c=>c.fields['Nom']||'').join(', ')}.
+Salariés (${salaries.length}): ${salaries.map(s=>s.fields['Nom']||'').join(', ')}.
+Historique: ${allCommandes.slice(0,15).map(c=>`${c.fields['Semaine du']}|${c.fields['Client']}|${c.fields['Statut']}`).join(' / ')}.`;
+    ariaLoaded=true;
+    document.getElementById('ariaMsgs').innerHTML='';
+    document.getElementById('ariaSend').disabled=false;
+    const msg=`**Bonjour Alizée !** **${actifs.length} plats actifs**, **${cmdSem.length} commandes** cette semaine, **${clients.length} clients**. Comment puis-je vous aider ?`;
+    ariaAddMsg('bot',msg);
+    ariaSpeak(msg.replace(/\*\*/g,''));
+    ariaSetStatus(`${actifs.length} plats · ${cmdSem.length} commandes`);
+  }catch(e){ariaAddMsg('bot','Erreur de chargement: '+e.message);ariaSetStatus('Erreur')}
+}
+ 
+function ariaAddMsg(type,text){
+  const div=document.getElementById('ariaMsgs');
+  const m=document.createElement('div');m.className='aria-msg '+type;
+  const html=text.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+  m.innerHTML=`<div class="aria-mav">${type==='bot'?'👩‍🍳':'👤'}</div><div class="aria-bub">${html}</div>`;
+  div.appendChild(m);div.scrollTop=div.scrollHeight;
+}
+ 
+function ariaAddTyping(){
+  const div=document.getElementById('ariaMsgs');
+  const t=document.createElement('div');t.className='aria-msg bot';t.id='ariaTyp';
+  t.innerHTML='<div class="aria-mav">👩‍🍳</div><div class="aria-bub"><div class="aria-typing"><span></span><span></span><span></span></div></div>';
+  div.appendChild(t);div.scrollTop=div.scrollHeight;
+}
+ 
+function ariaUseSug(btn){document.getElementById('ariaInp').value=btn.textContent.replace(/^.\s/,'');ariaSend()}
+ 
+async function ariaSend(){
+  const inp=document.getElementById('ariaInp');
+  const msg=inp.value.trim();
+  if(!msg||ariaBusy||!ariaLoaded)return;
+  inp.value='';ariaBusy=true;document.getElementById('ariaSend').disabled=true;
+  if(ariaSynth)ariaSynth.cancel();
+  ariaAddMsg('user',msg);ariaConv.push({role:'user',content:msg});
+  ariaAddTyping();ariaSetStatus('Je réfléchis...');
+  try{
+    const r=await fetch('/.netlify/functions/claude',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:300,system:ariaSysPrompt,messages:ariaConv})});
+    const d=await r.json();
+    document.getElementById('ariaTyp')?.remove();
+    const reply=d.content?.[0]?.text||(d.error?'Erreur: '+d.error.message:'Pas de réponse.');
+    ariaAddMsg('bot',reply);ariaConv.push({role:'assistant',content:reply});
+    if(ariaConv.length>16)ariaConv=ariaConv.slice(-16);
+    ariaSpeak(reply.replace(/\*\*/g,''));
+  }catch(e){document.getElementById('ariaTyp')?.remove();ariaSetStatus('Prête à vous aider');ariaAddMsg('bot','Erreur de connexion.')}
+  ariaBusy=false;document.getElementById('ariaSend').disabled=false;inp.focus();
+}
+ 
 document.getElementById('iMdp').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
+document.getElementById('ariaInp').addEventListener('keydown',e=>{if(e.key==='Enter')ariaSend()});
+ 
 if(sessionStorage.getItem('admin')==='1'){
   document.getElementById('pLogin').style.display='none';
   document.getElementById('pAdmin').style.display='block';
+  document.getElementById('ariaFab').style.display='flex';
   initAdmin();
-}else{
-  document.getElementById('pLogin').style.display='flex';
 }
 </script>
 </body>
