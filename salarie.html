@@ -1,24 +1,27 @@
-Salarie · HTML
-Copier
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Le Goût du Lien – Mon planning</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="apple-touch-icon" href="https://res.cloudinary.com/dgoqyp3wn/image/upload/v1774719838/ChatGPT_Image_28_mars_2026_18_37_48_u200aw.png">
+<link rel="icon" type="image/png" href="https://res.cloudinary.com/dgoqyp3wn/image/upload/v1774719838/ChatGPT_Image_28_mars_2026_18_37_48_u200aw.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Le Goût du Lien · Salarié">
+<meta name="theme-color" content="#2d5a3d">
 <style>
 :root{--vert:#3d6b4f;--vc:#5a8a6a;--vp:#eef4f0;--bg:#f8f4ee;--bgd:#ede7db;--tx:#2c2c2c;--txl:#6b6b6b;--wh:#fff;--sh:0 4px 24px rgba(0,0,0,.08);--r:16px}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh}
 header{background:var(--vert);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100}
-.logo{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#fff}
+.logo{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:#fff}
 .logo span{font-size:12px;font-weight:400;opacity:.7;display:block;margin-top:-2px}
 .hbtn{padding:7px 14px;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);border-radius:8px;font-size:13px;color:#fff;cursor:pointer;font-family:'DM Sans',sans-serif}
 #pLogin{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--bg),var(--vp));padding:20px}
 .lcard{background:var(--wh);border-radius:24px;padding:44px 36px;width:100%;max-width:400px;box-shadow:var(--sh);text-align:center}
-.llogo{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--vert);margin-bottom:4px}
+.llogo{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;color:var(--vert);margin-bottom:4px}
 .ltag{font-size:13px;color:var(--txl);margin-bottom:28px}
 .fg{margin-bottom:14px;text-align:left}
 .fg label{display:block;font-size:12px;font-weight:500;color:var(--txl);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
@@ -29,16 +32,16 @@ header{background:var(--vert);padding:0 24px;display:flex;align-items:center;jus
 .lerr{background:#fdecea;color:#c62828;padding:10px;border-radius:9px;font-size:13px;margin-top:10px;display:none}
 #pSalarie{display:none}
 .main{padding:28px 24px;max-width:800px;margin:0 auto}
-.welcome{font-family:'Playfair Display',serif;font-size:24px;font-weight:600;margin-bottom:6px}
+.welcome{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;margin-bottom:6px}
 .welcome-sub{font-size:14px;color:var(--txl);margin-bottom:28px}
 .sem-nav{display:flex;align-items:center;gap:10px;margin-bottom:24px;flex-wrap:wrap}
 .sem-select{padding:9px 14px;border:1.5px solid var(--bgd);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:14px;background:var(--wh);color:var(--tx);cursor:pointer;outline:none}
 .sem-select:focus{border-color:var(--vert)}
 .stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:24px}
 .stat-card{background:var(--wh);border-radius:var(--r);padding:16px;box-shadow:var(--sh);text-align:center}
-.stat-num{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--vert)}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:var(--vert)}
 .stat-lbl{font-size:12px;color:var(--txl);margin-top:3px}
-.stit{font-family:'Playfair Display',serif;font-size:18px;font-weight:600;margin-bottom:14px}
+.stit{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;margin-bottom:14px}
 .mission-card{background:var(--wh);border-radius:var(--r);padding:22px;box-shadow:var(--sh);margin-bottom:14px;border-left:4px solid var(--vert)}
 .mission-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px}
 .mission-date{font-size:13px;font-weight:600;color:var(--vert);margin-bottom:2px}
@@ -92,11 +95,11 @@ header{background:var(--vert);padding:0 24px;display:flex;align-items:center;jus
 </head>
 <body>
 <div class="lov" id="lov"><div class="spin"></div><div class="ltxt">Chargement...</div></div>
- 
+
 <!-- LOGIN -->
 <div id="pLogin">
   <div class="lcard">
-    <div class="llogo">Le Goût du Lien</div>
+    <img src="https://res.cloudinary.com/dgoqyp3wn/image/upload/v1774719838/ChatGPT_Image_28_mars_2026_18_37_48_u200aw.png" alt="Le Goût du Lien" style="height:70px;width:auto;object-fit:contain;display:block;margin:0 auto 12px">
     <div class="ltag">Espace salarié – Mon planning</div>
     <div class="fg"><label>Email</label><input type="email" id="iEmail" placeholder="votre@email.com"></div>
     <div class="fg"><label>Mot de passe</label><input type="password" id="iMdp" placeholder="••••••••"></div>
@@ -104,11 +107,11 @@ header{background:var(--vert);padding:0 24px;display:flex;align-items:center;jus
     <div class="lerr" id="lerr"></div>
   </div>
 </div>
- 
+
 <!-- PLANNING -->
 <div id="pSalarie">
   <header>
-    <div class="logo">Le Goût du Lien <span>Mon planning</span></div>
+    <div class="logo"><img src="https://res.cloudinary.com/dgoqyp3wn/image/upload/v1774719838/ChatGPT_Image_28_mars_2026_18_37_48_u200aw.png" alt="Le Goût du Lien" style="height:34px;width:auto;object-fit:contain;display:block"></div>
     <button class="hbtn" onclick="logout()">Déconnexion</button>
   </header>
   <div class="main">
@@ -134,18 +137,18 @@ header{background:var(--vert);padding:0 24px;display:flex;align-items:center;jus
     <div id="missionsDiv"></div>
   </div>
 </div>
- 
+
 <script>
 const AK='patvhOGv8O9szhfm9.2b3cb31f20ecd6c0271669df216fa0224adc9b1e16c7f98ce6f5b14575a75905';
 const BID='appTNygSM2x5VdNy6';
 const AT=`https://api.airtable.com/v0/${BID}`;
 const H={'Authorization':`Bearer ${AK}`,'Content-Type':'application/json'};
- 
+
 let salarieRecord=null,recettes=[],riRecs=[];
- 
+
 function showLoad(){document.getElementById('lov').style.display='flex'}
 function hideLoad(){document.getElementById('lov').style.display='none'}
- 
+
 async function fetchAll(tbl,sort=''){
   let recs=[],offset=null;
   do{
@@ -158,7 +161,7 @@ async function fetchAll(tbl,sort=''){
   }while(offset);
   return recs;
 }
- 
+
 async function login(){
   const email=document.getElementById('iEmail').value.trim();
   const mdp=document.getElementById('iMdp').value.trim();
@@ -180,7 +183,7 @@ async function login(){
   hideLoad();
 }
 function logout(){sessionStorage.removeItem('salarie');location.reload()}
- 
+
 function getLundis(){
   const res=[];
   const now=new Date();
@@ -194,7 +197,7 @@ function getLundis(){
   }
   return res;
 }
- 
+
 async function initSalarie(){
   const prenom=(salarieRecord.fields['Nom']||'').split(' ')[0];
   document.getElementById('welcomeTxt').textContent='Bonjour '+prenom+' !';
@@ -218,7 +221,7 @@ async function initSalarie(){
   initCalSelects();
   await chargerMissions();
 }
- 
+
 function resolveNom(val){
   if(!val)return null;
   const v=Array.isArray(val)?val[0]:val;
@@ -226,7 +229,7 @@ function resolveNom(val){
   if(typeof v==='string'&&!v.startsWith('rec'))return v;
   return recettes.find(r=>r.id===v)?.fields['Nom du plat']||null;
 }
- 
+
 async function chargerMissions(){
   const semId=document.getElementById('semSelect').value;
   showLoad();
@@ -236,28 +239,28 @@ async function chargerMissions(){
       fetchAll('Clients'),
       fetchAll('Ingr%C3%A9dients')
     ]);
- 
+
     const nomSalarie=salarieRecord.fields['Nom']||'';
     const ingCache={};
     ingRecs.forEach(r=>{const n=r.fields['Nom ingrédient']||'';if(n)ingCache[n]=r.fields['Rayon']||''});
- 
+
     // Filtrer mes missions
     const mesMissions=commandes.filter(c=>{
       const semOk=(c.fields['Semaine du']||'').includes(semId);
       const assignOk=(c.fields['Assigné à']||'').trim()===nomSalarie.trim();
       return semOk&&assignOk;
     });
- 
+
     // Stats
     document.getElementById('statsRow').innerHTML=`
       <div class="stat-card"><div class="stat-num">${mesMissions.length}</div><div class="stat-lbl">Mission${mesMissions.length>1?'s':''}</div></div>
       <div class="stat-card"><div class="stat-num">${mesMissions.length*5}</div><div class="stat-lbl">Plats à préparer</div></div>`;
- 
+
     if(mesMissions.length===0){
       document.getElementById('missionsDiv').innerHTML=`<div class="empty"><div class="empty-icon">🗓️</div><p>Aucune mission assignée pour cette semaine.</p></div>`;
       hideLoad();return;
     }
- 
+
     document.getElementById('missionsDiv').innerHTML=mesMissions.map((cmd,mIdx)=>{
       const f=cmd.fields;
       const plats=[f['Plat 1'],f['Plat 2'],f['Plat 3'],f['Plat 4'],f['Plat 5']].map(resolveNom).filter(Boolean);
@@ -267,7 +270,7 @@ async function chargerMissions(){
       const crenParts=(f['Créneau']||'').split('·');
       const crenJour=crenParts[0]||'';
       const crenHeure=crenParts[1]||'';
- 
+
       return`<div class="mission-card">
         <div class="mission-header">
           <div>
@@ -285,7 +288,10 @@ async function chargerMissions(){
           <div style="font-size:12px;color:var(--txl);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Plats à préparer (4 portions chacun)</div>
           ${plats.map((p,pIdx)=>{
             const ings=riRecs.filter(r=>(r.fields['Nom ligne']||'').startsWith(p));
+            const platRecS=recettes.find(r=>r.fields['Nom du plat']===p);
+            const imgS=platRecS?.fields['Photo URL']||(platRecS?.fields['Photo']?.[0]?.url)||null;
             return`<div class="plat-item">
+              ${imgS?`<img src="${imgS}" style="width:100%;height:90px;object-fit:cover;border-radius:8px 8px 0 0;display:block" onerror="this.style.display='none'">`:''}
               <div class="plat-header" onclick="toggleIng('ing-${mIdx}-${pIdx}',this)">
                 <span>🍽️ ${p}</span>
                 <span class="plat-arrow" id="arr-${mIdx}-${pIdx}">▼</span>
@@ -314,18 +320,18 @@ async function chargerMissions(){
   }catch(e){document.getElementById('missionsDiv').innerHTML=`<p style="color:red;padding:20px">Erreur: ${e.message}</p>`}
   hideLoad();
 }
- 
+
 function toggleIng(id,header){
   const div=document.getElementById(id);
   const arr=header.querySelector('.plat-arrow');
   const open=div.classList.toggle('open');
   arr.textContent=open?'▲':'▼';
 }
- 
+
 // CALENDRIER SALARIÉ
 let curView='liste';
 let toutes=[];
- 
+
 function setView(v){
   curView=v;
   ['liste','semaine','mois'].forEach(x=>{
@@ -340,7 +346,7 @@ function setView(v){
   if(v==='semaine')renderCalSem();
   if(v==='mois')renderCalMois();
 }
- 
+
 function initCalSelects(){
   // Semaines
   const selS=document.getElementById('calSemSelect');
@@ -373,7 +379,7 @@ function initCalSelects(){
     }
   }
 }
- 
+
 function renderCalSem(){
   initCalSelects();
   const semId=document.getElementById('calSemSelect').value;
@@ -400,7 +406,7 @@ function renderCalSem(){
     </div>`;
   }).join('')}</div>`;
 }
- 
+
 function renderCalMois(){
   initCalSelects();
   const val=document.getElementById('calMoisSelect').value;
@@ -439,9 +445,9 @@ function renderCalMois(){
   html+=`</div>`;
   document.getElementById('calContainer').innerHTML=html;
 }
- 
+
 // toutes est chargé dans initSalarie
- 
+
 document.getElementById('iEmail').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
 document.getElementById('iMdp').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
 const sc=sessionStorage.getItem('salarie');
