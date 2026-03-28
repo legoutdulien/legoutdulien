@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Le Goût du Lien</title>
+<link rel="apple-touch-icon" href="https://res.cloudinary.com/dgoqyp3wn/image/upload/v1774719838/ChatGPT_Image_28_mars_2026_18_37_48_u200aw.png">
+<meta name="apple-mobile-web-app-title" content="Le Goût du Lien">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{--vert:#3d6b4f;--vc:#5a8a6a;--vp:#eef4f0;--bg:#f8f4ee;--bgd:#ede7db;--tx:#2c2c2c;--txl:#6b6b6b;--wh:#fff;--sh:0 4px 24px rgba(0,0,0,.08);--r:16px}
@@ -211,7 +213,7 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
     <div class="fg"><label>Mot de passe</label><input type="password" id="iMdp" placeholder="••••••••"></div>
     <button class="btnLogin" onclick="login()">Se connecter</button>
     <div class="lerr" id="lerr"></div>
-    <div style="margin-top:20px;font-size:13px;color:var(--txl)">Problème ? <a href="mailto:legoutdulien.contact@gmail.com" style="color:var(--vert)">Contactez Alizée</a></div>
+    <div style="margin-top:20px;font-size:13px;color:var(--txl)">Problème ? <a href="/cdn-cgi/l/email-protection#325e57555d474656475e5b575c1c515d5c4653514672555f535b5e1c515d5f" style="color:var(--vert)">Contactez Alizée</a></div>
   </div>
 </div>
 
@@ -299,7 +301,7 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
   <div class="main" id="detailMain"></div>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 const AK='patvhOGv8O9szhfm9.2b3cb31f20ecd6c0271669df216fa0224adc9b1e16c7f98ce6f5b14575a75905';
 const BID='appTNygSM2x5VdNy6';
 const AT=`https://api.airtable.com/v0/${BID}`;
@@ -477,7 +479,7 @@ function renderDetail(data){
     <div id="tc-plats" class="tc on">
       <div class="ecgrid">${platsDetail.map(p=>`
         <div class="eccard" onclick="voirIngDetail('${(p['Nom du plat']||'').replace(/'/g,"\\'")}')">
-          ${p['Photo']&&p['Photo'][0]?`<img class="ecimg" src="${p['Photo'][0].url}" alt="${p['Nom du plat']}">`:
+          ${(p['Photo URL']||(p['Photo']&&p['Photo'][0]?p['Photo'][0].url:null))?`<img class="ecimg" src="${p['Photo URL']||p['Photo'][0].url}" alt="${p['Nom du plat']}">` :
           `<div class="ecph">🍽️</div>`}
           <div class="ecinfo">
             <div class="ecnom">${p['Nom du plat']||''}</div>
@@ -564,7 +566,7 @@ async function voirIng(nom){
     const platRec=platsList.find(p=>p.fields['Nom du plat']===nom);
     const pf=platRec?platRec.fields:{};
     document.getElementById('mcont').innerHTML=`
-      ${pf['Photo']&&pf['Photo'][0]?`<img class="mimg" src="${pf['Photo'][0].url}" alt="${nom}">`:
+      ${(pf['Photo URL']||(pf['Photo']&&pf['Photo'][0]?pf['Photo'][0].url:null))?`<img class="mimg" src="${pf['Photo URL']||pf['Photo'][0].url}" alt="${nom}">` :
       `<div class="mph">🍽️</div>`}
       <div class="mbody">
         <div class="mtit2">${nom}</div>
@@ -588,7 +590,7 @@ async function voirIngDetail(nom){
     const ings=riRecs.filter(r=>(r.fields['Nom ligne']||'').startsWith(nom));
     const plat=platsDetail.find(p=>p['Nom du plat']===nom)||{};
     document.getElementById('mcont').innerHTML=`
-      ${plat['Photo']&&plat['Photo'][0]?`<img class="mimg" src="${plat['Photo'][0].url}" alt="${nom}">`:
+      ${(plat['Photo URL']||(plat['Photo']&&plat['Photo'][0]?plat['Photo'][0].url:null))?`<img class="mimg" src="${plat['Photo URL']||plat['Photo'][0].url}" alt="${nom}">` :
       `<div class="mph">🍽️</div>`}
       <div class="mbody">
         <div class="mtit2">${nom}</div>
@@ -727,7 +729,7 @@ function renderPlats(){
     const f=rec.fields;
     const nom=f['Nom du plat']||'';
     const cat=f['Catégorie']||'';
-    const img=f['Photo']&&f['Photo'][0]?f['Photo'][0].url:null;
+    const img=f['Photo URL']||(f['Photo']&&f['Photo'][0]?f['Photo'][0].url:null);
     const card=document.createElement('div');
     card.className='pcard';card.dataset.id=rec.id;card.dataset.nom=nom;
     card.onclick=()=>togglePlat(rec.id,nom,card);
@@ -842,9 +844,4 @@ async function voirNouvelleCommande(cmdId){
 }
 
 document.getElementById('iEmail').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
-document.getElementById('iMdp').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
-const sc=sessionStorage.getItem('client');
-if(sc){client=JSON.parse(sc);loadDash()}else showPage('pLogin');
-</script>
-</body>
-</html>
+document.getElementById('iMdp').addEventListener('keydown',e=>{if(
