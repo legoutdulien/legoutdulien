@@ -250,7 +250,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
 </style>
 </head>
 <body>
- 
+
 <!-- ═══ LOGIN ═══ -->
 <div id="pLogin">
   <div class="lcard">
@@ -262,7 +262,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
     <div class="lerr" id="lerr">Mot de passe incorrect</div>
   </div>
 </div>
- 
+
 <!-- ═══ APP ═══ -->
 <div id="pApp">
   <div class="topbar">
@@ -292,10 +292,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
     </div>
   </div>
 </div>
- 
+
 <!-- ARIA FAB -->
 <button class="aria-fab" id="ariaFab" onclick="toggleAria()">🌿</button>
- 
+
 <!-- ARIA PANEL -->
 <div class="aria-panel" id="ariaPanel">
   <div class="aria-hd">
@@ -333,7 +333,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
     </div>
   </div>
 </div>
- 
+
 <!-- MODAL INGRÉDIENTS (lecture depuis planning) -->
 <div class="overlay" id="modalIng">
   <div class="modal">
@@ -344,7 +344,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
     <div id="modalIngBody"></div>
   </div>
 </div>
- 
+
 <!-- MODAL RECETTE -->
 <div class="overlay" id="modalRecette">
   <div class="modal" style="max-width:620px">
@@ -356,8 +356,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
       <div class="fg"><label>Nom du plat *</label><input id="rNom" type="text" placeholder="Ex: Ratatouille provençale"></div>
       <div class="fg"><label>Catégorie</label>
         <select id="rCat">
-          <option>Légumes</option><option>Viande</option><option>Poisson</option>
-          <option>Végétarien</option><option>Soupe</option><option>Autre</option>
+          <option>Viande</option><option>Poisson</option><option>Végé</option>
+          <option>Poulet</option><option>Pâtes</option><option>Plat</option>
+          <option>Cuisine du monde</option>
         </select>
       </div>
       <div class="fg"><label>Frigo (jours)</label><input id="rFrigo" type="number" min="1" max="10" value="5"></div>
@@ -365,6 +366,18 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
       <div class="fg" style="grid-column:1/-1"><label>Instructions préparation</label><textarea id="rPrep" rows="3" placeholder="Étapes de préparation pour les salariés..."></textarea></div>
       <div class="fg" style="grid-column:1/-1"><label>Instructions réchauffage</label><textarea id="rRechauffage" rows="2" placeholder="Comment réchauffer ce plat..."></textarea></div>
       <div class="fg" style="grid-column:1/-1"><label>Congélation</label><input id="rCongelation" type="text" placeholder="Ex: Se congèle 3 mois"></div>
+      <div class="fg" style="grid-column:1/-1">
+        <label>Photo du plat</label>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <div id="rPhotoPreview" style="width:80px;height:80px;border-radius:10px;background:var(--bgc);border:1.5px dashed var(--bgd);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;overflow:hidden">🍽️</div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+            <button type="button" class="btn btn-ghost" onclick="uploadPhoto()" id="btnUpload">📷 Choisir une photo</button>
+            <div style="font-size:11px;color:var(--txl)" id="rPhotoNom">Aucune photo sélectionnée</div>
+          </div>
+        </div>
+        <input type="hidden" id="rPhoto">
+        <input type="file" id="rPhotoFile" accept="image/*" style="display:none" onchange="handlePhotoFile(this)">
+      </div>
     </div>
     <!-- INGRÉDIENTS -->
     <div class="modal-section">
@@ -387,7 +400,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
     </div>
   </div>
 </div>
- 
+
 <!-- MODAL CLIENT -->
 <div class="overlay" id="modalClient">
   <div class="modal">
@@ -410,7 +423,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
     </div>
   </div>
 </div>
- 
+
 <!-- MODAL SALARIÉ -->
 <div class="overlay" id="modalSalarie">
   <div class="modal">
@@ -431,7 +444,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
     </div>
   </div>
 </div>
- 
+
 <!-- MODAL COMMANDE -->
 <div class="overlay" id="modalCommande">
   <div class="modal" style="max-width:600px">
@@ -470,7 +483,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
     </div>
   </div>
 </div>
- 
+
 <!-- MODAL DÉTAIL JOUR CALENDRIER -->
 <div class="overlay" id="modalCalJour">
   <div class="modal">
@@ -481,28 +494,28 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
     <div id="modalCalBody"></div>
   </div>
 </div>
- 
+
 <div class="toast" id="toast"></div>
- 
+
 <script>
 const AK='patvhOGv8O9szhfm9.2b3cb31f20ecd6c0271669df216fa0224adc9b1e16c7f98ce6f5b14575a75905';
 const BID='appTNygSM2x5VdNy6';
 const AT=`https://api.airtable.com/v0/${BID}`;
 const H={'Authorization':`Bearer ${AK}`,'Content-Type':'application/json'};
 const PWD='legoutdulien2026';
- 
+
 let DATA={commandes:[],recettes:[],ri:[],clients:[],salaries:[],ingredients:[]};
 let curOffset=0, crenOffset=0;
 let ariaConv=[], ariaSys='', ariaBusy=false;
 let recognition=null, isRec=false;
 let ingBuffer=[];
 const synth=window.speechSynthesis;
- 
+
 // ── CRÉNEAUX LOCAL STORAGE ──
 function crKey(sem,j){return`cr_${sem}_${j}`}
 function crActif(sem,j){const v=localStorage.getItem(crKey(sem,j));return v===null?true:v==='1'}
 function crSet(sem,j,v){localStorage.setItem(crKey(sem,j),v?'1':'0')}
- 
+
 // ── AUTH ──
 function login(){
   if(document.getElementById('iMdp').value.trim()===PWD){
@@ -514,7 +527,7 @@ function login(){
 }
 function logout(){sessionStorage.removeItem('adm');location.reload()}
 document.getElementById('iMdp').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
- 
+
 // ── AIRTABLE ──
 function tblUrl(tbl){
   // Encode uniquement le nom de la table (pas les slashes du chemin)
@@ -542,7 +555,7 @@ async function create(tbl,fields){
 async function del(tbl,id){
   await fetch(`${tblUrl(tbl)}/${id}`,{method:'DELETE',headers:H});
 }
- 
+
 // ── CHARGEMENT ──
 async function chargerTout(){
   try{
@@ -568,7 +581,7 @@ async function chargerTout(){
     document.getElementById('content').innerHTML=`<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-txt">Erreur : ${e.message}</div></div>`;
   }
 }
- 
+
 // ── UTILS ──
 function getMonday(off=0){
   const d=new Date(),dy=d.getDay();
@@ -606,7 +619,7 @@ function toast(msg){
 }
 function openModal(id){document.getElementById(id).classList.add('open')}
 function closeModal(id){document.getElementById(id).classList.remove('open')}
- 
+
 // ══════════════════════════════════════
 //  PLANNING
 // ══════════════════════════════════════
@@ -614,14 +627,14 @@ function renderPlanning(){
   const semaine=getMonday(curOffset);
   const cmdSem=DATA.commandes.filter(c=>(c.fields['Semaine du']||'').includes(semaine));
   const salOpts=`<option value="">Non assigné</option>`+DATA.salaries.map(s=>`<option value="${s.fields['Nom']||''}">${s.fields['Nom']||'–'}</option>`).join('');
- 
+
   const stats=`<div class="stats-row">
     <div class="stat-card"><div class="stat-val">${cmdSem.length}</div><div class="stat-lbl">Commandes</div></div>
     <div class="stat-card"><div class="stat-val">${[...new Set(cmdSem.map(c=>c.fields['Client']).filter(Boolean))].length}</div><div class="stat-lbl">Clients</div></div>
     <div class="stat-card"><div class="stat-val">${cmdSem.filter(c=>(c.fields['Statut']||'').includes('Livr')||(c.fields['Statut']||'').includes('Termin')).length}</div><div class="stat-lbl">Livrées</div></div>
     <div class="stat-card"><div class="stat-val">${cmdSem.reduce((a,c)=>a+(parseInt(c.fields['Nb portions'])||4),0)}</div><div class="stat-lbl">Portions totales</div></div>
   </div>`;
- 
+
   const cmdsHtml=cmdSem.length?cmdSem.map(c=>{
     const f=c.fields;
     const plats=[f['Plat 1'],f['Plat 2'],f['Plat 3'],f['Plat 4'],f['Plat 5']].map(resolveNom).filter(Boolean);
@@ -650,7 +663,7 @@ function renderPlanning(){
       </div>
     </div>`;
   }).join(''):`<div class="empty"><div class="empty-icon">📭</div><div class="empty-txt">Aucune commande cette semaine</div></div>`;
- 
+
   showContent(`<div class="card">
     <div class="card-head">
       <div class="card-tit">📅 Planning <span>${cmdSem.length} commande(s)</span></div>
@@ -664,14 +677,14 @@ function renderPlanning(){
     ${stats}
     <div class="cmd-grid">${cmdsHtml}</div>
   </div>`);
- 
+
   cmdSem.forEach(c=>{
     const sel=document.getElementById(`asel-${c.id}`);
     if(sel&&c.fields['Assigné à'])sel.value=c.fields['Assigné à'];
   });
 }
 function changerSemaine(d){curOffset+=d;renderPlanning()}
- 
+
 async function supprimerCommande(id){
   if(!confirm('Supprimer cette commande ?'))return;
   await del('Commandes',id);
@@ -683,29 +696,29 @@ async function assignerSalarie(cmdId,nom){
   const cmd=DATA.commandes.find(c=>c.id===cmdId);if(cmd)cmd.fields['Assigné à']=nom;
   toast('✅ Assignation enregistrée');
 }
- 
+
 // MODIFIER COMMANDE
 function ouvrirModifCommande(id){
   const cmd=DATA.commandes.find(c=>c.id===id);if(!cmd)return;
   const f=cmd.fields;
   document.getElementById('cmdId').value=id;
   document.getElementById('modalCmdTit').textContent='Modifier · '+(f['Client']||'Commande');
- 
+
   const cliSel=document.getElementById('cmdClient');
   cliSel.innerHTML=DATA.clients.map(c=>`<option value="${c.fields['Nom']||''}">${c.fields['Nom']||'–'}</option>`).join('');
   cliSel.value=f['Client']||'';
- 
+
   document.getElementById('cmdCreneau').value=f['Créneau']||'Lundi matin';
   const semDate=(f['Semaine du']||'').match(/\d{4}-\d{2}-\d{2}/)?.[0]||getMonday(0);
   document.getElementById('cmdSemaine').value=semDate;
- 
+
   const salSel=document.getElementById('cmdSalarie');
   salSel.innerHTML=`<option value="">Non assigné</option>`+DATA.salaries.map(s=>`<option value="${s.fields['Nom']||''}">${s.fields['Nom']||'–'}</option>`).join('');
   salSel.value=f['Assigné à']||'';
- 
+
   document.getElementById('cmdPortions').value=f['Nb portions']||4;
   document.getElementById('cmdStatut').value=f['Statut']||'En attente';
- 
+
   const selPlats=[f['Plat 1'],f['Plat 2'],f['Plat 3'],f['Plat 4'],f['Plat 5']].map(resolveNom).filter(Boolean);
   const platsActifs=DATA.recettes.filter(r=>r.fields['Active ?']);
   document.getElementById('platSelectGrid').innerHTML=platsActifs.map(r=>{
@@ -736,14 +749,14 @@ async function saveCommande(){
   const cmd=DATA.commandes.find(c=>c.id===id);if(cmd)Object.assign(cmd.fields,fields);
   toast('✅ Commande modifiée');closeModal('modalCommande');renderPlanning();
 }
- 
+
 // VOIR INGRÉDIENTS
 async function voirIngredients(nomEnc,portions){
   const nomPlat=decodeURIComponent(nomEnc);
   const recRec=DATA.recettes.find(r=>r.fields['Nom du plat']===nomPlat);
   const pf=recRec?.fields||{};
   // Photo
-  const photoUrl=pf['Photo']?.[0]?.url||pf['Photos']?.[0]?.url||pf['Image']?.[0]?.url||null;
+  const photoUrl=pf['Photo URL']||pf['Photo']?.[0]?.url||null;
   const ings=DATA.ri.filter(r=>(r.fields['Nom ligne']||'').startsWith(nomPlat));
   const ingsHtml=ings.length?`<div style="display:flex;flex-direction:column;gap:0">${ings.map(r=>{
     const nl=r.fields['Nom ligne']||'';
@@ -756,7 +769,7 @@ async function voirIngredients(nomEnc,portions){
       <span style="font-weight:600;color:var(--v2);font-size:14px">${total} <span style="font-size:11px;font-weight:400;color:var(--txl)">${u!=='Unité par défaut'?u:''}</span></span>
     </div>`;
   }).join('')}</div>`:`<p style="color:var(--txl);font-size:13px;padding:12px 0">Aucun ingrédient renseigné pour ce plat.</p>`;
- 
+
   document.getElementById('modalIngTit').textContent=nomPlat;
   document.getElementById('modalIngBody').innerHTML=`
     ${photoUrl?`<img src="${photoUrl}" style="width:100%;height:180px;object-fit:cover;border-radius:12px;margin-bottom:16px">`:''}
@@ -770,7 +783,7 @@ async function voirIngredients(nomEnc,portions){
     ${pf['Congélation']?`<div style="margin-top:4px;font-size:12px;color:var(--txl)">🧊 Congélation : ${pf['Congélation']}</div>`:''}`;
   openModal('modalIng');
 }
- 
+
 // ══════════════════════════════════════
 //  CALENDRIER
 // ══════════════════════════════════════
@@ -784,7 +797,7 @@ function renderCalendrier(){
   const todayStr=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
   const moisNoms=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
   const jours=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
- 
+
   let cells=[];
   // Jours du mois précédent (padding)
   for(let i=0;i<startDay;i++){
@@ -794,7 +807,7 @@ function renderCalendrier(){
   for(let d=1;d<=last.getDate();d++) cells.push({date:new Date(y,m,d),otherMonth:false});
   // Compléter à 42 cases
   while(cells.length<42){const d=new Date(y,m+1,cells.length-startDay-last.getDate()+1);cells.push({date:d,otherMonth:true});}
- 
+
   // Matcher commandes par date exacte
   function getCmdsForDate(dateObj){
     const iso=`${dateObj.getFullYear()}-${String(dateObj.getMonth()+1).padStart(2,'0')}-${String(dateObj.getDate()).padStart(2,'0')}`;
@@ -813,7 +826,7 @@ function renderCalendrier(){
       return matchSem&&matchJour;
     });
   }
- 
+
   const grid=cells.map(({date,otherMonth})=>{
     const iso=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
     const cmds=getCmdsForDate(date);
@@ -825,7 +838,7 @@ function renderCalendrier(){
       ${cmds.length>3?`<div style="font-size:9px;color:var(--txl);text-align:right">+${cmds.length-3}</div>`:''}
     </div>`;
   }).join('');
- 
+
   showContent(`<div class="card">
     <div class="card-head">
       <div class="card-tit">🗓️ ${moisNoms[m]} ${y}</div>
@@ -867,14 +880,14 @@ function voirJourCal(iso,dow){
   }).join(''):`<p style="color:var(--txl);text-align:center;padding:20px">Aucune commande ce jour</p>`;
   openModal('modalCalJour');
 }
- 
+
 // ══════════════════════════════════════
 //  RECETTES
 // ══════════════════════════════════════
 function renderRecettes(){
   const recGrid=DATA.recettes.map(r=>{
     const f=r.fields;const actif=!!f['Active ?'];
-    const photoUrl=f['Photo']?.[0]?.url||f['Photos']?.[0]?.url||f['Image']?.[0]?.url||null;
+    const photoUrl=f['Photo URL']||f['Photo']?.[0]?.url||null;
     const nbIngs=DATA.ri.filter(x=>(x.fields['Nom ligne']||'').startsWith(f['Nom du plat']||'')).length;
     return`<div class="rec-card${actif?'':' inactif'}" onclick="editerRecette('${r.id}')">
       ${photoUrl?`<img src="${photoUrl}" style="width:100%;height:130px;object-fit:cover;display:block">`:`<div class="rec-img">🍽️</div>`}
@@ -883,12 +896,12 @@ function renderRecettes(){
         <div class="rec-cat">${f['Catégorie']||'–'} · ${nbIngs} ingr. · ${f['Frigo en jours']||'?'}j frigo</div>
         <div class="rec-footer">
           <button class="toggle-btn ${actif?'toggle-on':'toggle-off'}" onclick="event.stopPropagation();toggleRecette('${r.id}',${actif})" style="padding:4px 10px;border-radius:16px;font-size:11px;font-weight:500;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;background:${actif?'#e8f5e9':'#ffebee'};color:${actif?'#2e7d32':'#c62828'}">${actif?'✓ Actif':'✗ Inactif'}</button>
-          <span style="font-size:11px;color:var(--txl)">Cliquer pour modifier</span>
+          <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();supprimerRecette('${r.id}')">🗑️</button>
         </div>
       </div>
     </div>`;
   }).join('');
- 
+
   showContent(`<div class="card">
     <div class="card-head">
       <div class="card-tit">🍽️ Recettes <span>${DATA.recettes.length} plats</span></div>
@@ -897,13 +910,13 @@ function renderRecettes(){
     <div class="rec-grid">${recGrid||'<div class="empty"><div class="empty-icon">🍽️</div><div class="empty-txt">Aucune recette</div></div>'}</div>
   </div>`);
 }
- 
+
 async function toggleRecette(id,actif){
   await patch('Recettes',id,{'Active ?':!actif});
   const rec=DATA.recettes.find(r=>r.id===id);if(rec)rec.fields['Active ?']=!actif;
   toast(actif?'Recette désactivée':'✅ Recette activée');renderRecettes();
 }
- 
+
 // ── INGRÉDIENTS BUFFER ──
 function renderIngRows(){
   const cont=document.getElementById('ingRows');
@@ -930,7 +943,7 @@ function renderIngRows(){
     </div>`;
   }).join('');
 }
- 
+
 function showIngDropdown(input,bi){
   const q=(input.value||'').toLowerCase().trim();
   const drop=document.getElementById(`ingDrop${bi}`);
@@ -955,7 +968,7 @@ function selectIngredient(bi,nom,unite,ingId){
   ingBuffer[bi].nom=nom;ingBuffer[bi].unite=unite;ingBuffer[bi].ingId=ingId;
   renderIngRows();
 }
- 
+
 function ajouterIngRow(){
   ingBuffer.push({id:null,ingId:null,nom:'',qte:0,unite:'',isNew:true,toDelete:false});
   renderIngRows();
@@ -970,16 +983,19 @@ function supprimerIngRow(bi){
   else ingBuffer.splice(bi,1);
   renderIngRows();
 }
- 
+
 function nouvelleRecette(){
   document.getElementById('rId').value='';
-  ['rNom','rConservation','rPrep','rRechauffage','rCongelation'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('rCat').value='Légumes';
+  ['rNom','rConservation','rPrep','rRechauffage','rCongelation','rPhoto'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const pr=document.getElementById('rPhotoPreview');if(pr)pr.innerHTML='🍽️';
+  const pn=document.getElementById('rPhotoNom');if(pn)pn.textContent='Aucune photo sélectionnée';
+  const pb=document.getElementById('btnUpload');if(pb){pb.textContent='📷 Choisir une photo';pb.disabled=false;}
+  document.getElementById('rCat').value='Viande';
   document.getElementById('rFrigo').value='5';
   document.getElementById('modalRecTit').textContent='Nouvelle recette';
   ingBuffer=[];renderIngRows();openModal('modalRecette');
 }
- 
+
 function editerRecette(id){
   const rec=DATA.recettes.find(r=>r.id===id);if(!rec)return;
   const f=rec.fields;
@@ -992,6 +1008,13 @@ function editerRecette(id){
   document.getElementById('rRechauffage').value=f['Instructions réchauffage']||'';
   document.getElementById('rCongelation').value=f['Congélation']||'';
   document.getElementById('modalRecTit').textContent='Modifier · '+(f['Nom du plat']||'recette');
+  const photoActuelle=f['Photo URL']||f['Photo']?.[0]?.url||'';
+  const photoUrlEl=document.getElementById('rPhoto');if(photoUrlEl)photoUrlEl.value=photoActuelle;
+  const preview=document.getElementById('rPhotoPreview');
+  const nom=document.getElementById('rPhotoNom');
+  if(preview){preview.innerHTML=photoActuelle?`<img src="${photoActuelle}" style="width:100%;height:100%;object-fit:cover">`:'🍽️';}
+  if(nom){nom.textContent=photoActuelle?'Photo existante — cliquer pour changer':'Aucune photo sélectionnée';}
+  const btnUp=document.getElementById('btnUpload');if(btnUp)btnUp.textContent=photoActuelle?'📷 Changer la photo':'📷 Choisir une photo';
   const nomPlat=f['Nom du plat']||'';
   // Récupérer les ingrédients liés à cette recette
   ingBuffer=DATA.ri.filter(r=>{
@@ -1008,12 +1031,49 @@ function editerRecette(id){
   });
   renderIngRows();openModal('modalRecette');
 }
- 
+
+const CLOUDINARY_CLOUD='dgoqyp3wn';
+const CLOUDINARY_PRESET='legoutdulien';
+
+function uploadPhoto(){
+  document.getElementById('rPhotoFile').click();
+}
+
+async function handlePhotoFile(input){
+  const file=input.files[0];if(!file)return;
+  const btn=document.getElementById('btnUpload');
+  const nom=document.getElementById('rPhotoNom');
+  const preview=document.getElementById('rPhotoPreview');
+  btn.textContent='⏳ Upload en cours...';btn.disabled=true;
+  nom.textContent='Envoi en cours...';
+  try{
+    const fd=new FormData();
+    fd.append('file',file);
+    fd.append('upload_preset',CLOUDINARY_PRESET);
+    const r=await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`,{method:'POST',body:fd});
+    const d=await r.json();
+    if(d.secure_url){
+      document.getElementById('rPhoto').value=d.secure_url;
+      preview.innerHTML=`<img src="${d.secure_url}" style="width:100%;height:100%;object-fit:cover">`;
+      nom.textContent=file.name;
+      toast('✅ Photo uploadée !');
+    }else{
+      toast('⚠️ Erreur upload : '+( d.error?.message||'inconnue'));
+      nom.textContent='Erreur upload';
+    }
+  }catch(e){
+    toast('⚠️ Erreur upload');nom.textContent='Erreur';
+  }
+  btn.textContent='📷 Changer la photo';btn.disabled=false;
+}
+
 async function saveRecette(){
   const id=document.getElementById('rId').value;
   const nomPlat=document.getElementById('rNom').value.trim();
   if(!nomPlat){toast('⚠️ Le nom est obligatoire');return;}
+  const photoUrl=(document.getElementById('rPhoto')?.value||'').trim();
   const fields={'Nom du plat':nomPlat,'Catégorie':document.getElementById('rCat').value,'Frigo en jours':parseInt(document.getElementById('rFrigo').value)||5,'Instructions préparation':document.getElementById('rPrep').value,'Instructions réchauffage':document.getElementById('rRechauffage').value,'Congélation':document.getElementById('rCongelation').value};
+  if(photoUrl) fields['Photo URL']=photoUrl;
   let recIdFinal=id;
   if(id){
     await patch('Recettes',id,fields);
@@ -1036,7 +1096,7 @@ async function saveRecette(){
   }
   toast('✅ Recette enregistrée !');closeModal('modalRecette');renderRecettes();
 }
- 
+
 // ══════════════════════════════════════
 //  CLIENTS
 // ══════════════════════════════════════
@@ -1049,7 +1109,7 @@ function renderClients(){
       <td>${f['Téléphone']||'–'}</td>
       <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f['Adresse']||'–'}</td>
       <td>${f['Notes']||f['Commentaires']||'–'}</td>
-      <td><button class="btn btn-ghost btn-sm" onclick="editerClient('${c.id}')">✏️ Modifier</button></td>
+      <td style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="editerClient('${c.id}')">✏️ Modifier</button><button class="btn btn-danger btn-sm" onclick="supprimerClient('${c.id}')">🗑️</button></td>
     </tr>`;
   }).join('');
   showContent(`<div class="card">
@@ -1067,18 +1127,18 @@ function nouveauClient(){['cId','cNom','cEmail','cTel','cMdp','cAdresse','cNotes
 function editerClient(id){
   const cli=DATA.clients.find(c=>c.id===id);if(!cli)return;const f=cli.fields;
   document.getElementById('cId').value=id;document.getElementById('cNom').value=f['Nom']||'';
-  document.getElementById('cEmail').value=f['Email']||'';document.getElementById('cTel').value=f['Téléphone']||'';
+  document.getElementById('cEmail').value=f['E-mail']||'';document.getElementById('cTel').value=f['Téléphone']||'';
   document.getElementById('cMdp').value=f['MOT DE PASSE']||'';document.getElementById('cAdresse').value=f['Adresse']||'';
   document.getElementById('modalCliTit').textContent='Modifier · '+(f['Nom']||'client');openModal('modalClient');
 }
 async function saveClient(){
   const id=document.getElementById('cId').value;
-  const fields={'Nom':document.getElementById('cNom').value,'Email':document.getElementById('cEmail').value,'Téléphone':document.getElementById('cTel').value,'MOT DE PASSE':document.getElementById('cMdp').value,'Adresse':document.getElementById('cAdresse').value};
+  const fields={'Nom':document.getElementById('cNom').value,'E-mail':document.getElementById('cEmail').value,'Téléphone':document.getElementById('cTel').value,'MOT DE PASSE':document.getElementById('cMdp').value,'Adresse':document.getElementById('cAdresse').value};
   if(id){await patch('Clients',id,fields);const cli=DATA.clients.find(c=>c.id===id);if(cli)Object.assign(cli.fields,fields);toast('✅ Client modifié');}
   else{const res=await create('Clients',fields);DATA.clients.push(res);toast('✅ Client créé');}
   closeModal('modalClient');renderClients();
 }
- 
+
 // ══════════════════════════════════════
 //  SALARIÉS
 // ══════════════════════════════════════
@@ -1092,7 +1152,7 @@ function renderSalaries(){
       <td>${f['Email']||f['E-mail']||'–'}</td>
       <td>${f['Téléphone']||'–'}</td>
       <td><span class="badge b-ok">${nbCmds} commande(s)</span></td>
-      <td><button class="btn btn-ghost btn-sm" onclick="editerSalarie('${s.id}')">✏️ Modifier</button></td>
+      <td style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="editerSalarie('${s.id}')">✏️ Modifier</button><button class="btn btn-danger btn-sm" onclick="supprimerSalarie('${s.id}')">🗑️</button></td>
     </tr>`;
   }).join('');
   showContent(`<div class="card">
@@ -1121,7 +1181,7 @@ async function saveSalarie(){
   else{const res=await create('Salariés',fields);DATA.salaries.push(res);toast('✅ Salarié créé');}
   closeModal('modalSalarie');renderSalaries();
 }
- 
+
 // ══════════════════════════════════════
 //  CRÉNEAUX
 // ══════════════════════════════════════
@@ -1170,7 +1230,25 @@ function renderCreneaux(){
 }
 function changeCren(d){crenOffset+=d;renderCreneaux()}
 function toggleCren(sem,k,actif){crSet(sem,k,!actif);toast(actif?`Créneau fermé`:`✅ Créneau ouvert`);renderCreneaux()}
- 
+
+async function supprimerRecette(id){
+  if(!confirm('Supprimer ce plat ? Cette action est irréversible.'))return;
+  await del('Recettes',id);
+  DATA.recettes=DATA.recettes.filter(r=>r.id!==id);
+  toast('🗑️ Plat supprimé');renderRecettes();
+}
+async function supprimerClient(id){
+  if(!confirm('Supprimer ce client ?'))return;
+  await del('Clients',id);
+  DATA.clients=DATA.clients.filter(c=>c.id!==id);
+  toast('🗑️ Client supprimé');renderClients();
+}
+async function supprimerSalarie(id){
+  if(!confirm('Supprimer ce salarié ?'))return;
+  await del('Salariés',id);
+  DATA.salaries=DATA.salaries.filter(s=>s.id!==id);
+  toast('🗑️ Salarié supprimé');renderSalaries();
+}
 // ══════════════════════════════════════
 //  ARIA
 // ══════════════════════════════════════
@@ -1192,20 +1270,20 @@ function buildAriaSys(){
     return{nom:f['Nom du plat']||'',cat:f['Catégorie']||'',actif:!!f['Active ?'],frigo:f['Frigo en jours']||0,preparation:f['Instructions préparation']||'',rechauffage:f['Instructions réchauffage']||'',conservation:f['Conservation']||'',ings};
   });
   ariaSys=`Tu es ARIA, assistante intelligente d'Alizée, gérante de "Le Goût du Lien" (batch cooking, 60€/sem, 5 plats, 4 portions). Réponds en français, concis, chaleureux. **Gras** pour les infos clés. Comprends le langage naturel et informel.
- 
+
 AUJOURD'HUI: ${now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}
 SEMAINE: ${semaine}
- 
+
 COMMANDES CETTE SEMAINE (${cmdSem.length}):
 ${cmdSem.map(c=>{const f=c.fields;const plats=[f['Plat 1'],f['Plat 2'],f['Plat 3'],f['Plat 4'],f['Plat 5']].map(resolveN).filter(Boolean);return`- ${f['Client']||'?'} | ${f['Créneau']||'?'} | ${plats.join(', ')} | ${f['Statut']||'?'} | ${f['Assigné à']||'–'}`;}).join('\n')||'Aucune'}
- 
+
 PLATS ACTIFS: ${recFmt.filter(r=>r.actif).map(r=>r.nom).join(', ')}
- 
+
 RECETTES COMPLÈTES:
 ${recFmt.map(r=>`• ${r.nom} [${r.cat}] ${r.actif?'ACTIF':'INACTIF'}
   Frigo:${r.frigo}j | Prép: ${r.preparation||'–'} | Réchauf: ${r.rechauffage||'–'}
   Ingr/portion: ${r.ings.join(', ')||'–'}`).join('\n\n')}
- 
+
 CLIENTS (${DATA.clients.length}): ${DATA.clients.map(c=>`${c.fields['Nom']||''} (${c.fields['Téléphone']||''})`).join(' | ')}
 SALARIÉS (${DATA.salaries.length}): ${DATA.salaries.map(s=>s.fields['Nom']||'').join(', ')}
 HISTORIQUE (20 dernières): ${DATA.commandes.slice(0,20).map(c=>{const f=c.fields;return`${f['Semaine du']||''} | ${f['Client']||''} | ${f['Créneau']||''} | ${f['Statut']||''} | ${f['Assigné à']||'–'}`;}).join('\n')}`;
@@ -1266,7 +1344,7 @@ function toggleMic(){
 }
 function stopMic(){isRec=false;document.getElementById('aMic').classList.remove('rec');document.getElementById('aMic').textContent='🎤';recognition?.stop();}
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.activeElement===document.getElementById('aInput'))sendAria();});
- 
+
 // ── AUTO LOGIN ──
 if(sessionStorage.getItem('adm')==='1'){
   document.getElementById('pLogin').style.display='none';
