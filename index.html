@@ -299,8 +299,7 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
   <div class="main" id="detailMain"></div>
 </div>
 
-<script>
-
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 const AK='patvhOGv8O9szhfm9.2b3cb31f20ecd6c0271669df216fa0224adc9b1e16c7f98ce6f5b14575a75905';
 const BID='appTNygSM2x5VdNy6';
 const AT=`https://api.airtable.com/v0/${BID}`;
@@ -478,8 +477,8 @@ function renderDetail(data){
     <div id="tc-plats" class="tc on">
       <div class="ecgrid">${platsDetail.map(p=>`
         <div class="eccard" onclick="voirIngDetail('${(p['Nom du plat']||'').replace(/'/g,"\\'")}')">
-          ${(p['Photo URL']||(p['Photo']&&p['Photo'][0]))?'<img class="ecimg" src="'+(p['Photo URL']||(p['Photo']&&p['Photo'][0]?p['Photo'][0].url:''))+'" alt="'+p['Nom du plat']+'">'
-          :'<div class="ecph">🍽️</div>'}
+          ${p['Photo URL']||p['Photo']&&p['Photo'][0]?`<img class="ecimg" src="${p['Photo URL']||p['Photo'][0].url}" alt="${p['Nom du plat']}">`:
+          `<div class="ecph">🍽️</div>`}
           <div class="ecinfo">
             <div class="ecnom">${p['Nom du plat']||''}</div>
             <div class="echint">Cliquez pour les ingrédients</div>
@@ -565,8 +564,8 @@ async function voirIng(nom){
     const platRec=platsList.find(p=>p.fields['Nom du plat']===nom);
     const pf=platRec?platRec.fields:{};
     document.getElementById('mcont').innerHTML=`
-      ${(pf['Photo URL']||(pf['Photo']&&pf['Photo'][0]))?'<img class="mimg" src="'+(pf['Photo URL']||(pf['Photo']&&pf['Photo'][0]?pf['Photo'][0].url:''))+'" alt="'+nom+'">'
-      :'<div class="mph">🍽️</div>'}
+      ${pf['Photo URL']||pf['Photo']&&pf['Photo'][0]?`<img class="mimg" src="${pf['Photo URL']||pf['Photo'][0].url}" alt="${nom}">`:
+      `<div class="mph">🍽️</div>`}
       <div class="mbody">
         <div class="mtit2">${nom}</div>
         ${ings.length?`
@@ -589,8 +588,8 @@ async function voirIngDetail(nom){
     const ings=riRecs.filter(r=>(r.fields['Nom ligne']||'').startsWith(nom));
     const plat=platsDetail.find(p=>p['Nom du plat']===nom)||{};
     document.getElementById('mcont').innerHTML=`
-      ${(plat['Photo URL']||(plat['Photo']&&plat['Photo'][0]))?'<img class="mimg" src="'+(plat['Photo URL']||(plat['Photo']&&plat['Photo'][0]?plat['Photo'][0].url:''))+'" alt="'+nom+'">'
-      :'<div class="mph">🍽️</div>'}
+      ${plat['Photo URL']||plat['Photo']&&plat['Photo'][0]?`<img class="mimg" src="${plat['Photo URL']||plat['Photo'][0].url}" alt="${nom}">`:
+      `<div class="mph">🍽️</div>`}
       <div class="mbody">
         <div class="mtit2">${nom}</div>
         ${ings.length?`
