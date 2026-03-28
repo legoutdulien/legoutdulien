@@ -11,6 +11,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Le Goût du Lien · Salarié">
 <meta name="theme-color" content="#2d5a3d">
+<link rel="manifest" href="/manifest-salarie.json">
 <style>
 :root{--vert:#3d6b4f;--vc:#5a8a6a;--vp:#eef4f0;--bg:#f8f4ee;--bgd:#ede7db;--tx:#2c2c2c;--txl:#6b6b6b;--wh:#fff;--sh:0 4px 24px rgba(0,0,0,.08);--r:16px}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -86,10 +87,40 @@ header{background:var(--vert);padding:0 24px;display:flex;align-items:center;jus
 .spin{width:34px;height:34px;border:3px solid var(--bgd);border-top-color:var(--vert);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:12px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .ltxt{font-size:14px;color:var(--txl)}
-@media(max-width:600px){
-  .main{padding:20px 16px}header{padding:0 16px}
-  .mission-header{flex-direction:column}
-  .stats-row{grid-template-columns:1fr 1fr}
+/* ── RESPONSIVE SALARIÉ MOBILE-FIRST ── */
+@media(max-width:640px){
+  header{padding:0 14px;height:54px}
+  .logo img{height:30px}
+  .hbtn{padding:6px 10px;font-size:12px}
+  .main{padding:16px 14px 60px}
+  .welcome{font-size:20px}
+  .stats-row{grid-template-columns:1fr 1fr;gap:8px}
+  .stat-card{padding:12px}
+  .stat-num{font-size:22px}
+  /* Boutons vue */
+  #btnListe,#btnSem,#btnMois{padding:8px 14px;font-size:12px}
+  /* Mission card */
+  .mission-card{padding:16px}
+  .mission-header{flex-direction:column;gap:8px}
+  .mission-creneau{font-size:13px}
+  .client-nom{font-size:14px}
+  .client-detail{font-size:12px}
+  /* Calendrier semaine : scroll horizontal */
+  .cal-semaine{grid-template-columns:repeat(5,minmax(120px,1fr));overflow-x:auto;-webkit-overflow-scrolling:touch}
+  /* Calendrier mois */
+  .cal-mois{gap:2px}
+  .cmd{min-height:48px;padding:3px}
+  .cmd-num{font-size:10px}
+  .cmd-ev{font-size:8px;padding:1px 3px}
+  /* Selects */
+  .sem-select{width:100%;font-size:13px}
+  /* Modal */
+  .mbox{border-radius:20px 20px 0 0;position:fixed;bottom:0;left:0;right:0;max-width:100%}
+  .mbg{align-items:flex-end;padding:0}
+}
+@media(max-width:380px){
+  .stats-row{grid-template-columns:1fr}
+  #btnListe,#btnSem,#btnMois{padding:7px 10px;font-size:11px}
 }
 </style>
 </head>
