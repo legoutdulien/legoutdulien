@@ -4,13 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Le Goût du Lien</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="apple-touch-icon" href="https://res.cloudinary.com/dgoqyp3wn/image/upload/v1774719838/ChatGPT_Image_28_mars_2026_18_37_48_u200aw.png">
+<link rel="icon" type="image/png" href="https://res.cloudinary.com/dgoqyp3wn/image/upload/v1774719838/ChatGPT_Image_28_mars_2026_18_37_48_u200aw.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Le Goût du Lien">
+<meta name="theme-color" content="#2d5a3d">
 <style>
 :root{--vert:#3d6b4f;--vc:#5a8a6a;--vp:#eef4f0;--bg:#f8f4ee;--bgd:#ede7db;--tx:#2c2c2c;--txl:#6b6b6b;--wh:#fff;--sh:0 4px 24px rgba(0,0,0,.08);--r:16px}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh}
 header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:68px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.04)}
-.logo{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--vert)}
+.logo{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--vert)}
 .hbtns{display:flex;gap:10px;align-items:center}
 .hbtn{padding:8px 16px;background:transparent;border:1.5px solid var(--bgd);border-radius:8px;font-size:13px;color:var(--txl);cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif}
 .hbtn:hover{border-color:var(--vert);color:var(--vert)}
@@ -19,9 +25,9 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
 /* LOGIN */
 #pLogin{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--bg),var(--vp));padding:20px}
 .lcard{background:var(--wh);border-radius:24px;padding:48px 40px;width:100%;max-width:420px;box-shadow:var(--sh);text-align:center}
-.llogo{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--vert);margin-bottom:6px}
+.llogo{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:400;color:var(--vert);margin-bottom:6px;letter-spacing:1px}
 .ltag{font-size:14px;color:var(--txl);margin-bottom:36px}
-.lcard h2{font-family:'Playfair Display',serif;font-size:22px;margin-bottom:28px}
+.lcard h2{font-family:'Cormorant Garamond',serif;font-size:22px;margin-bottom:28px}
 .fg{margin-bottom:18px;text-align:left}
 .fg label{display:block;font-size:12px;font-weight:500;color:var(--txl);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
 .fg input{width:100%;padding:14px 18px;border:1.5px solid var(--bgd);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--tx);background:var(--bg);outline:none;transition:border-color .2s}
@@ -32,7 +38,7 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
 /* DASHBOARD */
 #pDash{display:none}
 .main{padding:36px 32px 60px;max-width:1100px;margin:0 auto}
-.welcome{font-family:'Playfair Display',serif;font-size:28px;font-weight:600;margin-bottom:8px}
+.welcome{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;margin-bottom:8px}
 .welcome-sub{font-size:15px;color:var(--txl);margin-bottom:32px}
 .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:40px}
 .dash-card{background:var(--wh);border-radius:var(--r);padding:28px;box-shadow:var(--sh);cursor:pointer;transition:transform .2s,box-shadow .2s;border:2px solid transparent}
@@ -40,14 +46,14 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
 .dash-card.primary{background:var(--vert);color:#fff}
 .dash-card.primary:hover{border-color:rgba(255,255,255,.3)}
 .dash-icon{font-size:36px;margin-bottom:14px}
-.dash-card h3{font-family:'Playfair Display',serif;font-size:20px;font-weight:600;margin-bottom:8px}
+.dash-card h3{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;margin-bottom:8px}
 .dash-card p{font-size:14px;opacity:.8;line-height:1.5}
 /* Commandes liste */
-.section-titre{font-family:'Playfair Display',serif;font-size:20px;font-weight:600;margin-bottom:16px}
+.section-titre{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;margin-bottom:16px}
 .cmd-liste{display:flex;flex-direction:column;gap:12px}
 .cmd-item{background:var(--wh);border-radius:var(--r);padding:20px 24px;box-shadow:var(--sh);cursor:pointer;transition:transform .2s;display:flex;align-items:center;justify-content:space-between;gap:16px}
 .cmd-item:hover{transform:translateX(4px)}
-.cmd-info h4{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;margin-bottom:4px}
+.cmd-info h4{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;margin-bottom:4px}
 .cmd-info p{font-size:13px;color:var(--txl)}
 .cmd-plats{font-size:12px;color:var(--txl);margin-top:6px}
 .cmd-status{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
@@ -60,7 +66,7 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
 /* COMMANDE (sélection plats) */
 #pApp{display:none}
 .banner{background:var(--vert);color:#fff;border-radius:var(--r);padding:24px 32px;margin-bottom:28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
-.banner h1{font-family:'Playfair Display',serif;font-size:22px;font-weight:600}
+.banner h1{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600}
 .cpt{background:rgba(255,255,255,.15);border-radius:50px;padding:10px 20px;display:flex;align-items:center;gap:10px;font-size:14px}
 .dots{display:flex;gap:6px}
 .dot{width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.3);transition:background .3s}
@@ -77,7 +83,7 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
 .cpris{opacity:.4;cursor:not-allowed!important;background:var(--bgd)!important;border-color:transparent!important}
 .cpris-tag{font-size:11px;background:#fdecea;color:#c62828;padding:2px 8px;border-radius:10px}
 .cph{font-size:13px;color:var(--txl);font-style:italic;padding:12px 0}
-.stit{font-family:'Playfair Display',serif;font-size:20px;font-weight:600;margin-bottom:20px}
+.stit{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;margin-bottom:20px}
 .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
 .pcard{background:var(--wh);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);cursor:pointer;transition:transform .2s;border:2.5px solid transparent;position:relative}
 .pcard:hover{transform:translateY(-3px)}
@@ -92,7 +98,7 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
 .ptop{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
 .pcat{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.5px}
 .cv{background:#e8f5e9;color:#2e7d32}.cm{background:#fdecea;color:#c62828}.cp{background:#e3f2fd;color:#1565c0}.cd{background:var(--bgd);color:var(--txl)}
-.pnom{font-family:'Playfair Display',serif;font-size:14px;font-weight:600}
+.pnom{font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:600}
 .bing{font-size:11px;color:var(--vert);background:var(--vp);border:none;padding:3px 9px;border-radius:6px;cursor:pointer;font-weight:500;font-family:'DM Sans',sans-serif}
 .barre{position:fixed;bottom:0;left:0;right:0;background:var(--wh);border-top:1px solid var(--bgd);padding:14px 32px;display:flex;align-items:center;justify-content:space-between;z-index:100;box-shadow:0 -4px 20px rgba(0,0,0,.08);transform:translateY(100%);transition:transform .3s}
 .barre.show{transform:translateY(0)}
@@ -106,7 +112,7 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
 .cbanner{background:var(--vert);color:#fff;border-radius:var(--r);padding:28px;text-align:center;margin-bottom:24px}
 .cicon{width:52px;height:52px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
 .cicon svg{width:26px;height:26px;fill:#fff}
-.cbanner h1{font-family:'Playfair Display',serif;font-size:24px;margin-bottom:6px}
+.cbanner h1{font-family:'Cormorant Garamond',serif;font-size:24px;margin-bottom:6px}
 .cbanner p{font-size:14px;opacity:.9}
 .igrid{background:var(--wh);border-radius:var(--r);padding:20px;box-shadow:var(--sh);margin-bottom:20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px}
 .ilbl{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--txl);margin-bottom:4px}
@@ -121,17 +127,17 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
 .ecimg{width:100%;height:120px;object-fit:cover}
 .ecph{width:100%;height:120px;background:var(--bgd);display:flex;align-items:center;justify-content:center;font-size:28px}
 .ecinfo{padding:11px 13px}
-.ecnom{font-family:'Playfair Display',serif;font-size:13px;font-weight:600;margin-bottom:2px}
+.ecnom{font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:600;margin-bottom:2px}
 .echint{font-size:11px;color:var(--txl)}
 .cnote{background:var(--vp);border-radius:12px;padding:12px 16px;font-size:14px;color:var(--vert);margin-bottom:16px}
 .rbloc{margin-bottom:18px}
-.rtit{display:flex;align-items:center;gap:10px;font-family:'Playfair Display',serif;font-size:16px;font-weight:600;margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--bgd)}
+.rtit{display:flex;align-items:center;gap:10px;font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--bgd)}
 .iline{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bgd)}
 .iline:last-child{border-bottom:none}
 .inom{font-size:14px;font-weight:500}
 .iqte{background:var(--vp);color:var(--vert);padding:3px 10px;border-radius:20px;font-size:12px;font-weight:500}
 .mcard{background:var(--wh);border-radius:var(--r);padding:20px;box-shadow:var(--sh);margin-bottom:12px}
-.mnom{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;margin-bottom:12px}
+.mnom{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;margin-bottom:12px}
 .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .mi{border-radius:10px;padding:12px 14px}
 .miv{background:var(--vp);border-left:3px solid var(--vert)}
@@ -145,7 +151,7 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
 .mimg{width:100%;height:170px;object-fit:cover}
 .mph{width:100%;height:170px;background:var(--bgd);display:flex;align-items:center;justify-content:center;font-size:38px}
 .mbody{padding:20px}
-.mtit2{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;margin-bottom:12px}
+.mtit2{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:700;margin-bottom:12px}
 .mstit{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--txl);margin-bottom:7px;margin-top:12px}
 .ings{list-style:none}
 .ings li{padding:6px 0;border-bottom:1px solid var(--bgd);font-size:13px}
@@ -204,21 +210,21 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
 <!-- LOGIN -->
 <div id="pLogin">
   <div class="lcard">
-    <div class="llogo">Le Goût du Lien</div>
+    <img src="https://res.cloudinary.com/dgoqyp3wn/image/upload/v1774719838/ChatGPT_Image_28_mars_2026_18_37_48_u200aw.png" alt="Le Goût du Lien" style="height:80px;width:auto;object-fit:contain;display:block;margin:0 auto 16px">
     <div class="ltag">Votre espace personnel batch cooking</div>
     <h2>Connexion</h2>
     <div class="fg"><label>Email</label><input type="email" id="iEmail" placeholder="votre@email.com"></div>
     <div class="fg"><label>Mot de passe</label><input type="password" id="iMdp" placeholder="••••••••"></div>
     <button class="btnLogin" onclick="login()">Se connecter</button>
     <div class="lerr" id="lerr"></div>
-    <div style="margin-top:20px;font-size:13px;color:var(--txl)">Problème ? <a href="mailto:legoutdulien.contact@gmail.com" style="color:var(--vert)">Contactez Alizée</a></div>
+    <div style="margin-top:20px;font-size:13px;color:var(--txl)">Problème ? <a href="/cdn-cgi/l/email-protection#c7aba2a0a8b2b3a3b2abaea2a9e9a4a8a9b3a6a4b387a0aaa6aeabe9a4a8aa" style="color:var(--vert)">Contactez Alizée</a></div>
   </div>
 </div>
 
 <!-- DASHBOARD -->
 <div id="pDash">
   <header>
-    <div class="logo">Le Goût du Lien</div>
+    <div class="logo"><img src="https://res.cloudinary.com/dgoqyp3wn/image/upload/v1774719838/ChatGPT_Image_28_mars_2026_18_37_48_u200aw.png" alt="Le Goût du Lien" style="height:38px;width:auto;object-fit:contain;display:block"></div>
     <div class="hbtns">
       <span style="font-size:14px;color:var(--txl)">Bonjour, <strong id="unom"></strong> 👋</span>
       <button class="hbtn" onclick="logout()">Déconnexion</button>
@@ -246,7 +252,7 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
 <!-- APP COMMANDE -->
 <div id="pApp">
   <header>
-    <div class="logo">Le Goût du Lien</div>
+    <div class="logo"><img src="https://res.cloudinary.com/dgoqyp3wn/image/upload/v1774719838/ChatGPT_Image_28_mars_2026_18_37_48_u200aw.png" alt="Le Goût du Lien" style="height:38px;width:auto;object-fit:contain;display:block"></div>
     <div class="hbtns">
       <button class="hbtn" onclick="showDash()">← Retour</button>
       <button class="hbtn" onclick="logout()">Déconnexion</button>
@@ -290,7 +296,7 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
 <!-- DETAIL COMMANDE -->
 <div id="pDetail">
   <header>
-    <div class="logo">Le Goût du Lien</div>
+    <div class="logo"><img src="https://res.cloudinary.com/dgoqyp3wn/image/upload/v1774719838/ChatGPT_Image_28_mars_2026_18_37_48_u200aw.png" alt="Le Goût du Lien" style="height:38px;width:auto;object-fit:contain;display:block"></div>
     <div class="hbtns">
       <button class="hbtn" onclick="showDash()">← Mes commandes</button>
       <button class="hbtn" onclick="logout()">Déconnexion</button>
@@ -299,7 +305,7 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
   <div class="main" id="detailMain"></div>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 const AK='patvhOGv8O9szhfm9.2b3cb31f20ecd6c0271669df216fa0224adc9b1e16c7f98ce6f5b14575a75905';
 const BID='appTNygSM2x5VdNy6';
 const AT=`https://api.airtable.com/v0/${BID}`;
@@ -477,7 +483,7 @@ function renderDetail(data){
     <div id="tc-plats" class="tc on">
       <div class="ecgrid">${platsDetail.map(p=>`
         <div class="eccard" onclick="voirIngDetail('${(p['Nom du plat']||'').replace(/'/g,"\\'")}')">
-          ${p['Photo']&&p['Photo'][0]?`<img class="ecimg" src="${p['Photo'][0].url}" alt="${p['Nom du plat']}">`:
+          ${(p['Photo URL']||(p['Photo']&&p['Photo'][0]?p['Photo'][0].url:null))?`<img class="ecimg" src="${p['Photo URL']||(p['Photo']&&p['Photo'][0]?p['Photo'][0].url:'')}" alt="${p['Nom du plat']}">`:
           `<div class="ecph">🍽️</div>`}
           <div class="ecinfo">
             <div class="ecnom">${p['Nom du plat']||''}</div>
@@ -563,8 +569,9 @@ async function voirIng(nom){
     const ings=riRecs.filter(r=>(r.fields['Nom ligne']||'').startsWith(nom));
     const platRec=platsList.find(p=>p.fields['Nom du plat']===nom);
     const pf=platRec?platRec.fields:{};
+    const imgUrl=pf['Photo URL']||(pf['Photo']&&pf['Photo'][0]?pf['Photo'][0].url:null);
     document.getElementById('mcont').innerHTML=`
-      ${pf['Photo']&&pf['Photo'][0]?`<img class="mimg" src="${pf['Photo'][0].url}" alt="${nom}">`:
+      ${imgUrl?`<img class="mimg" src="${imgUrl}" alt="${nom}">`:
       `<div class="mph">🍽️</div>`}
       <div class="mbody">
         <div class="mtit2">${nom}</div>
@@ -587,8 +594,9 @@ async function voirIngDetail(nom){
     const riRecs=await fetchAll('Recettes_Ingr%C3%A9dients','sort%5B0%5D%5Bfield%5D=Ordre&sort%5B0%5D%5Bdirection%5D=asc');
     const ings=riRecs.filter(r=>(r.fields['Nom ligne']||'').startsWith(nom));
     const plat=platsDetail.find(p=>p['Nom du plat']===nom)||{};
+    const imgUrlD=plat['Photo URL']||(plat['Photo']&&plat['Photo'][0]?plat['Photo'][0].url:null);
     document.getElementById('mcont').innerHTML=`
-      ${plat['Photo']&&plat['Photo'][0]?`<img class="mimg" src="${plat['Photo'][0].url}" alt="${nom}">`:
+      ${imgUrlD?`<img class="mimg" src="${imgUrlD}" alt="${nom}">`:
       `<div class="mph">🍽️</div>`}
       <div class="mbody">
         <div class="mtit2">${nom}</div>
@@ -727,14 +735,14 @@ function renderPlats(){
     const f=rec.fields;
     const nom=f['Nom du plat']||'';
     const cat=f['Catégorie']||'';
-    const img=f['Photo']&&f['Photo'][0]?f['Photo'][0].url:null;
+    const img=f['Photo URL']||( f['Photo']&&f['Photo'][0]?f['Photo'][0].url:null);
     const card=document.createElement('div');
     card.className='pcard';card.dataset.id=rec.id;card.dataset.nom=nom;
     card.onclick=()=>togglePlat(rec.id,nom,card);
     const nomE=nom.replace(/'/g,"\\'");
     card.innerHTML=`
       <div class="pchk"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
-      ${img?`<img class="pimg" src="${img}" alt="${nom}" loading="lazy">`:`<div class="pph">🍽️</div>`}
+      ${img?`<img class="pimg" src="${img}" alt="${nom}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=pph style=height:165px>🍽️</div>'">`:`<div class="pph">🍽️</div>`}
       <div class="pinfo">
         <div class="ptop">
           <span class="pcat ${catCls(cat)}">${cat||'Plat'}</span>
@@ -805,7 +813,7 @@ function afficherRecap(cmdId){
   pop.innerHTML=`<div style="background:#fff;border-radius:20px;padding:0;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);overflow:hidden">
     <div style="background:#3d6b4f;padding:24px;text-align:center;color:#fff">
       <div style="font-size:36px;margin-bottom:10px">✅</div>
-      <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-bottom:4px">Récapitulatif de votre commande</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;margin-bottom:4px">Récapitulatif de votre commande</div>
       <div style="font-size:13px;opacity:.85">Vérifiez votre sélection avant de payer</div>
     </div>
     <div style="padding:24px">
@@ -842,9 +850,4 @@ async function voirNouvelleCommande(cmdId){
 }
 
 document.getElementById('iEmail').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
-document.getElementById('iMdp').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
-const sc=sessionStorage.getItem('client');
-if(sc){client=JSON.parse(sc);loadDash()}else showPage('pLogin');
-</script>
-</body>
-</html>
+document.getElementById('iMdp').addEventListener('keydown',e=>{if(
