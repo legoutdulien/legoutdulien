@@ -241,7 +241,7 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
     <div class="fg"><label>Mot de passe</label><input type="password" id="iMdp" placeholder="••••••••"></div>
     <button class="btnLogin" onclick="login()">Se connecter</button>
     <div class="lerr" id="lerr"></div>
-    <div style="margin-top:20px;font-size:13px;color:var(--txl)">Problème ? <a href="mailto:alizee@legoutdulien.fr" style="color:var(--vert)">Contactez Alizée</a></div>
+    <div style="margin-top:20px;font-size:13px;color:var(--txl)">Problème ? <a href="/cdn-cgi/l/email-protection#bfded3d6c5dadaffd3dad8d0cacbdbcad3d6dad191d9cd" style="color:var(--vert)">Contactez Alizée</a></div>
   </div>
 </div>
 
@@ -329,7 +329,7 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
   <div class="main" id="detailMain"></div>
 </div>
 
-<script>
+<script data-cfasync="false">
 const AK='patvhOGv8O9szhfm9.2b3cb31f20ecd6c0271669df216fa0224adc9b1e16c7f98ce6f5b14575a75905';
 const BID='appTNygSM2x5VdNy6';
 const AT=`https://api.airtable.com/v0/${BID}`;
@@ -866,11 +866,4 @@ function afficherRecap(cmdId){
 
 async function voirNouvelleCommande(cmdId){
   const pop=document.getElementById('pvpop');if(pop)pop.remove();
-  // Recharger les commandes et ouvrir la nouvelle
-  await chargerMesCommandes();
-  const idx=mesCommandes.findIndex(c=>c.id===cmdId);
-  if(idx>=0)ouvrirCommande(idx);
-  else showDash();
-}
-
-documen
+  // Recharger les commandes et ouvrir la no
