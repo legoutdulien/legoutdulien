@@ -11,6 +11,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Le Goût du Lien">
 <meta name="theme-color" content="#2d5a3d">
+<link rel="manifest" href="/manifest.json">
 <style>
 :root{--vert:#3d6b4f;--vc:#5a8a6a;--vp:#eef4f0;--bg:#f8f4ee;--bgd:#ede7db;--tx:#2c2c2c;--txl:#6b6b6b;--wh:#fff;--sh:0 4px 24px rgba(0,0,0,.08);--r:16px}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -168,35 +169,58 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
 .toast.show{transform:translateX(-50%) translateY(0)}
 .toast.err{background:#c62828}
 .toast.ok{background:var(--vert)}
+/* ── RESPONSIVE CLIENT MOBILE-FIRST ── */
 @media(max-width:640px){
-  .main{padding:20px 16px 80px}
-  header{padding:0 16px;height:58px}
-  .logo{font-size:18px}
-  .hbtn{padding:6px 12px;font-size:12px}
-  .dash-grid{grid-template-columns:1fr}
-  .dash-card{padding:22px}
-  .dash-icon{font-size:28px;margin-bottom:10px}
-  .cgrid{grid-template-columns:1fr}
-  .choix{padding:20px 16px}
-  .pgrid{grid-template-columns:1fr 1fr;gap:10px}
-  .pimg,.pph{height:130px}
-  .pnom{font-size:13px}
-  .barre{padding:12px 16px;flex-direction:column;gap:10px;align-items:stretch}
-  .binfo{text-align:center}
-  .bval{width:100%;padding:14px;text-align:center}
-  .mgrid{grid-template-columns:1fr}
-  .tabs{flex-direction:column}
-  .igrid{grid-template-columns:1fr 1fr}
-  .banner{padding:18px 20px}
-  .banner h1{font-size:18px}
+  /* Header */
+  header{padding:0 16px;height:54px}
+  .logo img{height:30px}
+  .hbtn{padding:6px 10px;font-size:12px}
+  /* Dashboard */
+  .main{padding:16px 14px 100px}
   .welcome{font-size:22px}
-  .cmd-item{padding:16px}
-  .ecgrid{grid-template-columns:1fr 1fr}
+  .welcome-sub{font-size:13px;margin-bottom:20px}
+  .dash-grid{grid-template-columns:1fr;gap:12px;margin-bottom:24px}
+  .dash-card{padding:20px}
+  .dash-icon{font-size:28px;margin-bottom:10px}
+  /* Commandes liste */
+  .cmd-item{padding:14px;flex-wrap:wrap}
+  .cmd-status{align-items:flex-start;flex-direction:row;gap:8px;width:100%;justify-content:space-between;margin-top:8px}
+  /* App commande */
+  .banner{padding:16px 18px;flex-direction:column;gap:10px}
+  .banner h1{font-size:17px;text-align:center}
+  .cpt{width:100%;justify-content:center}
+  .choix{padding:16px}
+  .cgrid{grid-template-columns:1fr;gap:16px}
+  .stit{font-size:17px}
+  /* Grille plats : 2 colonnes serrées */
+  .pgrid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .pimg,.pph{height:120px}
+  .pinfo{padding:10px 11px 12px}
+  .pnom{font-size:13px}
+  .pcat{font-size:10px}
+  .bing{font-size:10px;padding:2px 7px}
+  /* Barre validation : fixée en bas, propre */
+  .barre{padding:12px 16px;flex-direction:column;gap:8px;align-items:stretch}
+  .binfo{text-align:center}
+  .bval{width:100%;padding:13px;text-align:center;font-size:15px}
+  /* Détail commande */
+  .cbanner{padding:20px 16px}
+  .cbanner h1{font-size:19px}
+  .igrid{grid-template-columns:1fr 1fr}
+  .tabs{flex-direction:row;overflow-x:auto}
+  .tab{white-space:nowrap;font-size:12px;padding:8px 12px}
+  .ecgrid{grid-template-columns:1fr 1fr;gap:10px}
+  .ecimg,.ecph{height:100px}
+  .mgrid{grid-template-columns:1fr}
+  /* Modal */
+  .mbox{border-radius:20px 20px 0 0;max-height:80vh;position:fixed;bottom:0;left:0;right:0;max-width:100%}
+  .mbg{align-items:flex-end;padding:0}
 }
 @media(max-width:380px){
   .pgrid{grid-template-columns:1fr}
   .ecgrid{grid-template-columns:1fr}
   .igrid{grid-template-columns:1fr}
+  .tabs{flex-direction:column}
 }
 </style>
 </head>
@@ -217,7 +241,7 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
     <div class="fg"><label>Mot de passe</label><input type="password" id="iMdp" placeholder="••••••••"></div>
     <button class="btnLogin" onclick="login()">Se connecter</button>
     <div class="lerr" id="lerr"></div>
-    <div style="margin-top:20px;font-size:13px;color:var(--txl)">Problème ? <a href="/cdn-cgi/l/email-protection#c7aba2a0a8b2b3a3b2abaea2a9e9a4a8a9b3a6a4b387a0aaa6aeabe9a4a8aa" style="color:var(--vert)">Contactez Alizée</a></div>
+    <div style="margin-top:20px;font-size:13px;color:var(--txl)">Problème ? <a href="/cdn-cgi/l/email-protection#ddbeb2b3a9bcbea99db1b8bab2a8a9b9a8b1b4b8b3f3bbaf" style="color:var(--vert)">Contactez Alizée</a></div>
   </div>
 </div>
 
@@ -348,7 +372,7 @@ async function login(){
   showLoad('Connexion...');
   try{
     const recs=await fetchAll('Clients');
-    const found=recs.find(r=>(r.fields['E-mail']||'').toLowerCase().trim()===email.toLowerCase()&&(r.fields['MOT DE PASSE']||'').trim()===mdp);
+    const found=recs.find(r=>((r.fields['E-mail']||r.fields['Email']||'').toLowerCase().trim()===email.toLowerCase())&&((r.fields['MOT DE PASSE']||r.fields['Mot de passe']||'').trim()===mdp));
     if(found){client=found;sessionStorage.setItem('client',JSON.stringify(client));await loadDash()}
     else{err.textContent='Email ou mot de passe incorrect.';err.style.display='block'}
   }catch(e){err.textContent='Erreur: '+e.message;err.style.display='block'}
@@ -849,5 +873,4 @@ async function voirNouvelleCommande(cmdId){
   else showDash();
 }
 
-document.getElementById('iEmail').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
-document.getElementById('iMdp').addEventListener('keydown',e=>{if(
+documen
