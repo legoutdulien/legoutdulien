@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Le Goût du Lien · Admin</title>
+<link rel="apple-touch-icon" href="https://res.cloudinary.com/dgoqyp3wn/image/upload/v1774719838/ChatGPT_Image_28_mars_2026_18_37_48_u200aw.png">
+<link rel="icon" type="image/png" href="https://res.cloudinary.com/dgoqyp3wn/image/upload/v1774719838/ChatGPT_Image_28_mars_2026_18_37_48_u200aw.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Admin · LGL">
+<meta name="theme-color" content="#0a0a08">
+<link rel="manifest" href="/manifest-admin.json">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -238,14 +245,103 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
 .stat-card{background:var(--wh);border-radius:16px;padding:18px 20px;box-shadow:var(--sh);border:1.5px solid var(--bgd)}
 .stat-val{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:400;color:var(--v2);line-height:1}
 .stat-lbl{font-size:11px;color:var(--txl);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
-/* RESPONSIVE */
-@media(max-width:700px){
+/* ── RESPONSIVE MOBILE-FIRST ── */
+
+/* Topbar : cacher le texte sur petit écran */
+@media(max-width:600px){
+  .brand-name,.brand-sep,.brand-sub{display:none}
+  .topbar{padding:0 14px;height:50px}
+  .top-stat{display:none}
+  .tbtn{padding:6px 10px;font-size:11px}
+}
+
+/* Tabs : icônes seulement sur mobile */
+@media(max-width:600px){
+  .tabs{padding:0 4px;gap:0}
+  .tab{padding:10px 8px;font-size:11px;gap:3px;flex:1;justify-content:center;text-align:center}
+  .tab-label{display:none}
+}
+
+/* Content */
+@media(max-width:600px){
+  .content{padding:12px}
+}
+
+/* Stats row : 2 colonnes sur mobile */
+@media(max-width:600px){
+  .stats-row{grid-template-columns:repeat(2,1fr);gap:8px}
+  .stat-card{padding:14px}
+  .stat-val{font-size:26px}
+}
+
+/* Commandes : simplifier sur mobile */
+@media(max-width:600px){
+  .cmd-card{padding:12px 14px}
+  .cmd-client{font-size:14px}
+  .cmd-meta{gap:6px;font-size:11px}
+  .cmd-actions{flex-direction:row}
+  .btn-sm{padding:6px 8px;font-size:11px}
+}
+
+/* Recettes : 2 colonnes sur mobile */
+@media(max-width:600px){
+  .rec-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .rec-img{height:100px}
+  .rec-img img{height:100px}
+  .rec-body{padding:10px}
+  .rec-nom{font-size:13px}
+}
+
+/* Tables : scroll horizontal */
+@media(max-width:600px){
+  .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .tbl{min-width:500px}
+}
+
+/* Créneaux : 1 colonne sur très petit écran */
+@media(max-width:480px){
+  .cren-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:360px){
+  .cren-grid{grid-template-columns:1fr}
+}
+
+/* Formulaires */
+@media(max-width:600px){
   .form-grid{grid-template-columns:1fr}
+  .modal{padding:20px 16px;border-radius:20px 20px 0 0;max-height:92vh;position:fixed;bottom:0;left:0;right:0;width:100%;max-width:100%}
+  .overlay{align-items:flex-end;padding:0}
+}
+
+/* Ingrédients dans modal recette */
+@media(max-width:600px){
+  .ing-cols{grid-template-columns:1fr 60px 65px 28px;gap:4px}
+  .ing-header{grid-template-columns:1fr 60px 65px 28px;gap:4px}
+  .ing-inp{padding:6px 8px;font-size:11px}
+}
+
+/* ARIA panel */
+@media(max-width:600px){
   .aria-panel{width:100vw;right:-100vw}
-  .cren-grid{grid-template-columns:repeat(2,1fr)}
-  .content{padding:14px}
-  .stats-row{grid-template-columns:repeat(2,1fr)}
-  .ing-cols{grid-template-columns:1fr 55px 65px 28px}
+  .aria-fab{bottom:20px;right:16px;width:50px;height:50px;font-size:20px}
+}
+
+/* Navigation semaine */
+@media(max-width:600px){
+  .snav{padding:6px 10px}
+  .snav-label{font-size:12px}
+}
+
+/* Plat selector dans modal commande */
+@media(max-width:600px){
+  .plat-grid{grid-template-columns:repeat(2,1fr)}
+}
+
+/* Card head */
+@media(max-width:600px){
+  .card{padding:16px}
+  .card-head{gap:8px}
+  .card-tit{font-size:18px}
 }
 </style>
 </head>
@@ -278,12 +374,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
     </div>
   </div>
   <div class="tabs">
-    <div class="tab active" onclick="showTab('planning')">📅 Planning</div>
-    <div class="tab" onclick="showTab('calendrier')">🗓️ Calendrier</div>
-    <div class="tab" onclick="showTab('recettes')">🍽️ Recettes</div>
-    <div class="tab" onclick="showTab('clients')">👥 Clients</div>
-    <div class="tab" onclick="showTab('salaries')">👷 Salariés</div>
-    <div class="tab" onclick="showTab('creneaux')">🕐 Créneaux</div>
+    <div class="tab active" onclick="showTab('planning')">📅 <span class="tab-label">Planning</span></div>
+    <div class="tab" onclick="showTab('calendrier')">🗓️ <span class="tab-label">Calendrier</span></div>
+    <div class="tab" onclick="showTab('recettes')">🍽️ <span class="tab-label">Recettes</span></div>
+    <div class="tab" onclick="showTab('clients')">👥 <span class="tab-label">Clients</span></div>
+    <div class="tab" onclick="showTab('salaries')">👩‍🍳 <span class="tab-label">Salariés</span></div>
+    <div class="tab" onclick="showTab('creneaux')">🕐 <span class="tab-label">Créneaux</span></div>
   </div>
   <div class="content" id="content">
     <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:16px;color:var(--txl)">
@@ -1129,7 +1225,7 @@ function renderClients(){
       <div class="card-tit">👥 Clients <span>${DATA.clients.length}</span></div>
       <button class="btn btn-primary" onclick="nouveauClient()">+ Nouveau client</button>
     </div>
-    <div style="overflow-x:auto"><table class="tbl">
+    <div class="tbl-wrap"><table class="tbl">
       <thead><tr><th>Client</th><th>Téléphone</th><th>Adresse</th><th>Notes</th><th>Action</th></tr></thead>
       <tbody>${rows||'<tr><td colspan="5" class="empty">Aucun client</td></tr>'}</tbody>
     </table></div>
@@ -1169,10 +1265,10 @@ function renderSalaries(){
   }).join('');
   showContent(`<div class="card">
     <div class="card-head">
-      <div class="card-tit">👷 Salariés <span>${DATA.salaries.length}</span></div>
+      <div class="card-tit">👩‍🍳 Salariés <span>${DATA.salaries.length}</span></div>
       <button class="btn btn-primary" onclick="nouveauSalarie()">+ Nouveau salarié</button>
     </div>
-    <table class="tbl">
+    <div class="tbl-wrap"><table class="tbl">
       <thead><tr><th>Salarié</th><th>Email</th><th>Téléphone</th><th>Activité</th><th>Action</th></tr></thead>
       <tbody>${rows||'<tr><td colspan="5" class="empty">Aucun salarié</td></tr>'}</tbody>
     </table>
