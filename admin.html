@@ -1,6 +1,3 @@
-Admin · HTML
-Copier
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -253,7 +250,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
 </style>
 </head>
 <body>
- 
+
 <!-- ═══ LOGIN ═══ -->
 <div id="pLogin">
   <div class="lcard">
@@ -265,7 +262,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
     <div class="lerr" id="lerr">Mot de passe incorrect</div>
   </div>
 </div>
- 
+
 <!-- ═══ APP ═══ -->
 <div id="pApp">
   <div class="topbar">
@@ -295,10 +292,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
     </div>
   </div>
 </div>
- 
+
 <!-- ARIA FAB -->
 <button class="aria-fab" id="ariaFab" onclick="toggleAria()">🌿</button>
- 
+
 <!-- ARIA PANEL -->
 <div class="aria-panel" id="ariaPanel">
   <div class="aria-hd">
@@ -336,7 +333,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
     </div>
   </div>
 </div>
- 
+
 <!-- MODAL INGRÉDIENTS (lecture depuis planning) -->
 <div class="overlay" id="modalIng">
   <div class="modal">
@@ -347,7 +344,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
     <div id="modalIngBody"></div>
   </div>
 </div>
- 
+
 <!-- MODAL RECETTE -->
 <div class="overlay" id="modalRecette">
   <div class="modal" style="max-width:620px">
@@ -390,7 +387,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
     </div>
   </div>
 </div>
- 
+
 <!-- MODAL CLIENT -->
 <div class="overlay" id="modalClient">
   <div class="modal">
@@ -413,7 +410,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
     </div>
   </div>
 </div>
- 
+
 <!-- MODAL SALARIÉ -->
 <div class="overlay" id="modalSalarie">
   <div class="modal">
@@ -434,7 +431,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
     </div>
   </div>
 </div>
- 
+
 <!-- MODAL COMMANDE -->
 <div class="overlay" id="modalCommande">
   <div class="modal" style="max-width:600px">
@@ -473,7 +470,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
     </div>
   </div>
 </div>
- 
+
 <!-- MODAL DÉTAIL JOUR CALENDRIER -->
 <div class="overlay" id="modalCalJour">
   <div class="modal">
@@ -484,28 +481,28 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
     <div id="modalCalBody"></div>
   </div>
 </div>
- 
+
 <div class="toast" id="toast"></div>
- 
+
 <script>
 const AK='patvhOGv8O9szhfm9.2b3cb31f20ecd6c0271669df216fa0224adc9b1e16c7f98ce6f5b14575a75905';
 const BID='appTNygSM2x5VdNy6';
 const AT=`https://api.airtable.com/v0/${BID}`;
 const H={'Authorization':`Bearer ${AK}`,'Content-Type':'application/json'};
 const PWD='legoutdulien2026';
- 
+
 let DATA={commandes:[],recettes:[],ri:[],clients:[],salaries:[],ingredients:[]};
 let curOffset=0, crenOffset=0;
 let ariaConv=[], ariaSys='', ariaBusy=false;
 let recognition=null, isRec=false;
 let ingBuffer=[];
 const synth=window.speechSynthesis;
- 
+
 // ── CRÉNEAUX LOCAL STORAGE ──
 function crKey(sem,j){return`cr_${sem}_${j}`}
 function crActif(sem,j){const v=localStorage.getItem(crKey(sem,j));return v===null?true:v==='1'}
 function crSet(sem,j,v){localStorage.setItem(crKey(sem,j),v?'1':'0')}
- 
+
 // ── AUTH ──
 function login(){
   if(document.getElementById('iMdp').value.trim()===PWD){
@@ -517,29 +514,35 @@ function login(){
 }
 function logout(){sessionStorage.removeItem('adm');location.reload()}
 document.getElementById('iMdp').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
- 
+
 // ── AIRTABLE ──
+function tblUrl(tbl){
+  // Encode uniquement le nom de la table (pas les slashes du chemin)
+  return`${AT}/${tbl.replace(/é/g,'%C3%A9').replace(/è/g,'%C3%A8').replace(/ê/g,'%C3%AA').replace(/à/g,'%C3%A0').replace(/ù/g,'%C3%B9').replace(/î/g,'%C3%AE').replace(/ô/g,'%C3%B4').replace(/û/g,'%C3%BB').replace(/ç/g,'%C3%A7').replace(/É/g,'%C3%89').replace(/È/g,'%C3%88').replace(/À/g,'%C3%80').replace(/ /g,'%20')}`;
+}
 async function fetchAll(tbl,params=''){
   let recs=[],offset=null;
   do{
-    const url=`${AT}/${encodeURIComponent(tbl)}?pageSize=100${params?'&'+params:''}${offset?'&offset='+offset:''}`;
+    const url=`${tblUrl(tbl)}?pageSize=100${params?'&'+params:''}${offset?'&offset='+offset:''}`;
     const r=await fetch(url,{headers:H});const d=await r.json();
     if(d.error)throw new Error(d.error.message);
     recs=[...recs,...(d.records||[])];offset=d.offset||null;
   }while(offset);return recs;
 }
 async function patch(tbl,id,fields){
-  const r=await fetch(`${AT}/${encodeURIComponent(tbl)}/${id}`,{method:'PATCH',headers:H,body:JSON.stringify({fields})});
+  const r=await fetch(`${tblUrl(tbl)}/${id}`,{method:'PATCH',headers:H,body:JSON.stringify({fields})});
   return r.json();
 }
 async function create(tbl,fields){
-  const r=await fetch(`${AT}/${encodeURIComponent(tbl)}`,{method:'POST',headers:H,body:JSON.stringify({fields})});
-  return r.json();
+  const r=await fetch(`${tblUrl(tbl)}`,{method:'POST',headers:H,body:JSON.stringify({fields})});
+  const d=await r.json();
+  if(d.error)throw new Error(d.error.message);
+  return d;
 }
 async function del(tbl,id){
-  await fetch(`${AT}/${encodeURIComponent(tbl)}/${id}`,{method:'DELETE',headers:H});
+  await fetch(`${tblUrl(tbl)}/${id}`,{method:'DELETE',headers:H});
 }
- 
+
 // ── CHARGEMENT ──
 async function chargerTout(){
   try{
@@ -565,7 +568,7 @@ async function chargerTout(){
     document.getElementById('content').innerHTML=`<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-txt">Erreur : ${e.message}</div></div>`;
   }
 }
- 
+
 // ── UTILS ──
 function getMonday(off=0){
   const d=new Date(),dy=d.getDay();
@@ -603,7 +606,7 @@ function toast(msg){
 }
 function openModal(id){document.getElementById(id).classList.add('open')}
 function closeModal(id){document.getElementById(id).classList.remove('open')}
- 
+
 // ══════════════════════════════════════
 //  PLANNING
 // ══════════════════════════════════════
@@ -611,14 +614,14 @@ function renderPlanning(){
   const semaine=getMonday(curOffset);
   const cmdSem=DATA.commandes.filter(c=>(c.fields['Semaine du']||'').includes(semaine));
   const salOpts=`<option value="">Non assigné</option>`+DATA.salaries.map(s=>`<option value="${s.fields['Nom']||''}">${s.fields['Nom']||'–'}</option>`).join('');
- 
+
   const stats=`<div class="stats-row">
     <div class="stat-card"><div class="stat-val">${cmdSem.length}</div><div class="stat-lbl">Commandes</div></div>
     <div class="stat-card"><div class="stat-val">${[...new Set(cmdSem.map(c=>c.fields['Client']).filter(Boolean))].length}</div><div class="stat-lbl">Clients</div></div>
     <div class="stat-card"><div class="stat-val">${cmdSem.filter(c=>(c.fields['Statut']||'').includes('Livr')||(c.fields['Statut']||'').includes('Termin')).length}</div><div class="stat-lbl">Livrées</div></div>
     <div class="stat-card"><div class="stat-val">${cmdSem.reduce((a,c)=>a+(parseInt(c.fields['Nb portions'])||4),0)}</div><div class="stat-lbl">Portions totales</div></div>
   </div>`;
- 
+
   const cmdsHtml=cmdSem.length?cmdSem.map(c=>{
     const f=c.fields;
     const plats=[f['Plat 1'],f['Plat 2'],f['Plat 3'],f['Plat 4'],f['Plat 5']].map(resolveNom).filter(Boolean);
@@ -647,7 +650,7 @@ function renderPlanning(){
       </div>
     </div>`;
   }).join(''):`<div class="empty"><div class="empty-icon">📭</div><div class="empty-txt">Aucune commande cette semaine</div></div>`;
- 
+
   showContent(`<div class="card">
     <div class="card-head">
       <div class="card-tit">📅 Planning <span>${cmdSem.length} commande(s)</span></div>
@@ -661,14 +664,14 @@ function renderPlanning(){
     ${stats}
     <div class="cmd-grid">${cmdsHtml}</div>
   </div>`);
- 
+
   cmdSem.forEach(c=>{
     const sel=document.getElementById(`asel-${c.id}`);
     if(sel&&c.fields['Assigné à'])sel.value=c.fields['Assigné à'];
   });
 }
 function changerSemaine(d){curOffset+=d;renderPlanning()}
- 
+
 async function supprimerCommande(id){
   if(!confirm('Supprimer cette commande ?'))return;
   await del('Commandes',id);
@@ -680,29 +683,29 @@ async function assignerSalarie(cmdId,nom){
   const cmd=DATA.commandes.find(c=>c.id===cmdId);if(cmd)cmd.fields['Assigné à']=nom;
   toast('✅ Assignation enregistrée');
 }
- 
+
 // MODIFIER COMMANDE
 function ouvrirModifCommande(id){
   const cmd=DATA.commandes.find(c=>c.id===id);if(!cmd)return;
   const f=cmd.fields;
   document.getElementById('cmdId').value=id;
   document.getElementById('modalCmdTit').textContent='Modifier · '+(f['Client']||'Commande');
- 
+
   const cliSel=document.getElementById('cmdClient');
   cliSel.innerHTML=DATA.clients.map(c=>`<option value="${c.fields['Nom']||''}">${c.fields['Nom']||'–'}</option>`).join('');
   cliSel.value=f['Client']||'';
- 
+
   document.getElementById('cmdCreneau').value=f['Créneau']||'Lundi matin';
   const semDate=(f['Semaine du']||'').match(/\d{4}-\d{2}-\d{2}/)?.[0]||getMonday(0);
   document.getElementById('cmdSemaine').value=semDate;
- 
+
   const salSel=document.getElementById('cmdSalarie');
   salSel.innerHTML=`<option value="">Non assigné</option>`+DATA.salaries.map(s=>`<option value="${s.fields['Nom']||''}">${s.fields['Nom']||'–'}</option>`).join('');
   salSel.value=f['Assigné à']||'';
- 
+
   document.getElementById('cmdPortions').value=f['Nb portions']||4;
   document.getElementById('cmdStatut').value=f['Statut']||'En attente';
- 
+
   const selPlats=[f['Plat 1'],f['Plat 2'],f['Plat 3'],f['Plat 4'],f['Plat 5']].map(resolveNom).filter(Boolean);
   const platsActifs=DATA.recettes.filter(r=>r.fields['Active ?']);
   document.getElementById('platSelectGrid').innerHTML=platsActifs.map(r=>{
@@ -733,7 +736,7 @@ async function saveCommande(){
   const cmd=DATA.commandes.find(c=>c.id===id);if(cmd)Object.assign(cmd.fields,fields);
   toast('✅ Commande modifiée');closeModal('modalCommande');renderPlanning();
 }
- 
+
 // VOIR INGRÉDIENTS
 async function voirIngredients(nomEnc,portions){
   const nomPlat=decodeURIComponent(nomEnc);
@@ -753,7 +756,7 @@ async function voirIngredients(nomEnc,portions){
       <span style="font-weight:600;color:var(--v2);font-size:14px">${total} <span style="font-size:11px;font-weight:400;color:var(--txl)">${u!=='Unité par défaut'?u:''}</span></span>
     </div>`;
   }).join('')}</div>`:`<p style="color:var(--txl);font-size:13px;padding:12px 0">Aucun ingrédient renseigné pour ce plat.</p>`;
- 
+
   document.getElementById('modalIngTit').textContent=nomPlat;
   document.getElementById('modalIngBody').innerHTML=`
     ${photoUrl?`<img src="${photoUrl}" style="width:100%;height:180px;object-fit:cover;border-radius:12px;margin-bottom:16px">`:''}
@@ -767,7 +770,7 @@ async function voirIngredients(nomEnc,portions){
     ${pf['Congélation']?`<div style="margin-top:4px;font-size:12px;color:var(--txl)">🧊 Congélation : ${pf['Congélation']}</div>`:''}`;
   openModal('modalIng');
 }
- 
+
 // ══════════════════════════════════════
 //  CALENDRIER
 // ══════════════════════════════════════
@@ -781,7 +784,7 @@ function renderCalendrier(){
   const todayStr=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
   const moisNoms=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
   const jours=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
- 
+
   let cells=[];
   // Jours du mois précédent (padding)
   for(let i=0;i<startDay;i++){
@@ -791,7 +794,7 @@ function renderCalendrier(){
   for(let d=1;d<=last.getDate();d++) cells.push({date:new Date(y,m,d),otherMonth:false});
   // Compléter à 42 cases
   while(cells.length<42){const d=new Date(y,m+1,cells.length-startDay-last.getDate()+1);cells.push({date:d,otherMonth:true});}
- 
+
   // Matcher commandes par date exacte
   function getCmdsForDate(dateObj){
     const iso=`${dateObj.getFullYear()}-${String(dateObj.getMonth()+1).padStart(2,'0')}-${String(dateObj.getDate()).padStart(2,'0')}`;
@@ -810,7 +813,7 @@ function renderCalendrier(){
       return matchSem&&matchJour;
     });
   }
- 
+
   const grid=cells.map(({date,otherMonth})=>{
     const iso=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
     const cmds=getCmdsForDate(date);
@@ -822,7 +825,7 @@ function renderCalendrier(){
       ${cmds.length>3?`<div style="font-size:9px;color:var(--txl);text-align:right">+${cmds.length-3}</div>`:''}
     </div>`;
   }).join('');
- 
+
   showContent(`<div class="card">
     <div class="card-head">
       <div class="card-tit">🗓️ ${moisNoms[m]} ${y}</div>
@@ -864,7 +867,7 @@ function voirJourCal(iso,dow){
   }).join(''):`<p style="color:var(--txl);text-align:center;padding:20px">Aucune commande ce jour</p>`;
   openModal('modalCalJour');
 }
- 
+
 // ══════════════════════════════════════
 //  RECETTES
 // ══════════════════════════════════════
@@ -885,7 +888,7 @@ function renderRecettes(){
       </div>
     </div>`;
   }).join('');
- 
+
   showContent(`<div class="card">
     <div class="card-head">
       <div class="card-tit">🍽️ Recettes <span>${DATA.recettes.length} plats</span></div>
@@ -894,13 +897,13 @@ function renderRecettes(){
     <div class="rec-grid">${recGrid||'<div class="empty"><div class="empty-icon">🍽️</div><div class="empty-txt">Aucune recette</div></div>'}</div>
   </div>`);
 }
- 
+
 async function toggleRecette(id,actif){
   await patch('Recettes',id,{'Active ?':!actif});
   const rec=DATA.recettes.find(r=>r.id===id);if(rec)rec.fields['Active ?']=!actif;
   toast(actif?'Recette désactivée':'✅ Recette activée');renderRecettes();
 }
- 
+
 // ── INGRÉDIENTS BUFFER ──
 function renderIngRows(){
   const cont=document.getElementById('ingRows');
@@ -927,7 +930,7 @@ function renderIngRows(){
     </div>`;
   }).join('');
 }
- 
+
 function showIngDropdown(input,bi){
   const q=(input.value||'').toLowerCase().trim();
   const drop=document.getElementById(`ingDrop${bi}`);
@@ -951,7 +954,7 @@ function selectIngredient(bi,nom,unite){
   ingBuffer[bi].nom=nom;ingBuffer[bi].unite=unite;
   renderIngRows();
 }
- 
+
 function ajouterIngRow(){
   ingBuffer.push({id:null,nom:'',qte:0,unite:'',isNew:true,toDelete:false});
   renderIngRows();
@@ -966,7 +969,7 @@ function supprimerIngRow(bi){
   else ingBuffer.splice(bi,1);
   renderIngRows();
 }
- 
+
 function nouvelleRecette(){
   document.getElementById('rId').value='';
   ['rNom','rConservation','rPrep','rRechauffage','rCongelation'].forEach(id=>document.getElementById(id).value='');
@@ -975,7 +978,7 @@ function nouvelleRecette(){
   document.getElementById('modalRecTit').textContent='Nouvelle recette';
   ingBuffer=[];renderIngRows();openModal('modalRecette');
 }
- 
+
 function editerRecette(id){
   const rec=DATA.recettes.find(r=>r.id===id);if(!rec)return;
   const f=rec.fields;
@@ -997,7 +1000,7 @@ function editerRecette(id){
   });
   renderIngRows();openModal('modalRecette');
 }
- 
+
 async function saveRecette(){
   const id=document.getElementById('rId').value;
   const nomPlat=document.getElementById('rNom').value.trim();
@@ -1024,7 +1027,7 @@ async function saveRecette(){
   }
   toast('✅ Recette enregistrée !');closeModal('modalRecette');renderRecettes();
 }
- 
+
 // ══════════════════════════════════════
 //  CLIENTS
 // ══════════════════════════════════════
@@ -1067,7 +1070,7 @@ async function saveClient(){
   else{const res=await create('Clients',fields);DATA.clients.push(res);toast('✅ Client créé');}
   closeModal('modalClient');renderClients();
 }
- 
+
 // ══════════════════════════════════════
 //  SALARIÉS
 // ══════════════════════════════════════
@@ -1110,7 +1113,7 @@ async function saveSalarie(){
   else{const res=await create('Salariés',fields);DATA.salaries.push(res);toast('✅ Salarié créé');}
   closeModal('modalSalarie');renderSalaries();
 }
- 
+
 // ══════════════════════════════════════
 //  CRÉNEAUX
 // ══════════════════════════════════════
@@ -1149,7 +1152,7 @@ function renderCreneaux(){
 }
 function changeCren(d){crenOffset+=d;renderCreneaux()}
 function toggleCren(sem,jour,actif){crSet(sem,jour,!actif);toast(actif?`${jour} fermé`:`✅ ${jour} ouvert`);renderCreneaux()}
- 
+
 // ══════════════════════════════════════
 //  ARIA
 // ══════════════════════════════════════
@@ -1171,20 +1174,20 @@ function buildAriaSys(){
     return{nom:f['Nom du plat']||'',cat:f['Catégorie']||'',actif:!!f['Active ?'],frigo:f['Frigo en jours']||0,preparation:f['Instructions préparation']||'',rechauffage:f['Instructions réchauffage']||'',conservation:f['Conservation']||'',ings};
   });
   ariaSys=`Tu es ARIA, assistante intelligente d'Alizée, gérante de "Le Goût du Lien" (batch cooking, 60€/sem, 5 plats, 4 portions). Réponds en français, concis, chaleureux. **Gras** pour les infos clés. Comprends le langage naturel et informel.
- 
+
 AUJOURD'HUI: ${now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}
 SEMAINE: ${semaine}
- 
+
 COMMANDES CETTE SEMAINE (${cmdSem.length}):
 ${cmdSem.map(c=>{const f=c.fields;const plats=[f['Plat 1'],f['Plat 2'],f['Plat 3'],f['Plat 4'],f['Plat 5']].map(resolveN).filter(Boolean);return`- ${f['Client']||'?'} | ${f['Créneau']||'?'} | ${plats.join(', ')} | ${f['Statut']||'?'} | ${f['Assigné à']||'–'}`;}).join('\n')||'Aucune'}
- 
+
 PLATS ACTIFS: ${recFmt.filter(r=>r.actif).map(r=>r.nom).join(', ')}
- 
+
 RECETTES COMPLÈTES:
 ${recFmt.map(r=>`• ${r.nom} [${r.cat}] ${r.actif?'ACTIF':'INACTIF'}
   Frigo:${r.frigo}j | Prép: ${r.preparation||'–'} | Réchauf: ${r.rechauffage||'–'}
   Ingr/portion: ${r.ings.join(', ')||'–'}`).join('\n\n')}
- 
+
 CLIENTS (${DATA.clients.length}): ${DATA.clients.map(c=>`${c.fields['Nom']||''} (${c.fields['Téléphone']||''})`).join(' | ')}
 SALARIÉS (${DATA.salaries.length}): ${DATA.salaries.map(s=>s.fields['Nom']||'').join(', ')}
 HISTORIQUE (20 dernières): ${DATA.commandes.slice(0,20).map(c=>{const f=c.fields;return`${f['Semaine du']||''} | ${f['Client']||''} | ${f['Créneau']||''} | ${f['Statut']||''} | ${f['Assigné à']||'–'}`;}).join('\n')}`;
@@ -1245,7 +1248,7 @@ function toggleMic(){
 }
 function stopMic(){isRec=false;document.getElementById('aMic').classList.remove('rec');document.getElementById('aMic').textContent='🎤';recognition?.stop();}
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.activeElement===document.getElementById('aInput'))sendAria();});
- 
+
 // ── AUTO LOGIN ──
 if(sessionStorage.getItem('adm')==='1'){
   document.getElementById('pLogin').style.display='none';
