@@ -223,6 +223,11 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
   .tabs{flex-direction:column}
 }
 </style>
+<script>
+// Proxy functions pour éviter les erreurs si le script principal charge tard
+function login(){if(window._login)window._login();else document.querySelector('.btnLogin').addEventListener('click',function h(){if(window._login){window._login();this.removeEventListener('click',h)}})}
+window._logout=function logout_impl(){if(window._logout)window._logout()}
+</script>
 </head>
 <body>
 <div class="lov" id="lov"><div class="spin"></div><div class="ltxt" id="ltxt">Chargement...</div></div>
@@ -363,7 +368,7 @@ async function fetchAll(tbl,sort=''){
   return recs;
 }
 
-async function login(){
+window._login=async function login_impl(){
   const email=document.getElementById('iEmail').value.trim();
   const mdp=document.getElementById('iMdp').value.trim();
   const err=document.getElementById('lerr');
