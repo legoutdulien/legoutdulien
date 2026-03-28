@@ -254,7 +254,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
 <!-- ═══ LOGIN ═══ -->
 <div id="pLogin">
   <div class="lcard">
-    <div class="llogo">🌿</div>
+    <img src="https://res.cloudinary.com/dgoqyp3wn/image/upload/v1774719838/ChatGPT_Image_28_mars_2026_18_37_48_u200aw.png" alt="Le Goût du Lien" style="height:80px;width:auto;object-fit:contain;display:block;margin:0 auto 16px;border-radius:12px">
     <div class="ltit">Le Goût du Lien</div>
     <div class="lsub">Espace Administration</div>
     <input class="li" type="password" id="iMdp" placeholder="Mot de passe">
@@ -267,7 +267,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
 <div id="pApp">
   <div class="topbar">
     <div class="brand">
-      <div class="brand-icon">🌿</div>
+      <div class="brand-icon"><img src="https://res.cloudinary.com/dgoqyp3wn/image/upload/v1774719838/ChatGPT_Image_28_mars_2026_18_37_48_u200aw.png" alt="" style="width:24px;height:24px;object-fit:contain;border-radius:4px"></div>
       <div class="brand-name">Le Goût du Lien</div>
       <div class="brand-sep">·</div>
       <div class="brand-sub">Administration</div>
@@ -1085,9 +1085,21 @@ async function saveRecette(){
   for(const ing of ingBuffer){
     if(ing.toDelete&&ing.id){
       await del('Recettes_Ingrédients',ing.id);DATA.ri=DATA.ri.filter(r=>r.id!==ing.id);
-    }else if(ing.isNew&&!ing.toDelete&&ing.ingId){
-      const iF={'Recette':[recIdFinal],'Ingrédient':[ing.ingId],'Quantité par portion':ing.qte||0};
-      const res=await create('Recettes_Ingrédients',iF);DATA.ri.push(res);
+    }else if(ing.isNew&&!ing.toDelete&&(ing.ingId||ing.nom.trim())){
+      let ingIdToUse=ing.ingId;
+      // Si pas d'ID, créer l'ingrédient dans la table Ingrédients
+      if(!ingIdToUse&&ing.nom.trim()){
+        try{
+          const newIng=await create('Ingrédients',{'Nom ingrédient':ing.nom.trim(),'Unité par défaut':ing.unite||''});
+          ingIdToUse=newIng.id;
+          DATA.ingredients.push(newIng);
+          toast('✅ Ingrédient "'+ing.nom.trim()+'" créé dans Airtable');
+        }catch(e){console.error('Erreur création ingrédient:',e);}
+      }
+      if(ingIdToUse){
+        const iF={'Recette':[recIdFinal],'Ingrédient':[ingIdToUse],'Quantité par portion':ing.qte||0};
+        const res=await create('Recettes_Ingrédients',iF);DATA.ri.push(res);
+      }
     }else if(!ing.isNew&&!ing.toDelete&&ing.id&&(ing.nom.trim()||ing.ingId)){
       const iF={'Ingrédient':ing.ingId?[ing.ingId]:[],'Quantité par portion':ing.qte||0};
       await patch('Recettes_Ingrédients',ing.id,iF);
