@@ -604,7 +604,7 @@ const synth=window.speechSynthesis;
 let crenCache={};
 async function loadCreneaux(){
   try{
-    const recs=await fetchAll(tblUrl('Créneaux'));
+    const recs=await fetchAll('CrÃ©neaux');
     crenCache={};
     recs.forEach(r=>{const k=r.fields['Semaine']+'_'+r.fields['Slot'];crenCache[k]={id:r.id,actif:!!r.fields['Actif']};});
   }catch(e){console.error('loadCreneaux:',e)}
@@ -613,8 +613,8 @@ function crActif(sem,j){const k=sem+'_'+j;return crenCache[k]?crenCache[k].actif
 async function toggleCrenAirtable(sem,k,actif){
   const newVal=!actif;const existing=crenCache[sem+'_'+k];
   try{
-    if(existing){await patch(tblUrl('Créneaux'),existing.id,{'Actif':newVal});crenCache[sem+'_'+k].actif=newVal;}
-    else{const res=await create(tblUrl('Créneaux'),{'Semaine':sem,'Slot':k,'Actif':newVal});crenCache[sem+'_'+k]={id:res.id,actif:newVal};}
+    if(existing){await patch('CrÃ©neaux',existing.id,{'Actif':newVal});crenCache[sem+'_'+k].actif=newVal;}
+    else{const res=await create('CrÃ©neaux',{'Semaine':sem,'Slot':k,'Actif':newVal});crenCache[sem+'_'+k]={id:res.id,actif:newVal};}
     toast(newVal?'✅ Créneau ouvert':'Créneau fermé');renderCreneaux();
   }catch(e){toast('Erreur: '+e.message,'err')}
 }
@@ -865,7 +865,7 @@ async function saveCommande(){
   const fields={
     'Client':document.getElementById('cmdClient').value,
     'Créneau':document.getElementById('cmdCreneau').value,
-    'Semaine du':semDate?`Semaine du ${semDate}`:`Semaine du ${getMonday(0)}`,
+    'Semaine du':semDate||getMonday(0),
     'Assigné à':document.getElementById('cmdSalarie').value,
     'Nb portions':parseInt(document.getElementById('cmdPortions').value)||4,
     'Statut':document.getElementById('cmdStatut').value,
