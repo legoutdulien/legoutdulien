@@ -550,21 +550,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
     </div>
     <div class="form-grid">
       <div class="fg"><label>Client</label><select id="cmdClient"></select></div>
+      <div class="fg"><label>Semaine du (lundi)</label><input type="date" id="cmdSemaine" onchange="majSelectCreneau()"></div>
       <div class="fg"><label>Créneau</label>
-        <select id="cmdCreneau">
-          <option>Lundi matin</option><option>Lundi après-midi</option>
-          <option>Mardi matin</option><option>Mardi après-midi</option>
-          <option>Mercredi matin</option><option>Mercredi après-midi</option>
-          <option>Jeudi matin</option><option>Jeudi après-midi</option>
-          <option>Vendredi matin</option><option>Vendredi après-midi</option>
-        </select>
+        <select id="cmdCreneau"></select>
       </div>
-      <div class="fg"><label>Semaine du (lundi)</label><input type="date" id="cmdSemaine"></div>
       <div class="fg"><label>Salarié assigné</label><select id="cmdSalarie"></select></div>
       <div class="fg"><label>Nb portions</label><input type="number" id="cmdPortions" min="1" max="20" value="4" style="max-width:100px"></div>
       <div class="fg"><label>Statut</label>
         <select id="cmdStatut">
-          <option>En attente</option><option>En cours</option><option>Livré</option><option>Terminé</option>
+          <option value="En attente de paiement">En attente de paiement</option><option value="Confirmée">Confirmée</option>
         </select>
       </div>
     </div>
@@ -607,10 +601,37 @@ let recognition=null, isRec=false;
 let ingBuffer=[];
 const synth=window.speechSynthesis;
 
-// ── CRÉNEAUX LOCAL STORAGE ──
-function crKey(sem,j){return`cr_${sem}_${j}`}
-function crActif(sem,j){const v=localStorage.getItem(crKey(sem,j));return v===null?true:v==='1'}
-function crSet(sem,j,v){localStorage.setItem(crKey(sem,j),v?'1':'0')}
+// ── CRÉNEAUX AIRTABLE ──
+let crenCache={};// {sem_slot: {id, actif}}
+async function loadCreneaux(){
+  try{
+    const recs=await fetchAll(encodeURIComponent('Créneaux'));
+    crenCache={};
+    recs.forEach(r=>{
+      const k=`${r.fields['Semaine']}_${r.fields['Slot']}`;
+      crenCache[k]={id:r.id,actif:!!r.fields['Actif']};
+    });
+  }catch(e){console.error('loadCreneaux:',e)}
+}
+function crActif(sem,j){
+  const k=`${sem}_${j}`;
+  return crenCache[k]?crenCache[k].actif:true;
+}
+async function toggleCrenAirtable(sem,k,actif){
+  const newVal=!actif;
+  const existing=crenCache[`${sem}_${k}`];
+  try{
+    if(existing){
+      await patch(encodeURIComponent('Créneaux'),existing.id,{'Actif':newVal});
+      crenCache[`${sem}_${k}`].actif=newVal;
+    }else{
+      const res=await create(encodeURIComponent('Créneaux'),{'Semaine':sem,'Slot':k,'Actif':newVal});
+      crenCache[`${sem}_${k}`]={id:res.id,actif:newVal};
+    }
+    toast(newVal?'✅ Créneau ouvert':'Créneau fermé');
+    renderCreneaux();
+  }catch(e){toast('Erreur: '+e.message,'err')}
+}
 
 // ── AUTH ──
 function login(){
@@ -663,6 +684,7 @@ async function chargerTout(){
       fetchAll('Salariés'),
       fetchAll('Ingrédients','sort[0][field]=Nom+ingrédient&sort[0][direction]=asc'),
     ]);
+    await loadCreneaux();
     DATA={commandes,recettes,ri,clients,salaries,ingredients};
     document.getElementById('ariaFab').style.display='flex';
     document.getElementById('topStat').textContent=`${DATA.commandes.length} commandes · ${DATA.recettes.filter(r=>r.fields['Active ?']).length} plats actifs`;
@@ -804,16 +826,16 @@ function ouvrirModifCommande(id){
   cliSel.innerHTML=DATA.clients.map(c=>`<option value="${c.fields['Nom']||''}">${c.fields['Nom']||'–'}</option>`).join('');
   cliSel.value=f['Client']||'';
 
-  document.getElementById('cmdCreneau').value=f['Créneau']||'Lundi matin';
   const semDate=(f['Semaine du']||'').match(/\d{4}-\d{2}-\d{2}/)?.[0]||getMonday(0);
   document.getElementById('cmdSemaine').value=semDate;
+  majSelectCreneau(f['Créneau']||'');
 
   const salSel=document.getElementById('cmdSalarie');
   salSel.innerHTML=`<option value="">Non assigné</option>`+DATA.salaries.map(s=>`<option value="${s.fields['Nom']||''}">${s.fields['Nom']||'–'}</option>`).join('');
   salSel.value=f['Assigné à']||'';
 
   document.getElementById('cmdPortions').value=f['Nb portions']||4;
-  document.getElementById('cmdStatut').value=f['Statut']||'En attente';
+  document.getElementById('cmdStatut').value=f['Statut']||'En attente de paiement';
 
   const selPlats=[f['Plat 1'],f['Plat 2'],f['Plat 3'],f['Plat 4'],f['Plat 5']].map(resolveNom).filter(Boolean);
   const platsActifs=DATA.recettes.filter(r=>r.fields['Active ?']);
@@ -823,6 +845,31 @@ function ouvrirModifCommande(id){
   }).join('');
   openModal('modalCommande');
 }
+function majSelectCreneau(valActuelle=''){
+  const semaine=document.getElementById('cmdSemaine').value;
+  const sel=document.getElementById('cmdCreneau');
+  sel.innerHTML='';
+  if(!semaine){sel.innerHTML='<option>-- Choisir une semaine d'abord --</option>';return;}
+  const [y,mo,d]=semaine.split('-').map(Number);
+  const JOURS=['Lundi','Mardi','Jeudi','Vendredi'];
+  const JMAP={Lundi:0,Mardi:1,Jeudi:3,Vendredi:4};
+  const HEURES=[{h:'9h00 - 12h00',slot:'matin'},{h:'13h00 - 16h00',slot:'apmidi'}];
+  JOURS.forEach(j=>{
+    const jd=new Date(y,mo-1,d+JMAP[j]);
+    const jl=jd.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+    HEURES.forEach(({h,slot})=>{
+      const lbl=`${jl} · ${h}`;
+      const k=`${j}_${slot}`;
+      const actif=crActif(semaine,k);
+      const opt=document.createElement('option');
+      opt.value=lbl;
+      opt.textContent=lbl+(actif?'':' (fermé)');
+      sel.appendChild(opt);
+    });
+  });
+  if(valActuelle)sel.value=valActuelle;
+}
+
 function togglePlatSel(el){
   const grid=document.getElementById('platSelectGrid');
   if(el.classList.contains('sel')){el.classList.remove('sel');}
@@ -1337,7 +1384,7 @@ function renderCreneaux(){
   </div>`);
 }
 function changeCren(d){crenOffset+=d;renderCreneaux()}
-function toggleCren(sem,k,actif){crSet(sem,k,!actif);toast(actif?`Créneau fermé`:`✅ Créneau ouvert`);renderCreneaux()}
+function toggleCren(sem,k,actif){toggleCrenAirtable(sem,k,actif)}
 
 async function supprimerRecette(id){
   if(!confirm('Supprimer ce plat ? Cette action est irréversible.'))return;
