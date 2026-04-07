@@ -604,7 +604,7 @@ const synth=window.speechSynthesis;
 let crenCache={};
 async function loadCreneaux(){
   try{
-    const recs=await fetchAll('CrÃ©neaux');
+    const recs=await fetchAll('Cr%C3%A9neaux');
     crenCache={};
     recs.forEach(r=>{const k=r.fields['Semaine']+'_'+r.fields['Slot'];crenCache[k]={id:r.id,actif:!!r.fields['Actif']};});
   }catch(e){console.error('loadCreneaux:',e)}
@@ -613,8 +613,8 @@ function crActif(sem,j){const k=sem+'_'+j;return crenCache[k]?crenCache[k].actif
 async function toggleCrenAirtable(sem,k,actif){
   const newVal=!actif;const existing=crenCache[sem+'_'+k];
   try{
-    if(existing){await patch('CrÃ©neaux',existing.id,{'Actif':newVal});crenCache[sem+'_'+k].actif=newVal;}
-    else{const res=await create('CrÃ©neaux',{'Semaine':sem,'Slot':k,'Actif':newVal});crenCache[sem+'_'+k]={id:res.id,actif:newVal};}
+    if(existing){await patch('Cr%C3%A9neaux',existing.id,{'Actif':newVal});crenCache[sem+'_'+k].actif=newVal;}
+    else{const res=await create('Cr%C3%A9neaux',{'Semaine':sem,'Slot':k,'Actif':newVal});crenCache[sem+'_'+k]={id:res.id,actif:newVal};}
     toast(newVal?'✅ Créneau ouvert':'Créneau fermé');renderCreneaux();
   }catch(e){toast('Erreur: '+e.message,'err')}
 }
@@ -871,7 +871,8 @@ async function saveCommande(){
     'Statut':document.getElementById('cmdStatut').value,
     'Plat 1':selPlats[0]||'','Plat 2':selPlats[1]||'','Plat 3':selPlats[2]||'','Plat 4':selPlats[3]||'','Plat 5':selPlats[4]||'',
   };
-  await patch('Commandes',id,fields);
+  const patchRes=await patch('Commandes',id,fields);
+  if(patchRes.error){toast('Erreur Airtable: '+patchRes.error.message,'err');return;}
   const cmd=DATA.commandes.find(c=>c.id===id);if(cmd)Object.assign(cmd.fields,fields);
   toast('✅ Commande modifiée');closeModal('modalCommande');renderPlanning();
 }
