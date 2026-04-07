@@ -320,6 +320,10 @@ function catCls(c){if(!c)return'cd';const l=c.toLowerCase();if(l.includes('vég'
 function fmtN(n){return n%1===0?n:parseFloat(n.toFixed(2))}
 function fmtDate(iso){if(!iso)return'';try{const d=new Date(iso);return d.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}catch(e){return iso}}
 
+function tblUrl(tbl){
+  return `${AT}/${encodeURIComponent(tbl)}`;
+}
+
 async function fetchAll(tbl,sort=''){
   let recs=[],offset=null;
   do{
@@ -773,7 +777,8 @@ function majBarre(){
   for(let i=1;i<=5;i++)document.getElementById('d'+i).classList.toggle('on',i<=n);
   document.getElementById('ctxt').textContent=n+' / 5 plats';
   document.getElementById('barre').classList.toggle('show',n>0);
-  document.getElement':'Choisissez une semaine et un créneau';
+  document.getElementById('btxt').textContent=n+' / 5 plats sélectionnés';
+  document.getElementById('bcren').textContent=crenSel?'📅 '+crenSel.lbl:semSel?'Choisissez un créneau':'Choisissez une semaine et un créneau';
   const bv=document.getElementById('bval');
   bv.disabled=!ok;
   bv.textContent=ok?'✓ Valider ma semaine':n<5?'Encore '+(5-n)+' plat'+(5-n>1?'s':''):'Choisissez un créneau';
