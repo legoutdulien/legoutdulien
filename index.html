@@ -211,7 +211,7 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
     <div class="fg"><label>Mot de passe</label><input type="password" id="iMdp" placeholder="••••••••"></div>
     <button class="btnLogin" onclick="login()">Se connecter</button>
     <div class="lerr" id="lerr"></div>
-    <div style="margin-top:20px;font-size:13px;color:var(--txl)">Problème ? <a href="mailto:legoutdulien.contact@gmail.com" style="color:var(--vert)">Contactez Alizée</a></div>
+    <div style="margin-top:20px;font-size:13px;color:var(--txl)">Problème ? <a href="/cdn-cgi/l/email-protection#711d14161e040515041d18141f5f121e1f0510120531161c10181d5f121e1c" style="color:var(--vert)">Contactez Alizée</a></div>
   </div>
 </div>
 
@@ -299,7 +299,7 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
   <div class="main" id="detailMain"></div>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 const AK='patvhOGv8O9szhfm9.2b3cb31f20ecd6c0271669df216fa0224adc9b1e16c7f98ce6f5b14575a75905';
 const BID='appTNygSM2x5VdNy6';
 const AT=`https://api.airtable.com/v0/${BID}`;
@@ -663,11 +663,12 @@ function getLundis(){
   const res=[];
   const now=new Date();
   const y=now.getFullYear(),m=now.getMonth(),d=now.getDate();
-  const dow=(new Date(y,m,d)).getDay();
-  const next=dow===1?7:(8-dow)%7;
+  const dow=(new Date(y,m,d)).getDay()||7;// 1=lundi .. 7=dimanche
+  const diffToMonday=dow-1;// jours depuis le lundi de cette semaine
+  // Partir du lundi de la semaine en cours
   for(let i=0;i<4;i++){
-    const l=new Date(y,m,d+next+i*7);
-    const v=new Date(y,m,d+next+i*7+4);
+    const l=new Date(y,m,d-diffToMonday+i*7);
+    const v=new Date(y,m,d-diffToMonday+i*7+4);
     const f=x=>x.toLocaleDateString('fr-FR',{day:'numeric',month:'long'});
     const yy=l.getFullYear(),mm=String(l.getMonth()+1).padStart(2,'0'),dd=String(l.getDate()).padStart(2,'0');
     res.push({id:`${yy}-${mm}-${dd}`,label:`Semaine du ${f(l)}`,det:`${f(l)} au ${f(v)}`});
@@ -689,23 +690,36 @@ async function affCreneaux(sem){
   const c=document.getElementById('clist');
   c.innerHTML='<div class="cph">Chargement...</div>';
   crenSel=null;
-  let pris=[];
+  let pris=[], crenRecs=[];
   try{
-    const recs=await fetchAll('Commandes');
-    pris=recs.filter(r=>(r.fields['Semaine du']||'').includes(sem.id)).map(r=>r.fields['Créneau']).filter(Boolean);
+    const [cmdRecs,crRecs]=await Promise.all([
+      fetchAll('Commandes'),
+      fetchAll(tblUrl('Créneaux'))
+    ]);
+    pris=cmdRecs.filter(r=>(r.fields['Semaine du']||'').includes(sem.id)).map(r=>r.fields['Créneau']).filter(Boolean);
+    crenRecs=crRecs.filter(r=>r.fields['Semaine']===sem.id);
   }catch(e){}
   c.innerHTML='';
+  const SLOT_MAP={matin:'9h00 - 12h00',apmidi:'13h00 - 16h00'};
+  function isActif(j,slot){
+    const k=`${j}_${slot}`;
+    const found=crenRecs.find(r=>r.fields['Slot']===k);
+    return found?!!found.fields['Actif']:true;// ouvert par défaut
+  }
   const [y,mo,d]=sem.id.split('-').map(Number);
   JOURS.forEach(j=>{
     const jd=new Date(y,mo-1,d+JMAP[j]);
     const jl=jd.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
-    HEURES.forEach(h=>{
+    ['matin','apmidi'].forEach(slot=>{
+      const h=SLOT_MAP[slot];
       const lbl=`${jl} · ${h}`;
       const taken=pris.some(p=>p&&p.trim()===lbl.trim());
+      const ferme=!isActif(j,slot);
       const el=document.createElement('div');
-      el.className='citem'+(taken?' cpris':'');
-      el.innerHTML=`<div class="cjour">${jl}</div><div style="display:flex;align-items:center;justify-content:space-between"><span>${h}</span>${taken?'<span class="cpris-tag">Complet</span>':''}</div>`;
-      if(!taken)el.onclick=()=>{document.querySelectorAll('.citem').forEach(x=>x.classList.remove('on'));el.classList.add('on');crenSel={lbl};majBarre()};
+      el.className='citem'+((taken||ferme)?' cpris':'');
+      const tag=taken?'<span class="cpris-tag">Complet</span>':ferme?'<span class="cpris-tag">Fermé</span>':'';
+      el.innerHTML=`<div class="cjour">${jl}</div><div style="display:flex;align-items:center;justify-content:space-between"><span>${h}</span>${tag}</div>`;
+      if(!taken&&!ferme)el.onclick=()=>{document.querySelectorAll('.citem').forEach(x=>x.classList.remove('on'));el.classList.add('on');crenSel={lbl};majBarre()};
       c.appendChild(el);
     });
   });
@@ -759,8 +773,7 @@ function majBarre(){
   for(let i=1;i<=5;i++)document.getElementById('d'+i).classList.toggle('on',i<=n);
   document.getElementById('ctxt').textContent=n+' / 5 plats';
   document.getElementById('barre').classList.toggle('show',n>0);
-  document.getElementById('btxt').textContent=n+' / 5 plats sélectionnés';
-  document.getElementById('bcren').textContent=crenSel?'📅 '+crenSel.lbl:semSel?'Choisissez un créneau':'Choisissez une semaine et un créneau';
+  document.getElement':'Choisissez une semaine et un créneau';
   const bv=document.getElementById('bval');
   bv.disabled=!ok;
   bv.textContent=ok?'✓ Valider ma semaine':n<5?'Encore '+(5-n)+' plat'+(5-n>1?'s':''):'Choisissez un créneau';
