@@ -550,21 +550,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
     </div>
     <div class="form-grid">
       <div class="fg"><label>Client</label><select id="cmdClient"></select></div>
-      <div class="fg"><label>Créneau</label>
-        <select id="cmdCreneau">
-          <option>Lundi matin</option><option>Lundi après-midi</option>
-          <option>Mardi matin</option><option>Mardi après-midi</option>
-          <option>Mercredi matin</option><option>Mercredi après-midi</option>
-          <option>Jeudi matin</option><option>Jeudi après-midi</option>
-          <option>Vendredi matin</option><option>Vendredi après-midi</option>
-        </select>
-      </div>
+      <div class="fg"><label>Semaine du (lundi)</label><input type="date" id="cmdSemaine" onchange="majSelectCreneau()"></div>
+      <div class="fg"><label>Créneau</label><select id="cmdCreneau"></select></div>
       <div class="fg"><label>Semaine du (lundi)</label><input type="date" id="cmdSemaine"></div>
       <div class="fg"><label>Salarié assigné</label><select id="cmdSalarie"></select></div>
       <div class="fg"><label>Nb portions</label><input type="number" id="cmdPortions" min="1" max="20" value="4" style="max-width:100px"></div>
       <div class="fg"><label>Statut</label>
         <select id="cmdStatut">
-          <option>En attente</option><option>En cours</option><option>Livré</option><option>Terminé</option>
+          <option value="En attente de paiement">En attente de paiement</option><option value="Confirmée">Confirmée</option>
         </select>
       </div>
     </div>
@@ -607,10 +600,24 @@ let recognition=null, isRec=false;
 let ingBuffer=[];
 const synth=window.speechSynthesis;
 
-// ── CRÉNEAUX LOCAL STORAGE ──
-function crKey(sem,j){return`cr_${sem}_${j}`}
-function crActif(sem,j){const v=localStorage.getItem(crKey(sem,j));return v===null?true:v==='1'}
-function crSet(sem,j,v){localStorage.setItem(crKey(sem,j),v?'1':'0')}
+// ── CRÉNEAUX AIRTABLE ──
+let crenCache={};
+async function loadCreneaux(){
+  try{
+    const recs=await fetchAll(tblUrl('Créneaux'));
+    crenCache={};
+    recs.forEach(r=>{const k=r.fields['Semaine']+'_'+r.fields['Slot'];crenCache[k]={id:r.id,actif:!!r.fields['Actif']};});
+  }catch(e){console.error('loadCreneaux:',e)}
+}
+function crActif(sem,j){const k=sem+'_'+j;return crenCache[k]?crenCache[k].actif:true;}
+async function toggleCrenAirtable(sem,k,actif){
+  const newVal=!actif;const existing=crenCache[sem+'_'+k];
+  try{
+    if(existing){await patch(tblUrl('Créneaux'),existing.id,{'Actif':newVal});crenCache[sem+'_'+k].actif=newVal;}
+    else{const res=await create(tblUrl('Créneaux'),{'Semaine':sem,'Slot':k,'Actif':newVal});crenCache[sem+'_'+k]={id:res.id,actif:newVal};}
+    toast(newVal?'✅ Créneau ouvert':'Créneau fermé');renderCreneaux();
+  }catch(e){toast('Erreur: '+e.message,'err')}
+}
 
 // ── AUTH ──
 function login(){
@@ -664,6 +671,7 @@ async function chargerTout(){
       fetchAll('Ingrédients','sort[0][field]=Nom+ingrédient&sort[0][direction]=asc'),
     ]);
     DATA={commandes,recettes,ri,clients,salaries,ingredients};
+    await loadCreneaux();
     document.getElementById('ariaFab').style.display='flex';
     document.getElementById('topStat').textContent=`${DATA.commandes.length} commandes · ${DATA.recettes.filter(r=>r.fields['Active ?']).length} plats actifs`;
     renderPlanning();
@@ -804,16 +812,16 @@ function ouvrirModifCommande(id){
   cliSel.innerHTML=DATA.clients.map(c=>`<option value="${c.fields['Nom']||''}">${c.fields['Nom']||'–'}</option>`).join('');
   cliSel.value=f['Client']||'';
 
-  document.getElementById('cmdCreneau').value=f['Créneau']||'Lundi matin';
   const semDate=(f['Semaine du']||'').match(/\d{4}-\d{2}-\d{2}/)?.[0]||getMonday(0);
   document.getElementById('cmdSemaine').value=semDate;
+  majSelectCreneau(f['Créneau']||'');
 
   const salSel=document.getElementById('cmdSalarie');
   salSel.innerHTML=`<option value="">Non assigné</option>`+DATA.salaries.map(s=>`<option value="${s.fields['Nom']||''}">${s.fields['Nom']||'–'}</option>`).join('');
   salSel.value=f['Assigné à']||'';
 
   document.getElementById('cmdPortions').value=f['Nb portions']||4;
-  document.getElementById('cmdStatut').value=f['Statut']||'En attente';
+  document.getElementById('cmdStatut').value=f['Statut']||'En attente de paiement';
 
   const selPlats=[f['Plat 1'],f['Plat 2'],f['Plat 3'],f['Plat 4'],f['Plat 5']].map(resolveNom).filter(Boolean);
   const platsActifs=DATA.recettes.filter(r=>r.fields['Active ?']);
@@ -823,6 +831,28 @@ function ouvrirModifCommande(id){
   }).join('');
   openModal('modalCommande');
 }
+function majSelectCreneau(valActuelle=''){
+  const semaine=document.getElementById('cmdSemaine').value;
+  const sel=document.getElementById('cmdCreneau');
+  sel.innerHTML='';
+  if(!semaine){sel.innerHTML='<option>-- Choisir une semaine --</option>';return;}
+  const [y,mo,d]=semaine.split('-').map(Number);
+  const JOURS=['Lundi','Mardi','Jeudi','Vendredi'];
+  const JMAP={Lundi:0,Mardi:1,Jeudi:3,Vendredi:4};
+  const SLOTS=[{slot:'matin',h:'9h00 - 12h00'},{slot:'apmidi',h:'13h00 - 16h00'}];
+  JOURS.forEach(j=>{
+    const jd=new Date(y,mo-1,d+JMAP[j]);
+    const jl=jd.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+    SLOTS.forEach(({slot,h})=>{
+      const lbl=jl+' · '+h;
+      const opt=document.createElement('option');
+      opt.value=lbl;opt.textContent=lbl+(crActif(semaine,j+'_'+slot)?'':' (fermÃ©)');
+      sel.appendChild(opt);
+    });
+  });
+  if(valActuelle)sel.value=valActuelle;
+}
+
 function togglePlatSel(el){
   const grid=document.getElementById('platSelectGrid');
   if(el.classList.contains('sel')){el.classList.remove('sel');}
@@ -1337,7 +1367,7 @@ function renderCreneaux(){
   </div>`);
 }
 function changeCren(d){crenOffset+=d;renderCreneaux()}
-function toggleCren(sem,k,actif){crSet(sem,k,!actif);toast(actif?`Créneau fermé`:`✅ Créneau ouvert`);renderCreneaux()}
+function toggleCren(sem,k,actif){toggleCrenAirtable(sem,k,actif)}
 
 async function supprimerRecette(id){
   if(!confirm('Supprimer ce plat ? Cette action est irréversible.'))return;
@@ -1377,24 +1407,58 @@ function buildAriaSys(){
     });
     return{nom:f['Nom du plat']||'',cat:f['Catégorie']||'',actif:!!f['Active ?'],frigo:f['Frigo en jours']||0,preparation:f['Instructions préparation']||'',rechauffage:f['Instructions réchauffage']||'',conservation:f['Conservation']||'',ings};
   });
-  ariaSys=`Tu es ARIA, assistante intelligente d'Alizée, gérante de "Le Goût du Lien" (batch cooking, 60€/sem, 5 plats, 4 portions). Réponds en français, concis, chaleureux. **Gras** pour les infos clés. Comprends le langage naturel et informel.
+  // Toutes les commandes groupées par semaine
+  const cmdParSemaine={};
+  DATA.commandes.forEach(c=>{
+    const sem=c.fields['Semaine du']||'?';
+    if(!cmdParSemaine[sem])cmdParSemaine[sem]=[];
+    cmdParSemaine[sem].push(c);
+  });
+  const cmdSemHtml=Object.entries(cmdParSemaine).sort((a,b)=>b[0].localeCompare(a[0])).map(([sem,cmds])=>{
+    return`SEMAINE ${sem} (${cmds.length} cmd):\n`+cmds.map(c=>{
+      const f=c.fields;
+      const plats=[f['Plat 1'],f['Plat 2'],f['Plat 3'],f['Plat 4'],f['Plat 5']].map(resolveN).filter(Boolean);
+      return`  - ${f['Client']||'?'} | ${f['Créneau']||'?'} | ${plats.join(', ')} | ${f['Statut']||'?'} | Assigné: ${f['Assigné à']||'–'} | Portions: ${f['Nb portions']||4}`;
+    }).join('\n');
+  }).join('\n\n');
+
+  // Créneaux actifs/fermés
+  const crenHtml=Object.entries(crenCache).map(([k,v])=>`${k}: ${v.actif?'ouvert':'FERMÉ'}`).join(' | ')||'aucun configuré';
+
+  // Clients complets
+  const clientsHtml=DATA.clients.map(c=>`${c.fields['Nom']||''} | ${c.fields['E-mail']||''} | ${c.fields['Téléphone']||''} | ${c.fields['Adresse']||''}`).join('\n');
+
+  // Salariés
+  const salHtml=DATA.salaries.map(s=>`${s.fields['Nom']||''} | ${s.fields['Email']||''}`).join('\n');
+
+  // Ingrédients
+  const ingHtml=DATA.ingredients.map(i=>`${i.fields['Nom ingrédient']||''} (${i.fields['Unité par défaut']||''})`).join(', ');
+
+  ariaSys=`Tu es ARIA, assistante intelligente d'Alizée, gérante de "Le Goût du Lien" (batch cooking, 60€/sem, 5 plats, 4 portions). Réponds en français, concis, chaleureux. **Gras** pour les infos clés. Tu as accès à TOUTES les données Airtable en temps réel.
 
 AUJOURD'HUI: ${now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}
-SEMAINE: ${semaine}
+SEMAINE EN COURS: ${semaine}
 
-COMMANDES CETTE SEMAINE (${cmdSem.length}):
-${cmdSem.map(c=>{const f=c.fields;const plats=[f['Plat 1'],f['Plat 2'],f['Plat 3'],f['Plat 4'],f['Plat 5']].map(resolveN).filter(Boolean);return`- ${f['Client']||'?'} | ${f['Créneau']||'?'} | ${plats.join(', ')} | ${f['Statut']||'?'} | ${f['Assigné à']||'–'}`;}).join('\n')||'Aucune'}
+━━━ TOUTES LES COMMANDES (${DATA.commandes.length} total) ━━━
+${cmdSemHtml||'Aucune commande'}
 
-PLATS ACTIFS: ${recFmt.filter(r=>r.actif).map(r=>r.nom).join(', ')}
+━━━ RECETTES COMPLÈTES (${recFmt.length} total) ━━━
+${recFmt.map(r=>`• ${r.nom} [${r.cat}] ${r.actif?'✓ ACTIF':'✗ INACTIF'}
+  Conservation: ${r.frigo}j frigo | Préparation: ${r.preparation||'–'}
+  Réchauffage: ${r.rechauffage||'–'}
+  Ingrédients/portion: ${r.ings.join(', ')||'–'}`).join('\n\n')}
 
-RECETTES COMPLÈTES:
-${recFmt.map(r=>`• ${r.nom} [${r.cat}] ${r.actif?'ACTIF':'INACTIF'}
-  Frigo:${r.frigo}j | Prép: ${r.preparation||'–'} | Réchauf: ${r.rechauffage||'–'}
-  Ingr/portion: ${r.ings.join(', ')||'–'}`).join('\n\n')}
+━━━ CLIENTS (${DATA.clients.length}) ━━━
+${clientsHtml||'Aucun'}
 
-CLIENTS (${DATA.clients.length}): ${DATA.clients.map(c=>`${c.fields['Nom']||''} (${c.fields['Téléphone']||''})`).join(' | ')}
-SALARIÉS (${DATA.salaries.length}): ${DATA.salaries.map(s=>s.fields['Nom']||'').join(', ')}
-HISTORIQUE (20 dernières): ${DATA.commandes.slice(0,20).map(c=>{const f=c.fields;return`${f['Semaine du']||''} | ${f['Client']||''} | ${f['Créneau']||''} | ${f['Statut']||''} | ${f['Assigné à']||'–'}`;}).join('\n')}`;
+━━━ SALARIÉS (${DATA.salaries.length}) ━━━
+${salHtml||'Aucun'}
+
+━━━ INGRÉDIENTS (${DATA.ingredients.length}) ━━━
+${ingHtml||'Aucun'}
+
+━━━ CRÉNEAUX ━━━
+${crenHtml}`;
 }
 async function reloadAriaData(){
   document.getElementById('ariaSt').textContent='Actualisation...';
@@ -1406,6 +1470,7 @@ async function reloadAriaData(){
       fetchAll('Clients'),fetchAll('Salariés'),fetchAll('Ingrédients'),
     ]);
     DATA={commandes,recettes,ri,clients,salaries,ingredients};
+    await loadCreneaux();
     buildAriaSys();
     document.getElementById('ariaSt').textContent=`${DATA.recettes.filter(r=>r.fields['Active ?']).length} plats · données fraîches`;
     addAriaMsg('bot','🔄 **Données actualisées !** Je connais maintenant les dernières infos.');
