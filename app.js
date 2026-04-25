@@ -27,6 +27,7 @@ let sel = [];
 let semSel = null;
 let crenSel = null;
 let platsDetailCache = [];
+let currentCmdId = null;
 
 // helpers UI
 const $ = (id) => document.getElementById(id);
@@ -45,6 +46,7 @@ function escapeHtml(s) {
   if (s == null) return '';
   return String(s).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
 }
+const escapeAttr = escapeHtml;
 function fmtN(n) { return n % 1 === 0 ? n : parseFloat(n.toFixed(2)); }
 function fmtDate(iso) {
   if (!iso) return '';
@@ -154,6 +156,7 @@ function showMesCommandes() {
 async function ouvrirCommande(idx) {
   const cmd = mesCommandes[idx];
   if (!cmd) return;
+  currentCmdId = cmd.id;
   showPage('pDetail');
   showLoad('Chargement...');
   try {
@@ -235,6 +238,19 @@ function chgTab(t, btn) {
   $('tc-' + t).classList.add('on');
 }
 
+// Couleur de bordure gauche par rayon (carte courses)
+const RAYON_COLOR = {
+  'Fruits & Légumes': '#7cb342', 'Fruits et légumes': '#7cb342', 'Fruits & légumes': '#7cb342',
+  'Boucherie': '#c62828', 'Viandes': '#c62828', 'Charcuterie': '#e57373',
+  'Poissonnerie': '#1976d2',
+  'Crémerie': '#fdd835', 'Cremerie': '#fdd835',
+  'Épicerie': '#a1887f', 'Epicerie': '#a1887f',
+  'Épices': '#ef6c00', 'Epices': '#ef6c00',
+  'Surgelés': '#4dd0e1',
+  'Boulangerie': '#bf6019',
+  'Produits frais': '#66bb6a'
+};
+
 function loadCourses(platIds) {
   const rayons = {};
   platIds.forEach(pid => {
@@ -253,15 +269,57 @@ function loadCourses(platIds) {
   const sorted = Object.entries(rayons).sort((a, b) => a[0].localeCompare(b[0]));
   const el = $('coursesDiv');
   if (!sorted.length) { el.innerHTML = '<p style="color:var(--txl);padding:20px">Aucun ingredient trouve.</p>'; return; }
-  el.innerHTML = sorted.map(([ray, ings]) => `
-    <div class="rbloc">
-      <div class="rtit">${REMOJI[ray] || '🛒'} ${escapeHtml(ray)}</div>
-      ${Object.entries(ings).map(([n, { qte, u }]) => `
-        <div class="iline">
-          <span class="inom">${escapeHtml(n)}</span>
-          <span class="iqte">${qte > 0 ? fmtN(qte) + (u ? ' ' + u : '') : '–'}</span>
-        </div>`).join('')}
-    </div>`).join('');
+
+  // Cle de stockage local pour les cochages : par commande
+  const storageKey = `courses-${currentCmdId || 'na'}`;
+  const checkedSet = new Set(JSON.parse(localStorage.getItem(storageKey) || '[]'));
+
+  el.innerHTML = sorted.map(([ray, ings]) => {
+    const color = RAYON_COLOR[ray] || '#3d6b4f';
+    const emoji = REMOJI[ray] || '🛒';
+    const items = Object.entries(ings);
+    return `
+    <div style="background:var(--wh);border-radius:14px;border-left:5px solid ${color};padding:14px 16px 6px;margin-bottom:14px;box-shadow:0 2px 12px rgba(0,0,0,.04)">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--bgd)">
+        <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:600;color:var(--tx);display:flex;align-items:center;gap:8px">
+          <span style="font-size:20px">${emoji}</span> ${escapeHtml(ray)}
+        </div>
+        <span style="font-size:11px;color:var(--txl);background:var(--bg);padding:2px 9px;border-radius:12px">${items.length} article${items.length > 1 ? 's' : ''}</span>
+      </div>
+      ${items.map(([n, { qte, u }]) => {
+        const key = `${ray}::${n}`;
+        const checked = checkedSet.has(key);
+        return `
+        <label class="course-line" data-key="${escapeAttr(key)}" style="display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid var(--bgd);cursor:pointer;user-select:none;${checked ? 'opacity:.45' : ''}">
+          <input type="checkbox" class="course-ck" ${checked ? 'checked' : ''} style="width:18px;height:18px;accent-color:${color};cursor:pointer;flex-shrink:0">
+          <span style="flex:1;font-size:14px;font-weight:500;color:var(--tx);${checked ? 'text-decoration:line-through' : ''}">${escapeHtml(n)}</span>
+          <span style="background:var(--vp);color:var(--vert);padding:3px 10px;border-radius:14px;font-size:12px;font-weight:500;white-space:nowrap">${qte > 0 ? fmtN(qte) + (u ? ' ' + u : '') : '–'}</span>
+        </label>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+
+  // Retire la bordure du dernier item de chaque carte
+  el.querySelectorAll('label.course-line:last-child').forEach(l => l.style.borderBottom = 'none');
+
+  // Cochage avec persistance localStorage
+  el.querySelectorAll('label.course-line').forEach(label => {
+    const ck = label.querySelector('.course-ck');
+    label.addEventListener('click', (e) => {
+      // Eviter double-click si clic direct sur la checkbox (laisser le comportement natif)
+      if (e.target !== ck) {
+        e.preventDefault();
+        ck.checked = !ck.checked;
+      }
+      const key = label.dataset.key;
+      const cur = new Set(JSON.parse(localStorage.getItem(storageKey) || '[]'));
+      if (ck.checked) cur.add(key); else cur.delete(key);
+      localStorage.setItem(storageKey, JSON.stringify([...cur]));
+      label.style.opacity = ck.checked ? '.45' : '1';
+      const txt = label.querySelector('span:nth-child(2)');
+      if (txt) txt.style.textDecoration = ck.checked ? 'line-through' : 'none';
+    });
+  });
 }
 
 function voirIngDetail(platId) {
