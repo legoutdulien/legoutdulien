@@ -25,19 +25,7 @@ exports.handler = async (event) => {
 
   const expected = process.env.ADMIN_PASSWORD;
   if (!expected) {
-    // Diagnostic: liste les noms d'env vars visibles (sans valeurs) pour debug
-    const visible = Object.keys(process.env).filter(k =>
-      k.startsWith('ADMIN') || k.startsWith('SUPABASE') || k.startsWith('ANTHROPIC') || k.startsWith('CLAUDE')
-    ).sort();
-    return {
-      statusCode: 500,
-      headers: corsHeaders,
-      body: JSON.stringify({
-        error: 'ADMIN_PASSWORD non configure',
-        debug_env_keys_visibles: visible,
-        debug_total_env: Object.keys(process.env).length
-      })
-    };
+    return { statusCode: 500, headers: corsHeaders, body: JSON.stringify({ error: 'ADMIN_PASSWORD non configure' }) };
   }
   if (!body.password || body.password !== expected) {
     return { statusCode: 401, headers: corsHeaders, body: JSON.stringify({ error: 'Mot de passe incorrect' }) };
