@@ -98,6 +98,7 @@ async function chargerTout() {
     DATA.ingredients = ingR.data || [];
     DATA.creneaux = crenR.data || [];
 
+    populateUnitDatalist();
     $('ariaFab').style.display = 'flex';
     const actifs = DATA.recettes.filter(r => r.active).length;
     $('topStat').textContent = `${DATA.commandes.length} commandes · ${actifs} plats actifs`;
@@ -153,6 +154,15 @@ function showTab(tab) {
 }
 
 const PRIX_PRESTATION = 120; // CA reel par commande (60€ client + 60€ URSSAF)
+
+const RAYONS_LIST = ['Fruits & Légumes', 'Boucherie', 'Charcuterie', 'Poissonnerie', 'Crémerie', 'Épicerie', 'Épices', 'Boulangerie', 'Produits frais', 'Surgelés', 'Autres'];
+
+function populateUnitDatalist() {
+  const dl = $('dlUnites');
+  if (!dl) return;
+  const units = [...new Set(DATA.ingredients.map(i => i.unite_par_defaut).filter(u => u && u !== 'Unité par défaut'))].sort();
+  dl.innerHTML = units.map(u => `<option value="${escapeHtml(u)}">`).join('');
+}
 
 // Vue active dans l'onglet Planning : 'liste' (hebdo) ou 'mois' (calendrier)
 let planningView = 'liste';
@@ -624,6 +634,7 @@ function renderRecettes() {
         <div class="rec-cat">${escapeHtml(r.categorie || '–')} · ${nbIngs} ingr. · ${r.frigo_en_jours || '?'}j frigo</div>
         <div class="rec-footer">
           <button data-act="toggle-rec" data-id="${r.id}" data-active="${r.active}" style="padding:4px 10px;border-radius:16px;font-size:11px;font-weight:500;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;background:${r.active ? '#e8f5e9' : '#ffebee'};color:${r.active ? '#2e7d32' : '#c62828'}">${r.active ? '✓ Actif' : '✗ Inactif'}</button>
+          <button class="btn btn-ghost btn-sm" data-act="dup-rec" data-id="${r.id}" title="Dupliquer">📋</button>
           <button class="btn btn-danger btn-sm" data-act="del-rec" data-id="${r.id}">🗑️</button>
         </div>
       </div>
@@ -653,6 +664,84 @@ function renderRecettes() {
     e.stopPropagation();
     supprimerRecette(b.dataset.id);
   }));
+  $('content').querySelectorAll('[data-act="dup-rec"]').forEach(b => b.addEventListener('click', (e) => {
+    e.stopPropagation();
+    dupliquerRecette(b.dataset.id);
+  }));
+}
+
+function dupliquerRecette(id) {
+  const rec = getRecette(id); if (!rec) return;
+  $('rId').value = '';
+  $('rNom').value = (rec.nom_du_plat || '') + ' (copie)';
+  $('rCat').value = rec.categorie || 'Viande';
+  $('rFrigo').value = rec.frigo_en_jours || 5;
+  $('rPrep').value = rec.instructions_preparation || '';
+  $('rRechauffage').value = rec.instructions_rechauffage || '';
+  $('rCongelation').value = rec.congelation || '';
+  $('rActif').value = 'true';
+  $('rPhoto').value = rec.photo_url || '';
+  $('rPhotoPreview').innerHTML = rec.photo_url ? `<img src="${escapeHtml(rec.photo_url)}" style="width:100%;height:100%;object-fit:cover">` : '🍽️';
+  $('rPhotoNom').textContent = rec.photo_url ? 'Photo dupliquee — modifiable' : 'Aucune photo';
+  $('btnUpload').textContent = rec.photo_url ? '📷 Changer la photo' : '📷 Choisir une photo';
+  $('modalRecTit').textContent = 'Nouvelle recette (copie de ' + rec.nom_du_plat + ')';
+
+  ingBuffer = DATA.ri.filter(r => r.recette_id === id).sort((a, b) => (a.ordre || 0) - (b.ordre || 0)).map(r => {
+    const ing = DATA.ingredients.find(i => i.id === r.ingredient_id);
+    return {
+      id: null,
+      ingId: r.ingredient_id || null,
+      nom: ing ? ing.nom : '',
+      qte: r.quantite_par_portion || 0,
+      unite: ing && ing.unite_par_defaut !== 'Unité par défaut' ? (ing.unite_par_defaut || '') : '',
+      isNew: true,
+      toDelete: false
+    };
+  });
+  renderIngRows();
+  openModal('modalRecette');
+}
+
+// Mini-modal qui demande le rayon pour chaque nouvel ingredient cree.
+// Resolves Map<nom, rayon> ou null si annule.
+function promptRayonsPourNouveauxIngredients(newIngs) {
+  return new Promise((resolve) => {
+    const pop = document.createElement('div');
+    pop.className = 'overlay open';
+    pop.style.zIndex = '500';
+    pop.innerHTML = `<div class="modal" style="max-width:520px">
+      <div class="modal-head">
+        <div class="modal-tit">Nouveaux ingredients</div>
+      </div>
+      <p style="font-size:13px;color:var(--txm);margin-bottom:14px">Choisissez un rayon pour chaque nouvel ingredient (utilise dans la liste de courses des clientes) :</p>
+      <div>
+        ${newIngs.map((ing, i) => `<div style="display:grid;grid-template-columns:1fr 200px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--bgd)">
+          <div style="font-size:13px;font-weight:500">${escapeHtml(ing.nom)}</div>
+          <select class="ing-rayon-sel" data-i="${i}" style="padding:8px 10px;border:1.5px solid var(--bgd);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--wh);outline:none">
+            ${RAYONS_LIST.map(r => `<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`).join('')}
+          </select>
+        </div>`).join('')}
+      </div>
+      <div style="display:flex;gap:10px;margin-top:18px">
+        <button id="rayonsOk" class="btn btn-primary" style="flex:1">✓ Confirmer</button>
+        <button id="rayonsCancel" class="btn btn-ghost">Annuler</button>
+      </div>
+    </div>`;
+    document.body.appendChild(pop);
+    pop.querySelector('#rayonsOk').addEventListener('click', () => {
+      const map = new Map();
+      pop.querySelectorAll('.ing-rayon-sel').forEach(sel => {
+        const ing = newIngs[+sel.dataset.i];
+        map.set(ing.nom.toLowerCase().trim(), sel.value);
+      });
+      pop.remove();
+      resolve(map);
+    });
+    pop.querySelector('#rayonsCancel').addEventListener('click', () => {
+      pop.remove();
+      resolve(null);
+    });
+  });
 }
 
 async function toggleRecette(id, isActive) {
@@ -685,7 +774,7 @@ function renderIngRows() {
         <div class="ing-dropdown" id="ingDrop${bi}"></div>
       </div>
       <input class="ing-inp" type="number" placeholder="Qte" value="${ing.qte || ''}" step="0.1" min="0" data-bi="${bi}" data-role="ing-qte">
-      <input class="ing-inp" type="text" placeholder="g, mL..." value="${escapeHtml(ing.unite || '')}" data-bi="${bi}" data-role="ing-unite">
+      <input class="ing-inp" type="text" placeholder="g, mL..." value="${escapeHtml(ing.unite || '')}" data-bi="${bi}" data-role="ing-unite" list="dlUnites">
       <button class="ing-del" data-bi="${bi}" data-role="ing-del">✕</button>
     </div>`;
   }).join('');
@@ -841,22 +930,71 @@ async function handlePhotoFile(input) {
 }
 
 async function saveRecette() {
+  const btn = $('btnSaveRec');
   const id = $('rId').value;
   const nom = $('rNom').value.trim();
-  if (!nom) { toast('⚠️ Le nom est obligatoire'); return; }
-  const photoUrl = ($('rPhoto').value || '').trim();
-  const payload = {
-    nom_du_plat: nom,
-    categorie: $('rCat').value,
-    frigo_en_jours: parseInt($('rFrigo').value, 10) || 5,
-    instructions_preparation: $('rPrep').value,
-    instructions_rechauffage: $('rRechauffage').value,
-    congelation: $('rCongelation').value,
-    photo_url: photoUrl || null,
-    active: $('rActif').value === 'true'
-  };
-  let recId = id;
+
+  // === Validation ===
+  if (!nom) { toast('⚠️ Le nom du plat est obligatoire'); return; }
+
+  // Doublon de nom (uniquement a la creation)
+  if (!id) {
+    const dup = DATA.recettes.find(r => (r.nom_du_plat || '').toLowerCase().trim() === nom.toLowerCase().trim());
+    if (dup) {
+      if (!confirm(`Une recette s'appelle deja "${dup.nom_du_plat}". Creer quand meme ?`)) return;
+    }
+  }
+
+  // Ingredients : nom non vide ET qte > 0
+  const ingsActifs = ingBuffer.filter(i => !i.toDelete);
+  for (const ing of ingsActifs) {
+    if (!ing.nom.trim()) {
+      toast('⚠️ Un ingredient n\'a pas de nom');
+      return;
+    }
+    if (!ing.qte || ing.qte <= 0) {
+      if (!confirm(`L'ingredient "${ing.nom}" a une quantite a 0 ou negative. Continuer quand meme ?`)) return;
+      break;
+    }
+  }
+
+  // === Detection des nouveaux ingredients pour demander leur rayon ===
+  const newIngs = [];
+  for (const ing of ingsActifs) {
+    if (ing.ingId) continue;
+    if (!ing.nom.trim()) continue;
+    const exist = DATA.ingredients.find(i => i.nom.toLowerCase().trim() === ing.nom.toLowerCase().trim());
+    if (exist) continue;
+    if (newIngs.find(x => x.nom.toLowerCase().trim() === ing.nom.toLowerCase().trim())) continue;
+    newIngs.push({ nom: ing.nom.trim(), unite: ing.unite });
+  }
+  let rayonsMap = new Map();
+  if (newIngs.length > 0) {
+    const map = await promptRayonsPourNouveauxIngredients(newIngs);
+    if (!map) return; // annule
+    rayonsMap = map;
+  }
+
+  // === Sauvegarde (avec bouton grise) ===
+  btn.disabled = true;
+  const originalBtnText = btn.textContent;
+  btn.textContent = '⏳ Enregistrement...';
+  btn.style.opacity = '0.6';
+  btn.style.cursor = 'not-allowed';
+
   try {
+    const photoUrl = ($('rPhoto').value || '').trim();
+    const payload = {
+      nom_du_plat: nom,
+      categorie: $('rCat').value,
+      frigo_en_jours: parseInt($('rFrigo').value, 10) || 5,
+      instructions_preparation: $('rPrep').value,
+      instructions_rechauffage: $('rRechauffage').value,
+      congelation: $('rCongelation').value,
+      photo_url: photoUrl || null,
+      active: $('rActif').value === 'true'
+    };
+    let recId = id;
     if (id) {
       const { error } = await sb.from('recettes').update(payload).eq('id', id);
       if (error) throw error;
@@ -867,7 +1005,8 @@ async function saveRecette() {
       DATA.recettes.push(data);
       recId = data.id;
     }
-    // sync ingredients
+
+    // Sync ingredients
     let ordre = 0;
     for (const ing of ingBuffer) {
       ordre++;
@@ -876,14 +1015,15 @@ async function saveRecette() {
         DATA.ri = DATA.ri.filter(r => r.id !== ing.id);
         continue;
       }
+      if (ing.toDelete) continue;
       let ingId = ing.ingId;
       if (!ingId && ing.nom.trim()) {
-        // chercher par nom
         const found = DATA.ingredients.find(i => i.nom.toLowerCase().trim() === ing.nom.toLowerCase().trim());
         if (found) ingId = found.id;
         else {
-          const { data, error } = await sb.from('ingredients').insert({ nom: ing.nom.trim(), unite_par_defaut: ing.unite || null, rayon: null }).select().single();
-          if (!error && data) { DATA.ingredients.push(data); ingId = data.id; toast(`Ingredient "${ing.nom}" cree`); }
+          const rayon = rayonsMap.get(ing.nom.toLowerCase().trim()) || null;
+          const { data, error } = await sb.from('ingredients').insert({ nom: ing.nom.trim(), unite_par_defaut: ing.unite || null, rayon }).select().single();
+          if (!error && data) { DATA.ingredients.push(data); ingId = data.id; }
         }
       }
       if (!ingId) continue;
@@ -898,9 +1038,18 @@ async function saveRecette() {
         }
       }
     }
-    toast('✅ Recette enregistree !'); closeModal('modalRecette'); renderRecettes();
+    populateUnitDatalist(); // mise a jour du datalist si nouvelles unites
+    if (newIngs.length > 0) toast(`✅ Recette enregistree (+${newIngs.length} nouvel${newIngs.length > 1 ? 's' : ''} ingredient${newIngs.length > 1 ? 's' : ''} cree${newIngs.length > 1 ? 's' : ''})`);
+    else toast('✅ Recette enregistree');
+    closeModal('modalRecette');
+    renderRecettes();
   } catch (e) {
     toast('Erreur: ' + (e.message || e));
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalBtnText;
+    btn.style.opacity = '1';
+    btn.style.cursor = 'pointer';
   }
 }
 
