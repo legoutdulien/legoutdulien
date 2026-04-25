@@ -3,7 +3,6 @@
 
 const SUPABASE_URL = 'https://loiaubdlhkcnohtbwtxg.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxvaWF1YmRsaGtjbm9odGJ3dHhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMzU1NDAsImV4cCI6MjA5MjcxMTU0MH0.2S2xnnpFT-kcblTzSC_x2ybSUUipUi5jMPe_DbNBUcA';
-const STRIPE_LINK = 'https://buy.stripe.com/aFa9AS0Rjfuj7a5agg3Ru00';
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -103,19 +102,6 @@ async function loadDash() {
   $('unom').textContent = prenom;
   $('welcomeTxt').textContent = `Bonjour ${prenom} !`;
   showPage('pDash');
-
-  // confirmation post-Stripe
-  const pendingId = sessionStorage.getItem('pendingCmdId');
-  if (pendingId) {
-    sessionStorage.removeItem('pendingCmdId');
-    try {
-      const { error } = await sb.from('commandes')
-        .update({ statut: 'Confirmée' })
-        .eq('id', pendingId)
-        .eq('client_id', clientProfile.id);
-      if (!error) showToast('Paiement confirme ! Votre commande est validee.', 'ok');
-    } catch (e) { /* silent */ }
-  }
   await chargerMesCommandes();
 }
 
@@ -175,7 +161,7 @@ async function ouvrirCommande(idx) {
     const platIds = [cmd.plat_1_id, cmd.plat_2_id, cmd.plat_3_id, cmd.plat_4_id, cmd.plat_5_id].filter(Boolean);
     platsDetailCache = platIds.map(id => recettes.find(r => r.id === id)).filter(Boolean);
     const semLabel = cmd.semaine_du ? 'Semaine du ' + fmtDate(cmd.semaine_du) : '';
-    renderDetail({ nom: clientProfile.nom || '', semLabel, creneau: cmd.creneau || '', id: cmd.id });
+    renderDetail({ nom: clientProfile.nom || '', semLabel, creneau: cmd.creneau || '', id: cmd.id, statut: cmd.statut || 'En attente de paiement' });
   } catch (e) {
     showToast('Erreur: ' + e.message, 'err');
   } finally {
@@ -184,10 +170,15 @@ async function ouvrirCommande(idx) {
 }
 
 function renderDetail(data) {
+  const ok = data.statut === 'Confirmée';
+  const titre = ok ? 'Commande confirmee' : 'Commande en attente';
+  const icone = ok
+    ? '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>'
+    : '<svg viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8zm.5-13H11v6l5.2 3.2.8-1.3-4.5-2.7V7z"/></svg>';
   $('detailMain').innerHTML = `
     <div class="cbanner">
-      <div class="cicon"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
-      <h1>Commande confirmee</h1>
+      <div class="cicon">${icone}</div>
+      <h1>${titre}</h1>
       <p>${escapeHtml(data.semLabel)} · ${escapeHtml(data.creneau)}</p>
     </div>
     <div class="igrid">
@@ -523,8 +514,7 @@ async function valider() {
     };
     const { data, error } = await sb.from('commandes').insert(payload).select().single();
     if (error) throw error;
-    sessionStorage.setItem('pendingCmdId', data.id);
-    afficherRecap();
+    afficherRecap(data.id);
   } catch (e) {
     showToast('Erreur: ' + (e.message || e), 'err');
   } finally {
@@ -532,7 +522,7 @@ async function valider() {
   }
 }
 
-function afficherRecap() {
+function afficherRecap(commandeId) {
   const pop = document.createElement('div');
   pop.id = 'recapPop';
   pop.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px';
@@ -543,11 +533,11 @@ function afficherRecap() {
     <span style="font-size:14px">${escapeHtml(p.nom)}</span>
   </div>`).join('');
 
-  pop.innerHTML = `<div style="background:#fff;border-radius:20px;padding:0;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);overflow:hidden">
+  pop.innerHTML = `<div style="background:#fff;border-radius:20px;padding:0;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);overflow:hidden;max-height:90vh;overflow-y:auto">
     <div style="background:#3d6b4f;padding:24px;text-align:center;color:#fff">
       <div style="font-size:36px;margin-bottom:10px">✅</div>
-      <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-bottom:4px">Recapitulatif de votre commande</div>
-      <div style="font-size:13px;opacity:.85">Verifiez votre selection avant de payer</div>
+      <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-bottom:4px">Commande enregistree</div>
+      <div style="font-size:13px;opacity:.85">Voici le recapitulatif</div>
     </div>
     <div style="padding:24px">
       <div style="background:#f8f4ee;border-radius:12px;padding:14px 16px;margin-bottom:16px">
@@ -562,20 +552,33 @@ function afficherRecap() {
         <div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#6b6b6b;margin-bottom:8px">🍽️ Vos 5 plats</div>
         ${platsHtml}
       </div>
-      <div style="background:#eef4f0;border-radius:12px;padding:12px 16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:15px;font-weight:500">Total a payer</span>
+      <div style="background:#eef4f0;border-radius:12px;padding:12px 16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:15px;font-weight:500">A votre charge</span>
         <span style="font-size:20px;font-weight:700;color:#3d6b4f">60€</span>
       </div>
-      <a href="${STRIPE_LINK}" style="display:block;padding:16px;background:#3d6b4f;color:#fff;border-radius:12px;text-decoration:none;font-weight:500;font-size:16px;text-align:center;margin-bottom:10px">💳 Passer au paiement</a>
-      <button id="recapAnnuler" style="width:100%;padding:12px;background:#f8f4ee;color:#6b6b6b;border-radius:12px;border:none;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif">← Modifier ma selection</button>
+      <div style="background:#fff8e7;border-left:3px solid #f9c74f;border-radius:10px;padding:14px 16px;margin-bottom:20px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:6px;color:#8a6a1a">💳 Paiement via URSSAF</div>
+        <div style="font-size:12px;line-height:1.6;color:#5a5a3a">
+          Vous serez prelev(e)e de <strong>60€</strong> sur votre compte URSSAF particulier-employeur dans les jours qui suivent la declaration. L'avance immediate du credit d'impot (50%) est deja deduite.<br><br>
+          Votre commande passe en <strong>"En attente de paiement"</strong> et sera <strong>confirmee par Alizee</strong> apres declaration URSSAF.
+        </div>
+      </div>
+      <button id="recapOk" style="display:block;width:100%;padding:14px;background:#3d6b4f;color:#fff;border-radius:12px;border:none;font-weight:500;font-size:15px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:10px">Voir mes commandes</button>
+      <button id="recapAnnuler" style="width:100%;padding:12px;background:#f8f4ee;color:#6b6b6b;border-radius:12px;border:none;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif">Annuler cette commande</button>
     </div>
   </div>`;
   document.body.appendChild(pop);
+
+  $('recapOk').addEventListener('click', async () => {
+    pop.remove();
+    sel = []; semSel = null; crenSel = null;
+    await chargerMesCommandes();
+    showPage('pDash');
+  });
   $('recapAnnuler').addEventListener('click', async () => {
-    const id = sessionStorage.getItem('pendingCmdId');
-    if (id) {
-      try { await sb.from('commandes').delete().eq('id', id); } catch (e) { /* silent */ }
-      sessionStorage.removeItem('pendingCmdId');
+    if (!confirm('Annuler cette commande ?')) return;
+    if (commandeId) {
+      try { await sb.from('commandes').delete().eq('id', commandeId); } catch (e) { /* silent */ }
     }
     pop.remove();
     showToast('Commande annulee');
