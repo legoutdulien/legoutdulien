@@ -144,12 +144,15 @@ function showTab(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
   ({
     planning: renderPlanning,
+    stats: renderStats,
     recettes: renderRecettes,
     clients: renderClients,
     salaries: renderSalaries,
     creneaux: renderCreneaux
   })[tab]?.();
 }
+
+const PRIX_PRESTATION = 120; // CA reel par commande (60€ client + 60€ URSSAF)
 
 // Vue active dans l'onglet Planning : 'liste' (hebdo) ou 'mois' (calendrier)
 let planningView = 'liste';
@@ -459,6 +462,155 @@ function voirJourCal(iso, dow) {
     </div>`;
   }).join('') : `<p style="color:var(--txl);text-align:center;padding:20px">Aucune commande ce jour</p>`;
   openModal('modalCalJour');
+}
+
+// --- STATS / DASHBOARD ---
+function renderStats() {
+  const now = new Date();
+  const thisMonthIso = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const prevMonthIso = `${prevMonthDate.getFullYear()}-${String(prevMonthDate.getMonth() + 1).padStart(2, '0')}`;
+  const thisMon = getMonday(0);
+  const nextMon = getMonday(1);
+
+  const inMonth = (cmd, ym) => (cmd.semaine_du || '').startsWith(ym);
+  const isConfirme = (cmd) => cmd.statut === 'Confirmée';
+  const isAttente = (cmd) => cmd.statut === 'En attente de paiement';
+
+  // KPIs
+  const cmdConfMois = DATA.commandes.filter(c => inMonth(c, thisMonthIso) && isConfirme(c));
+  const cmdConfPrev = DATA.commandes.filter(c => inMonth(c, prevMonthIso) && isConfirme(c));
+  const caMois = cmdConfMois.length * PRIX_PRESTATION;
+  const caPrev = cmdConfPrev.length * PRIX_PRESTATION;
+  let deltaPct = 0, deltaSym = '→';
+  if (caPrev > 0) {
+    deltaPct = Math.round((caMois - caPrev) / caPrev * 100);
+    deltaSym = deltaPct > 0 ? '↗' : deltaPct < 0 ? '↘' : '→';
+  } else if (caMois > 0) {
+    deltaPct = 100; deltaSym = '↗';
+  }
+  const deltaColor = deltaPct > 0 ? '#2e7d32' : deltaPct < 0 ? '#c62828' : 'var(--txl)';
+
+  const cmdMois = DATA.commandes.filter(c => inMonth(c, thisMonthIso));
+  const cmdAFacturer = DATA.commandes.filter(isAttente);
+  const cmdSemaine = DATA.commandes.filter(c => (c.semaine_du || '').startsWith(thisMon));
+  const cmdSemaineProchaine = DATA.commandes.filter(c => (c.semaine_du || '').startsWith(nextMon));
+  const portionsSemaine = cmdSemaine.reduce((a, c) => a + (c.nombre_portions || 4) * 5, 0);
+  const portionsSemaineProchaine = cmdSemaineProchaine.reduce((a, c) => a + (c.nombre_portions || 4) * 5, 0);
+
+  // Top 5 plats
+  const platCount = {};
+  DATA.commandes.forEach(c => {
+    [c.plat_1_id, c.plat_2_id, c.plat_3_id, c.plat_4_id, c.plat_5_id].forEach(id => {
+      if (!id) return;
+      platCount[id] = (platCount[id] || 0) + 1;
+    });
+  });
+  const topPlats = Object.entries(platCount).sort((a, b) => b[1] - a[1]).slice(0, 5)
+    .map(([id, n]) => ({ rec: getRecette(id), n }))
+    .filter(x => x.rec);
+
+  // Top 3 clientes (toutes commandes confondues)
+  const clientCount = {};
+  DATA.commandes.forEach(c => {
+    if (!c.client_id) return;
+    clientCount[c.client_id] = (clientCount[c.client_id] || 0) + 1;
+  });
+  const topClients = Object.entries(clientCount).sort((a, b) => b[1] - a[1]).slice(0, 3)
+    .map(([id, n]) => ({ cli: getClient(id), n }))
+    .filter(x => x.cli);
+
+  // Mini bar chart CA 6 derniers mois
+  const monthsBars = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    const ca = DATA.commandes.filter(c => inMonth(c, ym) && isConfirme(c)).length * PRIX_PRESTATION;
+    monthsBars.push({ label: d.toLocaleDateString('fr-FR', { month: 'short' }), ca });
+  }
+  const maxCa = Math.max(1, ...monthsBars.map(m => m.ca));
+
+  showContent(`<div class="card">
+    <div class="card-head">
+      <div class="card-tit">📊 Tableau de bord</div>
+    </div>
+
+    <div class="stats-row" style="margin-bottom:18px">
+      <div class="stat-card">
+        <div class="stat-val">${caMois}€</div>
+        <div class="stat-lbl">CA ${now.toLocaleDateString('fr-FR', { month: 'long' })}</div>
+        <div style="margin-top:4px;font-size:12px;color:${deltaColor};font-weight:500">${deltaSym} ${deltaPct >= 0 ? '+' : ''}${deltaPct}% vs mois precedent</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">${cmdMois.length}</div>
+        <div class="stat-lbl">Commandes ce mois</div>
+        <div style="margin-top:4px;font-size:12px;color:var(--txl)">${cmdConfMois.length} confirmee${cmdConfMois.length > 1 ? 's' : ''}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color:${cmdAFacturer.length > 0 ? 'var(--or)' : 'var(--v2)'}">${cmdAFacturer.length}</div>
+        <div class="stat-lbl">A facturer Abby</div>
+        <div style="margin-top:4px;font-size:12px;color:var(--txl)">${cmdAFacturer.length * PRIX_PRESTATION}€ en attente</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">${cmdSemaine.length}</div>
+        <div class="stat-lbl">Commandes cette semaine</div>
+        <div style="margin-top:4px;font-size:12px;color:var(--txl)">${portionsSemaine} portions a preparer</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px">
+      <div style="background:var(--bgc);border-radius:14px;padding:18px">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--v2);margin-bottom:14px">🏆 Top 5 plats commandes</div>
+        ${topPlats.length ? topPlats.map((p, i) => `
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bgd);font-size:13px">
+            <span style="background:var(--vp);color:var(--v2);width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0">${i + 1}</span>
+            <span style="flex:1">${escapeHtml(p.rec.nom_du_plat)}</span>
+            <span style="background:var(--vp);color:var(--v2);padding:2px 9px;border-radius:12px;font-size:11px;font-weight:600">${p.n}x</span>
+          </div>`).join('') : '<p style="color:var(--txl);font-size:12px">Aucune commande pour l instant</p>'}
+      </div>
+      <div style="background:var(--bgc);border-radius:14px;padding:18px">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--v2);margin-bottom:14px">⭐ Top 3 clientes fideles</div>
+        ${topClients.length ? topClients.map((c, i) => `
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bgd);font-size:13px">
+            <span style="background:linear-gradient(135deg,var(--v2),var(--v3));color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0">${i + 1}</span>
+            <div style="flex:1">
+              <div style="font-weight:600">${escapeHtml(c.cli.nom)}</div>
+              <div style="font-size:11px;color:var(--txl)">${c.n} commande${c.n > 1 ? 's' : ''} · ${c.n * PRIX_PRESTATION}€ CA</div>
+            </div>
+          </div>`).join('') : '<p style="color:var(--txl);font-size:12px">Aucune cliente fidele pour l instant</p>'}
+      </div>
+    </div>
+
+    <div style="background:var(--bgc);border-radius:14px;padding:18px;margin-bottom:18px">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--v2);margin-bottom:14px">📈 Evolution CA - 6 derniers mois</div>
+      <div style="display:flex;align-items:flex-end;gap:8px;height:140px">
+        ${monthsBars.map(m => {
+          const h = Math.round(m.ca / maxCa * 100);
+          return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+            <div style="font-size:10px;color:var(--txl);font-weight:600">${m.ca}€</div>
+            <div style="width:100%;background:linear-gradient(180deg,var(--v3),var(--v2));border-radius:6px 6px 2px 2px;height:${h}%;min-height:4px;transition:height .3s"></div>
+            <div style="font-size:11px;color:var(--txl);text-transform:capitalize">${m.label}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+
+    <div style="background:var(--vp);border-radius:14px;padding:18px;border-left:4px solid var(--v3)">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--v2);margin-bottom:10px">🍳 Charge previsionnelle</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;font-size:13px">
+        <div>
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--txl);margin-bottom:4px">Cette semaine</div>
+          <div style="font-size:18px;font-weight:600;color:var(--v2)">${cmdSemaine.length} commande${cmdSemaine.length > 1 ? 's' : ''}</div>
+          <div style="color:var(--txm)">${portionsSemaine} portions au total · ${cmdSemaine.length * 5} plats a cuisiner</div>
+        </div>
+        <div>
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--txl);margin-bottom:4px">Semaine prochaine</div>
+          <div style="font-size:18px;font-weight:600;color:var(--v2)">${cmdSemaineProchaine.length} commande${cmdSemaineProchaine.length > 1 ? 's' : ''}</div>
+          <div style="color:var(--txm)">${portionsSemaineProchaine} portions au total · ${cmdSemaineProchaine.length * 5} plats a cuisiner</div>
+        </div>
+      </div>
+    </div>
+  </div>`);
 }
 
 // --- RECETTES ---
