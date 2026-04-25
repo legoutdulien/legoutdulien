@@ -24,7 +24,6 @@
 }
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);height:100vh;display:flex;flex-direction:column;overflow:hidden;font-size:14px}
-/* ── LOGIN ── */
 #pLogin{flex:1;display:flex;align-items:center;justify-content:center;background:var(--n1);background-image:radial-gradient(ellipse 60% 70% at 15% 50%,rgba(45,90,61,.4),transparent),radial-gradient(ellipse 40% 50% at 85% 20%,rgba(74,124,89,.2),transparent);padding:20px}
 .lcard{background:rgba(255,255,255,.04);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.09);border-radius:28px;padding:52px 44px;width:100%;max-width:420px;text-align:center}
 .llogo{width:72px;height:72px;margin:0 auto 24px;background:linear-gradient(135deg,var(--v2),var(--v3));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 8px 32px rgba(45,90,61,.4)}
@@ -36,9 +35,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
 .lb{width:100%;padding:15px;background:linear-gradient(135deg,var(--v2),var(--v3));color:#fff;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;letter-spacing:.5px;transition:.2s}
 .lb:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(45,90,61,.4)}
 .lerr{color:#ff7070;font-size:13px;margin-top:12px;display:none}
-/* ── APP ── */
 #pApp{display:none;flex-direction:column;height:100%}
-/* topbar */
 .topbar{background:var(--n1);height:56px;padding:0 28px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.05)}
 .brand{display:flex;align-items:center;gap:12px}
 .brand-icon{width:30px;height:30px;background:linear-gradient(135deg,var(--v2),var(--v3));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px}
@@ -49,34 +46,28 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
 .top-stat{font-size:11px;color:rgba(255,255,255,.3);padding:5px 10px;background:rgba(255,255,255,.05);border-radius:6px;border:1px solid rgba(255,255,255,.07)}
 .tbtn{padding:7px 14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:8px;font-size:12px;color:rgba(255,255,255,.5);cursor:pointer;font-family:'DM Sans',sans-serif;transition:.2s}
 .tbtn:hover{color:#fff;background:rgba(255,255,255,.13)}
-/* tabs */
 .tabs{background:var(--wh);border-bottom:1.5px solid var(--bgd);padding:0 24px;display:flex;gap:2px;flex-shrink:0;overflow-x:auto}
 .tabs::-webkit-scrollbar{height:0}
 .tab{padding:14px 18px;font-size:13px;cursor:pointer;border-bottom:2px solid transparent;color:var(--txl);transition:.2s;white-space:nowrap;display:flex;align-items:center;gap:6px;font-weight:400}
 .tab:hover{color:var(--v2)}
 .tab.active{color:var(--v2);border-color:var(--v2);font-weight:500}
-/* content */
 .content{flex:1;overflow-y:auto;padding:24px;background:var(--bg)}
 .content::-webkit-scrollbar{width:5px}
 .content::-webkit-scrollbar-thumb{background:var(--bgd);border-radius:3px}
-/* cards */
 .card{background:var(--wh);border-radius:var(--r3);padding:24px;box-shadow:var(--sh);margin-bottom:20px}
 .card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px}
 .card-tit{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;color:var(--v2);display:flex;align-items:center;gap:8px}
 .card-tit span{font-family:'DM Sans',sans-serif;font-size:12px;color:var(--txl);font-weight:400;background:var(--bgc);padding:3px 9px;border-radius:20px}
-/* nav semaine */
 .snav{display:flex;align-items:center;gap:10px;margin-bottom:18px;background:var(--bgc);border-radius:12px;padding:8px 12px}
 .snav-btn{width:30px;height:30px;border-radius:50%;background:var(--wh);border:1.5px solid var(--bgd);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;color:var(--v2);box-shadow:var(--sh);transition:.15s}
 .snav-btn:hover{background:var(--vp);border-color:var(--vl)}
 .snav-label{font-size:13px;font-weight:500;color:var(--v2);flex:1;text-align:center}
 .snav-today{padding:4px 10px;background:var(--v2);color:#fff;border:none;border-radius:6px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif}
-/* commandes */
 .cmd-grid{display:flex;flex-direction:column;gap:10px}
 .cmd-card{background:var(--bgc);border-radius:16px;padding:16px 18px;border:1.5px solid var(--bgd);transition:.2s;position:relative;overflow:hidden}
 .cmd-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--v3)}
 .cmd-card:hover{border-color:var(--vl);box-shadow:var(--sh)}
 .cmd-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-.cmd-info{}
 .cmd-client{font-weight:600;font-size:15px;color:var(--tx);margin-bottom:3px}
 .cmd-meta{font-size:12px;color:var(--txl);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .cmd-meta-item{display:flex;align-items:center;gap:4px}
@@ -86,13 +77,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
 .plat-chip:hover{background:var(--vl);transform:translateY(-1px)}
 .cmd-footer{margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--bgd)}
 .assign-sel{padding:6px 10px;border:1.5px solid var(--bgd);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:12px;background:var(--wh);color:var(--tx);outline:none;cursor:pointer}
-/* badges */
 .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500}
 .badge::before{content:'';width:5px;height:5px;border-radius:50%}
 .b-ok{background:#e8f5e9;color:#2e7d32}.b-ok::before{background:#2e7d32}
 .b-en{background:#fff8e1;color:#f57f17}.b-en::before{background:#f57f17}
 .b-att{background:#e8eaf6;color:#3949ab}.b-att::before{background:#3949ab}
-/* boutons */
 .btn{padding:7px 14px;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;border:none;transition:.15s;display:inline-flex;align-items:center;gap:5px}
 .btn-primary{background:linear-gradient(135deg,var(--v2),var(--v3));color:#fff}
 .btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(45,90,61,.35)}
@@ -101,7 +90,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
 .btn-danger{background:rgba(192,57,43,.08);color:var(--cr);border:1px solid rgba(192,57,43,.2)}
 .btn-danger:hover{background:rgba(192,57,43,.15)}
 .btn-sm{padding:5px 10px;font-size:11px}
-/* CALENDRIER */
 .cal-wrap{overflow-x:auto}
 .cal-head{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px}
 .cal-dh{text-align:center;font-size:11px;color:var(--txl);font-weight:600;padding:6px;text-transform:uppercase;letter-spacing:.5px}
@@ -114,7 +102,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
 .cal-num{font-size:12px;font-weight:600;color:var(--txl);margin-bottom:4px}
 .cal-day.today .cal-num{color:var(--v2)}
 .cal-evt{background:var(--v2);color:#fff;border-radius:4px;padding:2px 6px;font-size:10px;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:400}
-/* RECETTES GRID */
 .rec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
 .rec-card{background:var(--bgc);border-radius:16px;overflow:hidden;border:1.5px solid var(--bgd);transition:.2s;cursor:pointer}
 .rec-card:hover{border-color:var(--vl);box-shadow:var(--sh);transform:translateY(-2px)}
@@ -125,32 +112,26 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
 .rec-nom{font-weight:600;font-size:14px;color:var(--tx);margin-bottom:4px}
 .rec-cat{font-size:11px;color:var(--txl);margin-bottom:8px}
 .rec-footer{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px}
-/* TABLE */
 .tbl{width:100%;border-collapse:collapse}
 .tbl th{padding:10px 14px;text-align:left;font-size:10px;font-weight:600;color:var(--txl);text-transform:uppercase;letter-spacing:.7px;border-bottom:2px solid var(--bgd)}
 .tbl td{padding:12px 14px;font-size:13px;border-bottom:1px solid var(--bgd);vertical-align:middle}
 .tbl tr:last-child td{border-bottom:none}
 .tbl tbody tr:hover td{background:var(--bgc)}
 .tbl-avatar{width:32px;height:32px;background:linear-gradient(135deg,var(--vp),var(--vl));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--v2)}
-/* FORM */
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .fg{display:flex;flex-direction:column;gap:6px}
 .fg label{font-size:11px;font-weight:600;color:var(--txl);text-transform:uppercase;letter-spacing:.6px}
 .fg input,.fg select,.fg textarea{padding:10px 13px;border:1.5px solid var(--bgd);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:.2s;background:var(--wh);color:var(--tx)}
 .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--v3);box-shadow:0 0 0 3px rgba(74,124,89,.1)}
 .fg textarea{resize:vertical;min-height:72px;line-height:1.5}
-/* CRENEAUX */
 .cren-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
 .cren-card{border-radius:14px;padding:16px;border:2px solid var(--bgd);transition:.2s;text-align:center;background:var(--bgc)}
 .cren-card.open{background:var(--vp);border-color:var(--vl)}
 .cren-card.past{opacity:.4;pointer-events:none}
 .cren-jour{font-weight:700;font-size:13px;color:var(--v2);margin-bottom:4px}
-.cren-slots{font-size:11px;color:var(--txl);margin-bottom:8px;line-height:1.5}
-.cren-count{font-size:12px;color:var(--txm);font-weight:500;margin-bottom:10px}
 .cren-btn{width:100%;padding:7px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;cursor:pointer;border:none;transition:.15s}
 .cren-btn.on{background:#e8f5e9;color:#2e7d32}
 .cren-btn.off{background:#ffebee;color:#c62828}
-/* MODAL */
 .overlay{position:fixed;inset:0;background:rgba(10,10,8,.55);z-index:300;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
 .overlay.open{display:flex}
 .modal{background:var(--wh);border-radius:24px;padding:28px;width:100%;max-width:560px;max-height:88vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.25)}
@@ -162,26 +143,21 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
 .modal-x:hover{background:var(--bgd);color:var(--tx)}
 .modal-section{margin-top:20px;padding-top:16px;border-top:1.5px solid var(--bgd)}
 .modal-section-tit{font-size:11px;font-weight:600;color:var(--txl);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
-/* ING ROWS */
 .ing-cols{display:grid;grid-template-columns:1fr 70px 80px 28px;gap:6px;align-items:center;margin-bottom:6px}
 .ing-col-head{font-size:10px;font-weight:600;color:var(--txl);text-transform:uppercase;letter-spacing:.5px;padding:0 4px}
 .ing-inp{padding:8px 10px;border:1.5px solid var(--bgd);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:12px;outline:none;background:var(--wh);width:100%;transition:.2s}
 .ing-inp:focus{border-color:var(--v3)}
-.ing-sel{padding:8px 6px;border:1.5px solid var(--bgd);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:12px;outline:none;background:var(--wh);width:100%;cursor:pointer}
 .ing-del{width:28px;height:28px;background:rgba(192,57,43,.07);border:1px solid rgba(192,57,43,.15);border-radius:7px;cursor:pointer;color:var(--cr);font-size:13px;display:flex;align-items:center;justify-content:center;transition:.15s;flex-shrink:0}
 .ing-del:hover{background:rgba(192,57,43,.15)}
-/* autocomplete */
 .ing-wrap{position:relative;width:100%}
 .ing-dropdown{position:absolute;top:100%;left:0;right:0;background:var(--wh);border:1.5px solid var(--vl);border-radius:10px;z-index:50;max-height:160px;overflow-y:auto;box-shadow:var(--sh2);display:none;margin-top:2px}
 .ing-dropdown.show{display:block}
 .ing-opt{padding:8px 12px;font-size:12px;cursor:pointer;color:var(--tx);transition:.1s}
 .ing-opt:hover{background:var(--vp);color:var(--v2)}
-/* PLAT SELECT dans modal commande */
 .plat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px}
 .plat-opt{padding:8px 10px;background:var(--bgc);border:1.5px solid var(--bgd);border-radius:10px;font-size:12px;cursor:pointer;transition:.15s;text-align:center;line-height:1.4}
 .plat-opt.sel{background:var(--vp);border-color:var(--v2);color:var(--v2);font-weight:600}
 .plat-opt:hover:not(.sel){border-color:var(--vl);background:var(--vp)}
-/* ARIA */
 .aria-fab{position:fixed;bottom:28px;right:28px;width:56px;height:56px;background:linear-gradient(135deg,var(--v1),var(--v3));border-radius:50%;border:none;cursor:pointer;font-size:22px;box-shadow:0 6px 24px rgba(26,61,40,.5);z-index:200;display:none;align-items:center;justify-content:center;color:#fff;animation:pulse 3s ease-in-out infinite}
 @keyframes pulse{0%,100%{box-shadow:0 6px 24px rgba(26,61,40,.5)}50%{box-shadow:0 6px 36px rgba(26,61,40,.75)}}
 .aria-panel{position:fixed;top:0;right:-420px;width:400px;height:100%;background:var(--wh);z-index:400;box-shadow:-6px 0 48px rgba(0,0,0,.18);transition:right .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
@@ -233,166 +209,107 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
 @keyframes micPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
 .a-reload{width:36px;height:36px;background:var(--bgc);border:1.5px solid var(--bgd);border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;transition:.15s}
 .a-reload:hover{background:var(--vp);border-color:var(--vl)}
-/* TOAST */
 .toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%);background:var(--n2);color:#fff;padding:10px 22px;border-radius:22px;font-size:13px;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.25)}
 .toast.show{opacity:1}
-/* EMPTY STATE */
 .empty{text-align:center;padding:48px 20px;color:var(--txl)}
 .empty-icon{font-size:40px;margin-bottom:12px;opacity:.4}
 .empty-txt{font-size:14px}
-/* STATS ROW */
 .stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px}
 .stat-card{background:var(--wh);border-radius:16px;padding:18px 20px;box-shadow:var(--sh);border:1.5px solid var(--bgd)}
 .stat-val{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:400;color:var(--v2);line-height:1}
 .stat-lbl{font-size:11px;color:var(--txl);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
-/* ── RESPONSIVE MOBILE-FIRST ── */
-
-/* Topbar : cacher le texte sur petit écran */
 @media(max-width:600px){
   .brand-name,.brand-sep,.brand-sub{display:none}
   .topbar{padding:0 14px;height:50px}
   .top-stat{display:none}
   .tbtn{padding:6px 10px;font-size:11px}
-}
-
-/* Tabs : icônes seulement sur mobile */
-@media(max-width:600px){
   .tabs{padding:0 4px;gap:0}
   .tab{padding:10px 8px;font-size:11px;gap:3px;flex:1;justify-content:center;text-align:center}
   .tab-label{display:none}
-}
-
-/* Content */
-@media(max-width:600px){
   .content{padding:12px}
-}
-
-/* Stats row : 2 colonnes sur mobile */
-@media(max-width:600px){
   .stats-row{grid-template-columns:repeat(2,1fr);gap:8px}
   .stat-card{padding:14px}
   .stat-val{font-size:26px}
-}
-
-/* Commandes : simplifier sur mobile */
-@media(max-width:600px){
   .cmd-card{padding:12px 14px}
   .cmd-client{font-size:14px}
   .cmd-meta{gap:6px;font-size:11px}
   .cmd-actions{flex-direction:row}
   .btn-sm{padding:6px 8px;font-size:11px}
-}
-
-/* Recettes : 2 colonnes sur mobile */
-@media(max-width:600px){
   .rec-grid{grid-template-columns:repeat(2,1fr);gap:10px}
   .rec-img{height:100px}
   .rec-img img{height:100px}
   .rec-body{padding:10px}
   .rec-nom{font-size:13px}
+  .form-grid{grid-template-columns:1fr}
+  .modal{padding:20px 16px;border-radius:20px 20px 0 0;max-height:92vh;position:fixed;bottom:0;left:0;right:0;width:100%;max-width:100%}
+  .overlay{align-items:flex-end;padding:0}
+  .ing-cols{grid-template-columns:1fr 60px 65px 28px;gap:4px}
+  .ing-inp{padding:6px 8px;font-size:11px}
+  .aria-panel{width:100vw;right:-100vw}
+  .aria-fab{bottom:20px;right:16px;width:50px;height:50px;font-size:20px}
+  .snav{padding:6px 10px}
+  .snav-label{font-size:12px}
+  .plat-grid{grid-template-columns:repeat(2,1fr)}
+  .card{padding:16px}
+  .card-head{gap:8px}
+  .card-tit{font-size:18px}
 }
-
-/* Tables : scroll horizontal */
-@media(max-width:600px){
-  .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
-  .tbl{min-width:500px}
-}
-
-/* Créneaux : 1 colonne sur très petit écran */
 @media(max-width:480px){
   .cren-grid{grid-template-columns:1fr 1fr}
 }
 @media(max-width:360px){
   .cren-grid{grid-template-columns:1fr}
 }
-
-/* Formulaires */
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 @media(max-width:600px){
-  .form-grid{grid-template-columns:1fr}
-  .modal{padding:20px 16px;border-radius:20px 20px 0 0;max-height:92vh;position:fixed;bottom:0;left:0;right:0;width:100%;max-width:100%}
-  .overlay{align-items:flex-end;padding:0}
-}
-
-/* Ingrédients dans modal recette */
-@media(max-width:600px){
-  .ing-cols{grid-template-columns:1fr 60px 65px 28px;gap:4px}
-  .ing-header{grid-template-columns:1fr 60px 65px 28px;gap:4px}
-  .ing-inp{padding:6px 8px;font-size:11px}
-}
-
-/* ARIA panel */
-@media(max-width:600px){
-  .aria-panel{width:100vw;right:-100vw}
-  .aria-fab{bottom:20px;right:16px;width:50px;height:50px;font-size:20px}
-}
-
-/* Navigation semaine */
-@media(max-width:600px){
-  .snav{padding:6px 10px}
-  .snav-label{font-size:12px}
-}
-
-/* Plat selector dans modal commande */
-@media(max-width:600px){
-  .plat-grid{grid-template-columns:repeat(2,1fr)}
-}
-
-/* Card head */
-@media(max-width:600px){
-  .card{padding:16px}
-  .card-head{gap:8px}
-  .card-tit{font-size:18px}
+  .tbl{min-width:500px}
 }
 </style>
 </head>
 <body>
 
-<!-- ═══ LOGIN ═══ -->
 <div id="pLogin">
   <div class="lcard">
-    <img src="https://res.cloudinary.com/dgoqyp3wn/image/upload/v1774719838/ChatGPT_Image_28_mars_2026_18_37_48_u200aw.png" alt="Le Goût du Lien" style="height:80px;width:auto;object-fit:contain;display:block;margin:0 auto 16px;border-radius:12px">
-    <div class="ltit">Le Goût du Lien</div>
+    <img src="https://res.cloudinary.com/dgoqyp3wn/image/upload/v1774719838/ChatGPT_Image_28_mars_2026_18_37_48_u200aw.png" alt="Le Gout du Lien" style="height:80px;width:auto;object-fit:contain;display:block;margin:0 auto 16px;border-radius:12px">
+    <div class="ltit">Le Gout du Lien</div>
     <div class="lsub">Espace Administration</div>
     <input class="li" type="password" id="iMdp" placeholder="Mot de passe">
-    <button class="lb" onclick="login()">Accéder au tableau de bord</button>
+    <button class="lb" id="btnLogin">Acceder au tableau de bord</button>
     <div class="lerr" id="lerr">Mot de passe incorrect</div>
   </div>
 </div>
 
-<!-- ═══ APP ═══ -->
 <div id="pApp">
   <div class="topbar">
     <div class="brand">
       <div class="brand-icon"><img src="https://res.cloudinary.com/dgoqyp3wn/image/upload/v1774719838/ChatGPT_Image_28_mars_2026_18_37_48_u200aw.png" alt="" style="width:24px;height:24px;object-fit:contain;border-radius:4px"></div>
-      <div class="brand-name">Le Goût du Lien</div>
+      <div class="brand-name">Le Gout du Lien</div>
       <div class="brand-sep">·</div>
       <div class="brand-sub">Administration</div>
     </div>
     <div class="top-right">
       <div class="top-stat" id="topStat">Chargement...</div>
-      <button class="tbtn" onclick="logout()">Déconnexion</button>
+      <button class="tbtn" id="btnLogout">Deconnexion</button>
     </div>
   </div>
   <div class="tabs">
-    <div class="tab active" onclick="showTab('planning')">📅 <span class="tab-label">Planning</span></div>
-    <div class="tab" onclick="showTab('calendrier')">🗓️ <span class="tab-label">Calendrier</span></div>
-    <div class="tab" onclick="showTab('recettes')">🍽️ <span class="tab-label">Recettes</span></div>
-    <div class="tab" onclick="showTab('clients')">👥 <span class="tab-label">Clients</span></div>
-    <div class="tab" onclick="showTab('salaries')">👩‍🍳 <span class="tab-label">Salariés</span></div>
-    <div class="tab" onclick="showTab('creneaux')">🕐 <span class="tab-label">Créneaux</span></div>
+    <div class="tab active" data-tab="planning">📅 <span class="tab-label">Planning</span></div>
+    <div class="tab" data-tab="calendrier">🗓️ <span class="tab-label">Calendrier</span></div>
+    <div class="tab" data-tab="recettes">🍽️ <span class="tab-label">Recettes</span></div>
+    <div class="tab" data-tab="clients">👥 <span class="tab-label">Clients</span></div>
+    <div class="tab" data-tab="salaries">👩‍🍳 <span class="tab-label">Salaries</span></div>
+    <div class="tab" data-tab="creneaux">🕐 <span class="tab-label">Creneaux</span></div>
   </div>
   <div class="content" id="content">
     <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:16px;color:var(--txl)">
       <div class="spin" style="width:44px;height:44px"></div>
-      <div>Chargement de vos données...</div>
+      <div>Chargement de vos donnees...</div>
     </div>
   </div>
 </div>
 
-<!-- ARIA FAB -->
-<button class="aria-fab" id="ariaFab" onclick="toggleAria()">🌿</button>
+<button class="aria-fab" id="ariaFab">🌿</button>
 
-<!-- ARIA PANEL -->
 <div class="aria-panel" id="ariaPanel">
   <div class="aria-hd">
     <div class="aria-brand">
@@ -403,26 +320,26 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
       </div>
     </div>
     <div class="aria-hd-btns">
-      <button class="aria-hd-btn" onclick="reloadAriaData()" title="Actualiser">🔄</button>
-      <button class="aria-hd-btn" onclick="resetAriaConv()" title="Nouvelle conv.">↺</button>
-      <button class="aria-hd-btn" onclick="toggleAria()">✕</button>
+      <button class="aria-hd-btn" id="ariaReload" title="Actualiser">🔄</button>
+      <button class="aria-hd-btn" id="ariaReset" title="Nouvelle conv.">↺</button>
+      <button class="aria-hd-btn" id="ariaClose">✕</button>
     </div>
   </div>
   <div id="ariaLoad"><div class="spin"></div><div style="font-size:13px;color:var(--txl)">Chargement...</div></div>
   <div id="ariaChat">
     <div class="a-msgs" id="aMsgs"></div>
-    <div class="a-sugs">
-      <button class="a-sug" onclick="useASug(this)">📅 Cette semaine</button>
-      <button class="a-sug" onclick="useASug(this)">🍽️ Plats actifs</button>
-      <button class="a-sug" onclick="useASug(this)">👥 Clients</button>
-      <button class="a-sug" onclick="useASug(this)">📊 Résumé</button>
+    <div class="a-sugs" id="aSugs">
+      <button class="a-sug">📅 Cette semaine</button>
+      <button class="a-sug">🍽️ Plats actifs</button>
+      <button class="a-sug">👥 Clients</button>
+      <button class="a-sug">📊 Resume</button>
     </div>
     <div class="a-inp-wrap">
       <div class="a-inp-row">
         <input class="a-inp" type="text" id="aInput" placeholder="Posez votre question...">
-        <button class="a-mic" id="aMic" onclick="toggleMic()">🎤</button>
-        <button class="a-reload" onclick="reloadAriaData()" title="Actualiser les données">🔄</button>
-        <button class="a-send" id="aSend" onclick="sendAria()" disabled>
+        <button class="a-mic" id="aMic">🎤</button>
+        <button class="a-reload" id="aReload2" title="Actualiser les donnees">🔄</button>
+        <button class="a-send" id="aSend" disabled>
           <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
         </button>
       </div>
@@ -430,130 +347,124 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
   </div>
 </div>
 
-<!-- MODAL INGRÉDIENTS (lecture depuis planning) -->
 <div class="overlay" id="modalIng">
   <div class="modal">
     <div class="modal-head">
       <div class="modal-tit" id="modalIngTit"></div>
-      <button class="modal-x" onclick="closeModal('modalIng')">✕</button>
+      <button class="modal-x" data-close="modalIng">✕</button>
     </div>
     <div id="modalIngBody"></div>
   </div>
 </div>
 
-<!-- MODAL RECETTE -->
 <div class="overlay" id="modalRecette">
   <div class="modal" style="max-width:620px">
     <div class="modal-head">
       <div class="modal-tit" id="modalRecTit">Recette</div>
-      <button class="modal-x" onclick="closeModal('modalRecette')">✕</button>
+      <button class="modal-x" data-close="modalRecette">✕</button>
     </div>
     <div class="form-grid">
-      <div class="fg"><label>Nom du plat *</label><input id="rNom" type="text" placeholder="Ex: Ratatouille provençale"></div>
-      <div class="fg"><label>Catégorie</label>
+      <div class="fg"><label>Nom du plat *</label><input id="rNom" type="text" placeholder="Ex: Ratatouille provencale"></div>
+      <div class="fg"><label>Categorie</label>
         <select id="rCat">
-          <option>Viande</option><option>Poisson</option><option>Végé</option>
-          <option>Poulet</option><option>Pâtes</option><option>Plat</option>
-          <option>Cuisine du monde</option>
+          <option>Viande</option><option>Poisson</option><option>Vege</option>
+          <option>Poulet</option><option>Pates</option><option>Cuisine du monde</option>
         </select>
       </div>
       <div class="fg"><label>Frigo (jours)</label><input id="rFrigo" type="number" min="1" max="10" value="5"></div>
-      <div class="fg"><label>Conservation</label><input id="rConservation" type="text" placeholder="Ex: 3 jours au frigo"></div>
-      <div class="fg" style="grid-column:1/-1"><label>Instructions préparation</label><textarea id="rPrep" rows="3" placeholder="Étapes de préparation pour les salariés..."></textarea></div>
-      <div class="fg" style="grid-column:1/-1"><label>Instructions réchauffage</label><textarea id="rRechauffage" rows="2" placeholder="Comment réchauffer ce plat..."></textarea></div>
-      <div class="fg" style="grid-column:1/-1"><label>Congélation</label><input id="rCongelation" type="text" placeholder="Ex: Se congèle 3 mois"></div>
+      <div class="fg"><label>Active ?</label>
+        <select id="rActif"><option value="true">Oui</option><option value="false">Non</option></select>
+      </div>
+      <div class="fg" style="grid-column:1/-1"><label>Instructions preparation</label><textarea id="rPrep" rows="3" placeholder="Etapes de preparation pour les salaries..."></textarea></div>
+      <div class="fg" style="grid-column:1/-1"><label>Instructions rechauffage</label><textarea id="rRechauffage" rows="2" placeholder="Comment rechauffer ce plat..."></textarea></div>
+      <div class="fg" style="grid-column:1/-1"><label>Congelation</label><input id="rCongelation" type="text" placeholder="Ex: Se congele 3 mois"></div>
       <div class="fg" style="grid-column:1/-1">
         <label>Photo du plat</label>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
           <div id="rPhotoPreview" style="width:80px;height:80px;border-radius:10px;background:var(--bgc);border:1.5px dashed var(--bgd);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;overflow:hidden">🍽️</div>
           <div style="flex:1;display:flex;flex-direction:column;gap:6px">
-            <button type="button" class="btn btn-ghost" onclick="uploadPhoto()" id="btnUpload">📷 Choisir une photo</button>
-            <div style="font-size:11px;color:var(--txl)" id="rPhotoNom">Aucune photo sélectionnée</div>
+            <button type="button" class="btn btn-ghost" id="btnUpload">📷 Choisir une photo</button>
+            <div style="font-size:11px;color:var(--txl)" id="rPhotoNom">Aucune photo selectionnee</div>
           </div>
         </div>
         <input type="hidden" id="rPhoto">
-        <input type="file" id="rPhotoFile" accept="image/*" style="display:none" onchange="handlePhotoFile(this)">
+        <input type="file" id="rPhotoFile" accept="image/*" style="display:none">
       </div>
     </div>
-    <!-- INGRÉDIENTS -->
     <div class="modal-section">
       <div class="modal-section-tit">
-        <span>Ingrédients <span style="font-weight:400;color:var(--txl)">(par portion)</span></span>
-        <button class="btn btn-ghost btn-sm" onclick="ajouterIngRow()">+ Ajouter</button>
+        <span>Ingredients <span style="font-weight:400;color:var(--txl)">(par portion)</span></span>
+        <button class="btn btn-ghost btn-sm" id="btnAddIng">+ Ajouter</button>
       </div>
       <div class="ing-cols" style="margin-bottom:6px">
-        <div class="ing-col-head">Ingrédient</div>
-        <div class="ing-col-head">Quantité</div>
-        <div class="ing-col-head">Unité</div>
+        <div class="ing-col-head">Ingredient</div>
+        <div class="ing-col-head">Quantite</div>
+        <div class="ing-col-head">Unite</div>
         <div></div>
       </div>
       <div id="ingRows"></div>
     </div>
     <input type="hidden" id="rId">
     <div style="margin-top:20px;display:flex;gap:10px">
-      <button class="btn btn-primary" onclick="saveRecette()">💾 Enregistrer</button>
-      <button class="btn btn-ghost" onclick="closeModal('modalRecette')">Annuler</button>
+      <button class="btn btn-primary" id="btnSaveRec">💾 Enregistrer</button>
+      <button class="btn btn-ghost" data-close="modalRecette">Annuler</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL CLIENT -->
 <div class="overlay" id="modalClient">
   <div class="modal">
     <div class="modal-head">
       <div class="modal-tit" id="modalCliTit">Client</div>
-      <button class="modal-x" onclick="closeModal('modalClient')">✕</button>
+      <button class="modal-x" data-close="modalClient">✕</button>
     </div>
     <div class="form-grid">
       <div class="fg"><label>Nom *</label><input id="cNom" type="text"></div>
-      <div class="fg"><label>Email</label><input id="cEmail" type="email"></div>
-      <div class="fg"><label>Téléphone</label><input id="cTel" type="tel"></div>
-      <div class="fg"><label>Mot de passe portail</label><input id="cMdp" type="text"></div>
+      <div class="fg"><label>Email *</label><input id="cEmail" type="email"></div>
+      <div class="fg"><label>Telephone</label><input id="cTel" type="tel"></div>
+      <div class="fg"><label>Mot de passe portail</label><input id="cMdp" type="text" placeholder="(laisser vide pour ne pas changer)"></div>
       <div class="fg" style="grid-column:1/-1"><label>Adresse</label><input id="cAdresse" type="text"></div>
-      <div class="fg" style="grid-column:1/-1"><label>Notes</label><textarea id="cNotes" rows="2" placeholder="Allergies, préférences..."></textarea></div>
+      <div class="fg" style="grid-column:1/-1"><label>Notes</label><textarea id="cNotes" rows="2" placeholder="Allergies, preferences..."></textarea></div>
     </div>
     <input type="hidden" id="cId">
     <div style="margin-top:20px;display:flex;gap:10px">
-      <button class="btn btn-primary" onclick="saveClient()">💾 Enregistrer</button>
-      <button class="btn btn-ghost" onclick="closeModal('modalClient')">Annuler</button>
+      <button class="btn btn-primary" id="btnSaveCli">💾 Enregistrer</button>
+      <button class="btn btn-ghost" data-close="modalClient">Annuler</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL SALARIÉ -->
 <div class="overlay" id="modalSalarie">
   <div class="modal">
     <div class="modal-head">
-      <div class="modal-tit" id="modalSalTit">Salarié</div>
-      <button class="modal-x" onclick="closeModal('modalSalarie')">✕</button>
+      <div class="modal-tit" id="modalSalTit">Salarie</div>
+      <button class="modal-x" data-close="modalSalarie">✕</button>
     </div>
     <div class="form-grid">
       <div class="fg"><label>Nom *</label><input id="sNom" type="text"></div>
-      <div class="fg"><label>Email</label><input id="sEmail" type="email"></div>
-      <div class="fg"><label>Téléphone</label><input id="sTel" type="tel"></div>
-      <div class="fg"><label>Mot de passe</label><input id="sMdp" type="text"></div>
+      <div class="fg"><label>Email *</label><input id="sEmail" type="email"></div>
+      <div class="fg"><label>Telephone</label><input id="sTel" type="tel"></div>
+      <div class="fg"><label>Mot de passe</label><input id="sMdp" type="text" placeholder="(laisser vide pour ne pas changer)"></div>
     </div>
     <input type="hidden" id="sId">
     <div style="margin-top:20px;display:flex;gap:10px">
-      <button class="btn btn-primary" onclick="saveSalarie()">💾 Enregistrer</button>
-      <button class="btn btn-ghost" onclick="closeModal('modalSalarie')">Annuler</button>
+      <button class="btn btn-primary" id="btnSaveSal">💾 Enregistrer</button>
+      <button class="btn btn-ghost" data-close="modalSalarie">Annuler</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL COMMANDE -->
 <div class="overlay" id="modalCommande">
   <div class="modal" style="max-width:600px">
     <div class="modal-head">
       <div class="modal-tit" id="modalCmdTit">Modifier la commande</div>
-      <button class="modal-x" onclick="closeModal('modalCommande')">✕</button>
+      <button class="modal-x" data-close="modalCommande">✕</button>
     </div>
     <div class="form-grid">
       <div class="fg"><label>Client</label><select id="cmdClient"></select></div>
-      <div class="fg"><label>Semaine du (lundi)</label><input type="date" id="cmdSemaine" onchange="majSelectCreneau()"></div>
-      <div class="fg"><label>Créneau</label><select id="cmdCreneau"></select></div>
       <div class="fg"><label>Semaine du (lundi)</label><input type="date" id="cmdSemaine"></div>
-      <div class="fg"><label>Salarié assigné</label><select id="cmdSalarie"></select></div>
+      <div class="fg"><label>Creneau</label><select id="cmdCreneau"></select></div>
+      <div class="fg"><label>Salarie assigne</label><select id="cmdSalarie"></select></div>
       <div class="fg"><label>Nb portions</label><input type="number" id="cmdPortions" min="1" max="20" value="4" style="max-width:100px"></div>
       <div class="fg"><label>Statut</label>
         <select id="cmdStatut">
@@ -562,23 +473,22 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
       </div>
     </div>
     <div style="margin-top:16px">
-      <div style="font-size:11px;font-weight:600;color:var(--txl);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Plats — max 5 (cliquer pour sélectionner)</div>
+      <div style="font-size:11px;font-weight:600;color:var(--txl);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Plats — max 5 (cliquer pour selectionner)</div>
       <div class="plat-grid" id="platSelectGrid"></div>
     </div>
     <input type="hidden" id="cmdId">
     <div style="margin-top:20px;display:flex;gap:10px">
-      <button class="btn btn-primary" onclick="saveCommande()">💾 Enregistrer</button>
-      <button class="btn btn-ghost" onclick="closeModal('modalCommande')">Annuler</button>
+      <button class="btn btn-primary" id="btnSaveCmd">💾 Enregistrer</button>
+      <button class="btn btn-ghost" data-close="modalCommande">Annuler</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL DÉTAIL JOUR CALENDRIER -->
 <div class="overlay" id="modalCalJour">
   <div class="modal">
     <div class="modal-head">
       <div class="modal-tit" id="modalCalTit"></div>
-      <button class="modal-x" onclick="closeModal('modalCalJour')">✕</button>
+      <button class="modal-x" data-close="modalCalJour">✕</button>
     </div>
     <div id="modalCalBody"></div>
   </div>
@@ -586,945 +496,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
 
 <div class="toast" id="toast"></div>
 
-<script>
-const AK='patvhOGv8O9szhfm9.2b3cb31f20ecd6c0271669df216fa0224adc9b1e16c7f98ce6f5b14575a75905';
-const BID='appTNygSM2x5VdNy6';
-const AT=`https://api.airtable.com/v0/${BID}`;
-const H={'Authorization':`Bearer ${AK}`,'Content-Type':'application/json'};
-const PWD='legoutdulien2026';
-
-let DATA={commandes:[],recettes:[],ri:[],clients:[],salaries:[],ingredients:[]};
-let curOffset=0, crenOffset=0;
-let ariaConv=[], ariaSys='', ariaBusy=false;
-let recognition=null, isRec=false;
-let ingBuffer=[];
-const synth=window.speechSynthesis;
-
-// ── CRÉNEAUX AIRTABLE ──
-let crenCache={};
-async function loadCreneaux(){
-  try{
-    const recs=await fetchAll('Cr%C3%A9neaux');
-    crenCache={};
-    recs.forEach(r=>{const k=r.fields['Semaine']+'_'+r.fields['Slot'];crenCache[k]={id:r.id,actif:!!r.fields['Actif']};});
-  }catch(e){console.error('loadCreneaux:',e)}
-}
-function crActif(sem,j){const k=sem+'_'+j;return crenCache[k]?crenCache[k].actif:true;}
-async function toggleCrenAirtable(sem,k,actif){
-  const newVal=!actif;const existing=crenCache[sem+'_'+k];
-  try{
-    if(existing){await patch('Cr%C3%A9neaux',existing.id,{'Actif':newVal});crenCache[sem+'_'+k].actif=newVal;}
-    else{const res=await create('Cr%C3%A9neaux',{'Semaine':sem,'Slot':k,'Actif':newVal});crenCache[sem+'_'+k]={id:res.id,actif:newVal};}
-    toast(newVal?'✅ Créneau ouvert':'Créneau fermé');renderCreneaux();
-  }catch(e){toast('Erreur: '+e.message,'err')}
-}
-
-// ── AUTH ──
-function login(){
-  if(document.getElementById('iMdp').value.trim()===PWD){
-    sessionStorage.setItem('adm','1');
-    document.getElementById('pLogin').style.display='none';
-    document.getElementById('pApp').style.display='flex';
-    chargerTout();
-  }else{document.getElementById('lerr').style.display='block'}
-}
-function logout(){sessionStorage.removeItem('adm');location.reload()}
-document.getElementById('iMdp').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
-
-// ── AIRTABLE ──
-function tblUrl(tbl){
-  // Encode uniquement le nom de la table (pas les slashes du chemin)
-  return`${AT}/${tbl.replace(/é/g,'%C3%A9').replace(/è/g,'%C3%A8').replace(/ê/g,'%C3%AA').replace(/à/g,'%C3%A0').replace(/ù/g,'%C3%B9').replace(/î/g,'%C3%AE').replace(/ô/g,'%C3%B4').replace(/û/g,'%C3%BB').replace(/ç/g,'%C3%A7').replace(/É/g,'%C3%89').replace(/È/g,'%C3%88').replace(/À/g,'%C3%80').replace(/ /g,'%20')}`;
-}
-async function fetchAll(tbl,params=''){
-  let recs=[],offset=null;
-  do{
-    const url=`${tblUrl(tbl)}?pageSize=100${params?'&'+params:''}${offset?'&offset='+offset:''}`;
-    const r=await fetch(url,{headers:H});const d=await r.json();
-    if(d.error)throw new Error(d.error.message);
-    recs=[...recs,...(d.records||[])];offset=d.offset||null;
-  }while(offset);return recs;
-}
-async function patch(tbl,id,fields){
-  const r=await fetch(`${tblUrl(tbl)}/${id}`,{method:'PATCH',headers:H,body:JSON.stringify({fields})});
-  return r.json();
-}
-async function create(tbl,fields){
-  const r=await fetch(`${tblUrl(tbl)}`,{method:'POST',headers:H,body:JSON.stringify({fields})});
-  const d=await r.json();
-  if(d.error)throw new Error(d.error.message);
-  return d;
-}
-async function del(tbl,id){
-  await fetch(`${tblUrl(tbl)}/${id}`,{method:'DELETE',headers:H});
-}
-
-// ── CHARGEMENT ──
-async function chargerTout(){
-  try{
-    const [commandes,recettes,ri,clients,salaries,ingredients]=await Promise.all([
-      fetchAll('Commandes','sort[0][field]=Semaine+du&sort[0][direction]=desc'),
-      fetchAll('Recettes','sort[0][field]=Nom+du+plat&sort[0][direction]=asc'),
-      fetchAll('Recettes_Ingrédients','sort[0][field]=Ordre&sort[0][direction]=asc'),
-      fetchAll('Clients'),
-      fetchAll('Salariés'),
-      fetchAll('Ingrédients','sort[0][field]=Nom+ingrédient&sort[0][direction]=asc'),
-    ]);
-    DATA={commandes,recettes,ri,clients,salaries,ingredients};
-    await loadCreneaux();
-    document.getElementById('ariaFab').style.display='flex';
-    document.getElementById('topStat').textContent=`${DATA.commandes.length} commandes · ${DATA.recettes.filter(r=>r.fields['Active ?']).length} plats actifs`;
-    renderPlanning();
-    buildAriaSys();
-    document.getElementById('ariaLoad').style.display='none';
-    document.getElementById('ariaChat').style.display='flex';
-    document.getElementById('aSend').disabled=false;
-    document.getElementById('ariaSt').textContent=`${DATA.recettes.filter(r=>r.fields['Active ?']).length} plats · ${DATA.clients.length} clients`;
-    addAriaMsg('bot',`**Bonjour !** 🌿\n\nToutes vos données sont chargées. Je suis disponible en texte ou à la voix 🎤`);
-  }catch(e){
-    document.getElementById('content').innerHTML=`<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-txt">Erreur : ${e.message}</div></div>`;
-  }
-}
-
-// ── UTILS ──
-function getMonday(off=0){
-  const d=new Date(),dy=d.getDay();
-  const diff=d.getDate()-dy+(dy===0?-6:1)+(off*7);
-  const m=new Date(d);m.setDate(diff);
-  return`${m.getFullYear()}-${String(m.getMonth()+1).padStart(2,'0')}-${String(m.getDate()).padStart(2,'0')}`;
-}
-function getMondayDate(off=0){
-  const d=new Date(),dy=d.getDay();
-  const diff=d.getDate()-dy+(dy===0?-6:1)+(off*7);
-  const m=new Date(d);m.setDate(diff);return m;
-}
-function semLabel(off=0){
-  const mon=getMondayDate(off);
-  const fri=new Date(mon);fri.setDate(fri.getDate()+4);
-  const o={day:'numeric',month:'long'};
-  return`${mon.toLocaleDateString('fr-FR',o)} – ${fri.toLocaleDateString('fr-FR',o)}`;
-}
-function resolveNom(val){
-  if(!val)return null;const v=Array.isArray(val)?val[0]:val;
-  if(typeof v==='string'&&!v.startsWith('rec'))return v;
-  return DATA.recettes.find(r=>r.id===v)?.fields['Nom du plat']||null;
-}
-function showContent(html){document.getElementById('content').innerHTML=html}
-function showTab(tab){
-  document.querySelectorAll('.tab').forEach((t,i)=>{
-    t.classList.toggle('active',['planning','calendrier','recettes','clients','salaries','creneaux'][i]===tab);
-  });
-  ({planning:renderPlanning,calendrier:renderCalendrier,recettes:renderRecettes,clients:renderClients,salaries:renderSalaries,creneaux:renderCreneaux})[tab]?.();
-}
-function toast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2600);
-}
-function openModal(id){document.getElementById(id).classList.add('open')}
-function closeModal(id){document.getElementById(id).classList.remove('open')}
-
-// ══════════════════════════════════════
-//  PLANNING
-// ══════════════════════════════════════
-function renderPlanning(){
-  const semaine=getMonday(curOffset);
-  const cmdSem=DATA.commandes.filter(c=>(c.fields['Semaine du']||'').includes(semaine));
-  const salOpts=`<option value="">Non assigné</option>`+DATA.salaries.map(s=>`<option value="${s.fields['Nom']||''}">${s.fields['Nom']||'–'}</option>`).join('');
-
-  const stats=`<div class="stats-row">
-    <div class="stat-card"><div class="stat-val">${cmdSem.length}</div><div class="stat-lbl">Commandes</div></div>
-    <div class="stat-card"><div class="stat-val">${[...new Set(cmdSem.map(c=>c.fields['Client']).filter(Boolean))].length}</div><div class="stat-lbl">Clients</div></div>
-    <div class="stat-card"><div class="stat-val">${cmdSem.filter(c=>(c.fields['Statut']||'').includes('Livr')||(c.fields['Statut']||'').includes('Termin')).length}</div><div class="stat-lbl">Livrées</div></div>
-    <div class="stat-card"><div class="stat-val">${cmdSem.reduce((a,c)=>a+(parseInt(c.fields['Nb portions'])||4),0)}</div><div class="stat-lbl">Portions totales</div></div>
-  </div>`;
-
-  const cmdsHtml=cmdSem.length?cmdSem.map(c=>{
-    const f=c.fields;
-    const plats=[f['Plat 1'],f['Plat 2'],f['Plat 3'],f['Plat 4'],f['Plat 5']].map(resolveNom).filter(Boolean);
-    const statut=f['Statut']||'En attente';
-    const bc=statut.includes('Livr')||statut.includes('Termin')?'b-ok':statut.includes('cours')?'b-en':'b-att';
-    return`<div class="cmd-card">
-      <div class="cmd-top">
-        <div class="cmd-info">
-          <div class="cmd-client">${f['Client']||'–'} <span class="badge ${bc}">${statut}</span></div>
-          <div class="cmd-meta">
-            <span class="cmd-meta-item">📅 ${f['Créneau']||'–'}</span>
-            ${f['Nb portions']?`<span class="cmd-meta-item">🍽️ ${f['Nb portions']} portions</span>`:''}
-            ${f['Adresse client']?`<span class="cmd-meta-item">📍 ${f['Adresse client']}</span>`:''}
-            ${f['Téléphone client']?`<span class="cmd-meta-item">📞 ${f['Téléphone client']}</span>`:''}
-          </div>
-        </div>
-        <div class="cmd-actions">
-          <button class="btn btn-ghost btn-sm" onclick="ouvrirModifCommande('${c.id}')">✏️ Modifier</button>
-          <button class="btn btn-danger btn-sm" onclick="supprimerCommande('${c.id}')">🗑️</button>
-        </div>
-      </div>
-      <div class="cmd-plats">${plats.map(p=>`<span class="plat-chip" onclick="voirIngredients('${encodeURIComponent(p)}',${f['Nb portions']||4})">${p}</span>`).join('')||'<span style="font-size:12px;color:var(--txl)">Aucun plat sélectionné</span>'}</div>
-      <div class="cmd-footer">
-        <span style="font-size:12px;color:var(--txl)">Assigné à :</span>
-        <select class="assign-sel" id="asel-${c.id}" onchange="assignerSalarie('${c.id}',this.value)">${salOpts}</select>
-      </div>
-    </div>`;
-  }).join(''):`<div class="empty"><div class="empty-icon">📭</div><div class="empty-txt">Aucune commande cette semaine</div></div>`;
-
-  showContent(`<div class="card">
-    <div class="card-head">
-      <div class="card-tit">📅 Planning <span>${cmdSem.length} commande(s)</span></div>
-    </div>
-    <div class="snav">
-      <button class="snav-btn" onclick="changerSemaine(-1)">◀</button>
-      <div class="snav-label">${semLabel(curOffset)}</div>
-      <button class="snav-btn" onclick="changerSemaine(1)">▶</button>
-      ${curOffset!==0?`<button class="snav-today" onclick="changerSemaine(${-curOffset})">Aujourd'hui</button>`:''}
-    </div>
-    ${stats}
-    <div class="cmd-grid">${cmdsHtml}</div>
-  </div>`);
-
-  cmdSem.forEach(c=>{
-    const sel=document.getElementById(`asel-${c.id}`);
-    if(sel&&c.fields['Assigné à'])sel.value=c.fields['Assigné à'];
-  });
-}
-function changerSemaine(d){curOffset+=d;renderPlanning()}
-
-async function supprimerCommande(id){
-  if(!confirm('Supprimer cette commande ?'))return;
-  await del('Commandes',id);
-  DATA.commandes=DATA.commandes.filter(c=>c.id!==id);
-  toast('🗑️ Commande supprimée');renderPlanning();
-}
-async function assignerSalarie(cmdId,nom){
-  await patch('Commandes',cmdId,{'Assigné à':nom});
-  const cmd=DATA.commandes.find(c=>c.id===cmdId);if(cmd)cmd.fields['Assigné à']=nom;
-  toast('✅ Assignation enregistrée');
-}
-
-// MODIFIER COMMANDE
-function ouvrirModifCommande(id){
-  const cmd=DATA.commandes.find(c=>c.id===id);if(!cmd)return;
-  const f=cmd.fields;
-  document.getElementById('cmdId').value=id;
-  document.getElementById('modalCmdTit').textContent='Modifier · '+(f['Client']||'Commande');
-
-  const cliSel=document.getElementById('cmdClient');
-  cliSel.innerHTML=DATA.clients.map(c=>`<option value="${c.fields['Nom']||''}">${c.fields['Nom']||'–'}</option>`).join('');
-  cliSel.value=f['Client']||'';
-
-  const semDate=(f['Semaine du']||'').match(/\d{4}-\d{2}-\d{2}/)?.[0]||getMonday(0);
-  document.getElementById('cmdSemaine').value=semDate;
-  majSelectCreneau(f['Créneau']||'');
-
-  const salSel=document.getElementById('cmdSalarie');
-  salSel.innerHTML=`<option value="">Non assigné</option>`+DATA.salaries.map(s=>`<option value="${s.fields['Nom']||''}">${s.fields['Nom']||'–'}</option>`).join('');
-  salSel.value=f['Assigné à']||'';
-
-  document.getElementById('cmdPortions').value=f['Nb portions']||4;
-  document.getElementById('cmdStatut').value=f['Statut']||'En attente de paiement';
-
-  const selPlats=[f['Plat 1'],f['Plat 2'],f['Plat 3'],f['Plat 4'],f['Plat 5']].map(resolveNom).filter(Boolean);
-  const platsActifs=DATA.recettes.filter(r=>r.fields['Active ?']);
-  document.getElementById('platSelectGrid').innerHTML=platsActifs.map(r=>{
-    const nom=r.fields['Nom du plat'];
-    return`<div class="plat-opt${selPlats.includes(nom)?' sel':''}" onclick="togglePlatSel(this)">${nom}</div>`;
-  }).join('');
-  openModal('modalCommande');
-}
-function majSelectCreneau(valActuelle=''){
-  const semaine=document.getElementById('cmdSemaine').value;
-  const sel=document.getElementById('cmdCreneau');
-  sel.innerHTML='';
-  if(!semaine){sel.innerHTML='<option>-- Choisir une semaine --</option>';return;}
-  const [y,mo,d]=semaine.split('-').map(Number);
-  const JOURS=['Lundi','Mardi','Jeudi','Vendredi'];
-  const JMAP={Lundi:0,Mardi:1,Jeudi:3,Vendredi:4};
-  const SLOTS=[{slot:'matin',h:'9h00 - 12h00'},{slot:'apmidi',h:'13h00 - 16h00'}];
-  JOURS.forEach(j=>{
-    const jd=new Date(y,mo-1,d+JMAP[j]);
-    const jl=jd.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
-    SLOTS.forEach(({slot,h})=>{
-      const lbl=jl+' · '+h;
-      const opt=document.createElement('option');
-      opt.value=lbl;opt.textContent=lbl+(crActif(semaine,j+'_'+slot)?'':' (fermÃ©)');
-      sel.appendChild(opt);
-    });
-  });
-  if(valActuelle)sel.value=valActuelle;
-}
-
-function togglePlatSel(el){
-  const grid=document.getElementById('platSelectGrid');
-  if(el.classList.contains('sel')){el.classList.remove('sel');}
-  else{if(grid.querySelectorAll('.plat-opt.sel').length>=5){toast('⚠️ Maximum 5 plats');return;}el.classList.add('sel');}
-}
-async function saveCommande(){
-  const id=document.getElementById('cmdId').value;if(!id)return;
-  const selPlats=[...document.getElementById('platSelectGrid').querySelectorAll('.plat-opt.sel')].map(e=>e.textContent.trim());
-  const semDate=document.getElementById('cmdSemaine').value;
-  const fields={
-    'Client':document.getElementById('cmdClient').value,
-    'Créneau':document.getElementById('cmdCreneau').value,
-    'Semaine du':semDate||getMonday(0),
-    'Assigné à':document.getElementById('cmdSalarie').value,
-    'Nb portions':parseInt(document.getElementById('cmdPortions').value)||4,
-    'Statut':document.getElementById('cmdStatut').value,
-    'Plat 1':selPlats[0]||'','Plat 2':selPlats[1]||'','Plat 3':selPlats[2]||'','Plat 4':selPlats[3]||'','Plat 5':selPlats[4]||'',
-  };
-  const patchRes=await patch('Commandes',id,fields);
-  if(patchRes.error){toast('Erreur Airtable: '+patchRes.error.message,'err');return;}
-  const cmd=DATA.commandes.find(c=>c.id===id);if(cmd)Object.assign(cmd.fields,fields);
-  toast('✅ Commande modifiée');closeModal('modalCommande');renderPlanning();
-}
-
-// VOIR INGRÉDIENTS
-async function voirIngredients(nomEnc,portions){
-  const nomPlat=decodeURIComponent(nomEnc);
-  const recRec=DATA.recettes.find(r=>r.fields['Nom du plat']===nomPlat);
-  const pf=recRec?.fields||{};
-  // Photo
-  const photoUrl=pf['Photo URL']||pf['Photo']?.[0]?.url||null;
-  const ings=DATA.ri.filter(r=>(r.fields['Nom ligne']||'').startsWith(nomPlat));
-  const ingsHtml=ings.length?`<div style="display:flex;flex-direction:column;gap:0">${ings.map(r=>{
-    const nl=r.fields['Nom ligne']||'';
-    const nom=nl.includes(' - ')?nl.split(' - ').slice(1).join(' - '):'';
-    const qte=r.fields['Quantité par portion']||0;
-    const uRaw=r.fields['Unité par défaut'];const u=Array.isArray(uRaw)?uRaw[0]:(uRaw||'');
-    const total=((qte*portions)*10/10).toFixed(1).replace('.0','');
-    return`<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--bgd);font-size:13px;align-items:center">
-      <span style="color:var(--tx)">${nom}</span>
-      <span style="font-weight:600;color:var(--v2);font-size:14px">${total} <span style="font-size:11px;font-weight:400;color:var(--txl)">${u!=='Unité par défaut'?u:''}</span></span>
-    </div>`;
-  }).join('')}</div>`:`<p style="color:var(--txl);font-size:13px;padding:12px 0">Aucun ingrédient renseigné pour ce plat.</p>`;
-
-  document.getElementById('modalIngTit').textContent=nomPlat;
-  document.getElementById('modalIngBody').innerHTML=`
-    ${photoUrl?`<img src="${photoUrl}" style="width:100%;height:180px;object-fit:cover;border-radius:12px;margin-bottom:16px">`:''}
-    <p style="font-size:12px;color:var(--txl);margin-bottom:14px">Quantités pour <strong>${portions} portions</strong></p>
-    ${pf['Instructions préparation']?`<div style="background:#fff8e7;border-left:3px solid #f9c74f;border-radius:12px;padding:14px 16px;margin-bottom:16px">
-      <div style="font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:#8a7a3a;font-weight:600;margin-bottom:6px">👩‍🍳 Préparation</div>
-      <div style="font-size:13px;line-height:1.6;color:var(--tx)">${pf['Instructions préparation']}</div></div>`:''}
-    ${ingsHtml}
-    ${pf['Instructions réchauffage']?`<div style="margin-top:14px;padding:12px 14px;background:var(--vp);border-radius:10px;font-size:13px"><strong style="color:var(--v2)">🔥 Réchauffage :</strong> ${pf['Instructions réchauffage']}</div>`:''}
-    ${pf['Conservation']?`<div style="margin-top:8px;font-size:12px;color:var(--txl)">❄️ Conservation : ${pf['Conservation']}</div>`:''}
-    ${pf['Congélation']?`<div style="margin-top:4px;font-size:12px;color:var(--txl)">🧊 Congélation : ${pf['Congélation']}</div>`:''}`;
-  openModal('modalIng');
-}
-
-// ══════════════════════════════════════
-//  CALENDRIER
-// ══════════════════════════════════════
-let calYear, calMonth;
-function renderCalendrier(){
-  const now=new Date();
-  if(calYear===undefined){calYear=now.getFullYear();calMonth=now.getMonth();}
-  const y=calYear,m=calMonth;
-  const first=new Date(y,m,1),last=new Date(y,m+1,0);
-  const startDay=(first.getDay()+6)%7; // lundi=0
-  const todayStr=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-  const moisNoms=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
-  const jours=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
-
-  let cells=[];
-  // Jours du mois précédent (padding)
-  for(let i=0;i<startDay;i++){
-    const d=new Date(y,m,1-startDay+i);
-    cells.push({date:d,otherMonth:true});
-  }
-  for(let d=1;d<=last.getDate();d++) cells.push({date:new Date(y,m,d),otherMonth:false});
-  // Compléter à 42 cases
-  while(cells.length<42){const d=new Date(y,m+1,cells.length-startDay-last.getDate()+1);cells.push({date:d,otherMonth:true});}
-
-  // Matcher commandes par date exacte
-  function getCmdsForDate(dateObj){
-    const iso=`${dateObj.getFullYear()}-${String(dateObj.getMonth()+1).padStart(2,'0')}-${String(dateObj.getDate()).padStart(2,'0')}`;
-    const dowFr=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'][dateObj.getDay()];
-    // On cherche les commandes dont la semaine contient ce lundi ET le créneau correspond au bon jour
-    // La semaine Airtable = "Semaine du YYYY-MM-DD" (lundi de la semaine)
-    // On calcule le lundi de la semaine contenant cette date
-    const dy=dateObj.getDay();
-    const mondayOfWeek=new Date(dateObj);mondayOfWeek.setDate(dateObj.getDate()-((dy+6)%7));
-    const mondayStr=`${mondayOfWeek.getFullYear()}-${String(mondayOfWeek.getMonth()+1).padStart(2,'0')}-${String(mondayOfWeek.getDate()).padStart(2,'0')}`;
-    return DATA.commandes.filter(c=>{
-      const semChamp=c.fields['Semaine du']||'';
-      const cren=(c.fields['Créneau']||'').toLowerCase();
-      const matchSem=semChamp.includes(mondayStr);
-      const matchJour=cren.includes(dowFr.toLowerCase());
-      return matchSem&&matchJour;
-    });
-  }
-
-  const grid=cells.map(({date,otherMonth})=>{
-    const iso=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
-    const cmds=getCmdsForDate(date);
-    const isToday=iso===todayStr;
-    const onclick=cmds.length?`onclick="voirJourCal('${iso}',${date.getDay()})"`:''
-    return`<div class="cal-day${cmds.length?' has-cmd':''}${isToday?' today':''}${otherMonth?' other-month':''}" ${onclick}>
-      <div class="cal-num">${date.getDate()}</div>
-      ${cmds.slice(0,3).map(c=>`<div class="cal-evt">${c.fields['Client']||'–'}</div>`).join('')}
-      ${cmds.length>3?`<div style="font-size:9px;color:var(--txl);text-align:right">+${cmds.length-3}</div>`:''}
-    </div>`;
-  }).join('');
-
-  showContent(`<div class="card">
-    <div class="card-head">
-      <div class="card-tit">🗓️ ${moisNoms[m]} ${y}</div>
-      <div style="display:flex;gap:8px">
-        <button class="btn btn-ghost btn-sm" onclick="changeCalMois(-1)">◀ Mois préc.</button>
-        <button class="btn btn-ghost btn-sm" onclick="changeCalMois(0)">Aujourd'hui</button>
-        <button class="btn btn-ghost btn-sm" onclick="changeCalMois(1)">Mois suiv. ▶</button>
-      </div>
-    </div>
-    <div class="cal-wrap">
-      <div class="cal-head">${jours.map(j=>`<div class="cal-dh">${j}</div>`).join('')}</div>
-      <div class="cal-grid">${grid}</div>
-    </div>
-  </div>`);
-}
-function changeCalMois(d){
-  if(d===0){const now=new Date();calYear=now.getFullYear();calMonth=now.getMonth();}
-  else{calMonth+=d;if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;}}
-  renderCalendrier();
-}
-function voirJourCal(iso,dow){
-  const dowFr=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'][dow];
-  const dateObj=new Date(iso);
-  const dy=dateObj.getDay();
-  const mondayOfWeek=new Date(dateObj);mondayOfWeek.setDate(dateObj.getDate()-((dy+6)%7));
-  const mondayStr=`${mondayOfWeek.getFullYear()}-${String(mondayOfWeek.getMonth()+1).padStart(2,'0')}-${String(mondayOfWeek.getDate()).padStart(2,'0')}`;
-  const cmds=DATA.commandes.filter(c=>(c.fields['Semaine du']||'').includes(mondayStr)&&(c.fields['Créneau']||'').toLowerCase().includes(dowFr.toLowerCase()));
-  const dateLabel=dateObj.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
-  document.getElementById('modalCalTit').textContent=dateLabel.charAt(0).toUpperCase()+dateLabel.slice(1);
-  document.getElementById('modalCalBody').innerHTML=cmds.length?cmds.map(c=>{
-    const f=c.fields;
-    const plats=[f['Plat 1'],f['Plat 2'],f['Plat 3'],f['Plat 4'],f['Plat 5']].map(resolveNom).filter(Boolean);
-    return`<div style="background:var(--bgc);border-radius:12px;padding:14px;margin-bottom:10px;border:1.5px solid var(--bgd)">
-      <div style="font-weight:600;margin-bottom:4px">${f['Client']||'–'}</div>
-      <div style="font-size:12px;color:var(--txl);margin-bottom:8px">📅 ${f['Créneau']||'–'} · ${f['Nb portions']||4} portions · ${f['Statut']||'En attente'}</div>
-      <div style="display:flex;flex-wrap:wrap;gap:5px">${plats.map(p=>`<span class="plat-chip">${p}</span>`).join('')}</div>
-      ${f['Assigné à']?`<div style="font-size:12px;color:var(--txl);margin-top:8px">👷 ${f['Assigné à']}</div>`:''}
-    </div>`;
-  }).join(''):`<p style="color:var(--txl);text-align:center;padding:20px">Aucune commande ce jour</p>`;
-  openModal('modalCalJour');
-}
-
-// ══════════════════════════════════════
-//  RECETTES
-// ══════════════════════════════════════
-function renderRecettes(){
-  const recGrid=DATA.recettes.map(r=>{
-    const f=r.fields;const actif=!!f['Active ?'];
-    const photoUrl=f['Photo URL']||f['Photo']?.[0]?.url||null;
-    const nbIngs=DATA.ri.filter(x=>(x.fields['Nom ligne']||'').startsWith(f['Nom du plat']||'')).length;
-    return`<div class="rec-card${actif?'':' inactif'}" onclick="editerRecette('${r.id}')">
-      ${photoUrl?`<img src="${photoUrl}" style="width:100%;height:130px;object-fit:cover;display:block">`:`<div class="rec-img">🍽️</div>`}
-      <div class="rec-body">
-        <div class="rec-nom">${f['Nom du plat']||'–'}</div>
-        <div class="rec-cat">${f['Catégorie']||'–'} · ${nbIngs} ingr. · ${f['Frigo en jours']||'?'}j frigo</div>
-        <div class="rec-footer">
-          <button class="toggle-btn ${actif?'toggle-on':'toggle-off'}" onclick="event.stopPropagation();toggleRecette('${r.id}',${actif})" style="padding:4px 10px;border-radius:16px;font-size:11px;font-weight:500;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;background:${actif?'#e8f5e9':'#ffebee'};color:${actif?'#2e7d32':'#c62828'}">${actif?'✓ Actif':'✗ Inactif'}</button>
-          <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();supprimerRecette('${r.id}')">🗑️</button>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-
-  showContent(`<div class="card">
-    <div class="card-head">
-      <div class="card-tit">🍽️ Recettes <span>${DATA.recettes.length} plats</span></div>
-      <button class="btn btn-primary" onclick="nouvelleRecette()">+ Nouvelle recette</button>
-    </div>
-    <div class="rec-grid">${recGrid||'<div class="empty"><div class="empty-icon">🍽️</div><div class="empty-txt">Aucune recette</div></div>'}</div>
-  </div>`);
-}
-
-async function toggleRecette(id,actif){
-  await patch('Recettes',id,{'Active ?':!actif});
-  const rec=DATA.recettes.find(r=>r.id===id);if(rec)rec.fields['Active ?']=!actif;
-  toast(actif?'Recette désactivée':'✅ Recette activée');renderRecettes();
-}
-
-// ── INGRÉDIENTS BUFFER ──
-function renderIngRows(){
-  const cont=document.getElementById('ingRows');
-  const visible=ingBuffer.filter(i=>!i.toDelete);
-  if(!visible.length){cont.innerHTML=`<div style="text-align:center;padding:12px;font-size:12px;color:var(--txl)">Aucun ingrédient. Cliquez sur "+ Ajouter".</div>`;return;}
-  cont.innerHTML=visible.map((ing,vi)=>{
-    const bi=ingBuffer.indexOf(ing);
-    // Options unités depuis la table Ingrédients + libres
-    const unitesConnues=[...new Set(DATA.ingredients.map(i=>{const u=i.fields['Unité par défaut'];return Array.isArray(u)?u[0]:(u||'');}).filter(Boolean))];
-    const uniteSel=unitesConnues.includes(ing.unite)?ing.unite:'';
-    return`<div class="ing-cols">
-      <div class="ing-wrap">
-        <input class="ing-inp" type="text" placeholder="Rechercher un ingrédient..." value="${ing.nom.replace(/"/g,'&quot;')}"
-          oninput="ingBuffer[${bi}].nom=this.value;showIngDropdown(this,${bi})"
-          onfocus="showIngDropdown(this,${bi})"
-          onblur="setTimeout(()=>hideIngDropdown(${bi}),180)">
-        <div class="ing-dropdown" id="ingDrop${bi}"></div>
-      </div>
-      <input class="ing-inp" type="number" placeholder="Qté" value="${ing.qte||''}" step="0.1" min="0"
-        oninput="ingBuffer[${bi}].qte=parseFloat(this.value)||0">
-      <input class="ing-inp" type="text" placeholder="g, mL, u…" value="${ing.unite||''}" id="ingUnite${bi}"
-        oninput="ingBuffer[${bi}].unite=this.value">
-      <button class="ing-del" onclick="supprimerIngRow(${bi})">✕</button>
-    </div>`;
-  }).join('');
-}
-
-function showIngDropdown(input,bi){
-  const q=(input.value||'').toLowerCase().trim();
-  const drop=document.getElementById(`ingDrop${bi}`);
-  if(!drop)return;
-  const matches=DATA.ingredients.filter(i=>(i.fields['Nom ingrédient']||'').toLowerCase().includes(q)).slice(0,8);
-  if(!matches.length){drop.classList.remove('show');return;}
-  drop.innerHTML=matches.map(i=>{
-    const nom=i.fields['Nom ingrédient']||'';
-    const uRaw=i.fields['Unité par défaut'];
-    const u=Array.isArray(uRaw)?uRaw[0]:(uRaw||'');
-    return`<div class="ing-opt" data-bi="${bi}" data-nom="${nom}" data-u="${u}" data-id="${i.id}" onmousedown="selIng(this)">
-      ${nom} <span style="color:var(--txl);font-size:11px">${u}</span>
-    </div>`;
-  }).join('');
-  drop.classList.add('show');
-}
-function hideIngDropdown(bi){
-  document.getElementById(`ingDrop${bi}`)?.classList.remove('show');
-}
-function selIng(el){const bi=parseInt(el.dataset.bi);selectIngredient(bi,el.dataset.nom,el.dataset.u,el.dataset.id);}
-function selectIngredient(bi,nom,unite,ingId){
-  ingBuffer[bi].nom=nom;ingBuffer[bi].unite=unite;ingBuffer[bi].ingId=ingId;
-  renderIngRows();
-}
-
-function ajouterIngRow(){
-  ingBuffer.push({id:null,ingId:null,nom:'',qte:0,unite:'',isNew:true,toDelete:false});
-  renderIngRows();
-  // Focus sur le dernier input
-  setTimeout(()=>{
-    const inputs=document.querySelectorAll('#ingRows .ing-inp');
-    if(inputs.length)inputs[inputs.length-4]?.focus();
-  },50);
-}
-function supprimerIngRow(bi){
-  if(ingBuffer[bi].id)ingBuffer[bi].toDelete=true;
-  else ingBuffer.splice(bi,1);
-  renderIngRows();
-}
-
-function nouvelleRecette(){
-  document.getElementById('rId').value='';
-  ['rNom','rConservation','rPrep','rRechauffage','rCongelation','rPhoto'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  const pr=document.getElementById('rPhotoPreview');if(pr)pr.innerHTML='🍽️';
-  const pn=document.getElementById('rPhotoNom');if(pn)pn.textContent='Aucune photo sélectionnée';
-  const pb=document.getElementById('btnUpload');if(pb){pb.textContent='📷 Choisir une photo';pb.disabled=false;}
-  document.getElementById('rCat').value='Viande';
-  document.getElementById('rFrigo').value='5';
-  document.getElementById('modalRecTit').textContent='Nouvelle recette';
-  ingBuffer=[];renderIngRows();openModal('modalRecette');
-}
-
-function editerRecette(id){
-  const rec=DATA.recettes.find(r=>r.id===id);if(!rec)return;
-  const f=rec.fields;
-  document.getElementById('rId').value=id;
-  document.getElementById('rNom').value=f['Nom du plat']||'';
-  document.getElementById('rCat').value=f['Catégorie']||'Légumes';
-  document.getElementById('rFrigo').value=f['Frigo en jours']||5;
-  document.getElementById('rConservation').value=f['Conservation']||'';
-  document.getElementById('rPrep').value=f['Instructions préparation']||'';
-  document.getElementById('rRechauffage').value=f['Instructions réchauffage']||'';
-  document.getElementById('rCongelation').value=f['Congélation']||'';
-  document.getElementById('modalRecTit').textContent='Modifier · '+(f['Nom du plat']||'recette');
-  const photoActuelle=f['Photo URL']||f['Photo']?.[0]?.url||'';
-  const photoUrlEl=document.getElementById('rPhoto');if(photoUrlEl)photoUrlEl.value=photoActuelle;
-  const preview=document.getElementById('rPhotoPreview');
-  const nom=document.getElementById('rPhotoNom');
-  if(preview){preview.innerHTML=photoActuelle?`<img src="${photoActuelle}" style="width:100%;height:100%;object-fit:cover">`:'🍽️';}
-  if(nom){nom.textContent=photoActuelle?'Photo existante — cliquer pour changer':'Aucune photo sélectionnée';}
-  const btnUp=document.getElementById('btnUpload');if(btnUp)btnUp.textContent=photoActuelle?'📷 Changer la photo':'📷 Choisir une photo';
-  const nomPlat=f['Nom du plat']||'';
-  // Récupérer les ingrédients liés à cette recette
-  ingBuffer=DATA.ri.filter(r=>{
-    const recLien=r.fields['Recette'];
-    const recIds=Array.isArray(recLien)?recLien:[recLien];
-    return recIds.includes(id);
-  }).map(r=>{
-    const ingLien=r.fields['Ingrédient'];
-    const ingId=Array.isArray(ingLien)?ingLien[0]:ingLien;
-    const ingRec=DATA.ingredients.find(i=>i.id===ingId);
-    const nom=ingRec?.fields['Nom ingrédient']||ingId||'';
-    const uRaw=r.fields['Unité par défaut'];const u=Array.isArray(uRaw)?uRaw[0]:(uRaw||'');
-    return{id:r.id,ingId:ingId||null,nom,qte:r.fields['Quantité par portion']||0,unite:u==='Unité par défaut'?'':u,isNew:false,toDelete:false};
-  });
-  renderIngRows();openModal('modalRecette');
-}
-
-const CLOUDINARY_CLOUD='dgoqyp3wn';
-const CLOUDINARY_PRESET='legoutdulien';
-
-function uploadPhoto(){
-  document.getElementById('rPhotoFile').click();
-}
-
-async function handlePhotoFile(input){
-  const file=input.files[0];if(!file)return;
-  const btn=document.getElementById('btnUpload');
-  const nom=document.getElementById('rPhotoNom');
-  const preview=document.getElementById('rPhotoPreview');
-  btn.textContent='⏳ Upload en cours...';btn.disabled=true;
-  nom.textContent='Envoi en cours...';
-  try{
-    const fd=new FormData();
-    fd.append('file',file);
-    fd.append('upload_preset',CLOUDINARY_PRESET);
-    const r=await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`,{method:'POST',body:fd});
-    const d=await r.json();
-    if(d.secure_url){
-      document.getElementById('rPhoto').value=d.secure_url;
-      preview.innerHTML=`<img src="${d.secure_url}" style="width:100%;height:100%;object-fit:cover">`;
-      nom.textContent=file.name;
-      toast('✅ Photo uploadée !');
-    }else{
-      toast('⚠️ Erreur upload : '+( d.error?.message||'inconnue'));
-      nom.textContent='Erreur upload';
-    }
-  }catch(e){
-    toast('⚠️ Erreur upload');nom.textContent='Erreur';
-  }
-  btn.textContent='📷 Changer la photo';btn.disabled=false;
-}
-
-async function saveRecette(){
-  const id=document.getElementById('rId').value;
-  const nomPlat=document.getElementById('rNom').value.trim();
-  if(!nomPlat){toast('⚠️ Le nom est obligatoire');return;}
-  const photoUrl=(document.getElementById('rPhoto')?.value||'').trim();
-  const fields={'Nom du plat':nomPlat,'Catégorie':document.getElementById('rCat').value,'Frigo en jours':parseInt(document.getElementById('rFrigo').value)||5,'Instructions préparation':document.getElementById('rPrep').value,'Instructions réchauffage':document.getElementById('rRechauffage').value,'Congélation':document.getElementById('rCongelation').value};
-  if(photoUrl) fields['Photo URL']=photoUrl;
-  let recIdFinal=id;
-  if(id){
-    await patch('Recettes',id,fields);
-    const rec=DATA.recettes.find(r=>r.id===id);if(rec)Object.assign(rec.fields,fields);
-  }else{
-    const res=await create('Recettes',{...fields,'Active ?':true});DATA.recettes.push(res);recIdFinal=res.id;
-  }
-  // Sync ingrédients
-  for(const ing of ingBuffer){
-    if(ing.toDelete&&ing.id){
-      await del('Recettes_Ingrédients',ing.id);DATA.ri=DATA.ri.filter(r=>r.id!==ing.id);
-    }else if(ing.isNew&&!ing.toDelete&&(ing.ingId||ing.nom.trim())){
-      let ingIdToUse=ing.ingId;
-      // Si pas d'ID, créer l'ingrédient dans la table Ingrédients
-      if(!ingIdToUse&&ing.nom.trim()){
-        try{
-          const newIng=await create('Ingrédients',{'Nom ingrédient':ing.nom.trim(),'Unité par défaut':ing.unite||''});
-          ingIdToUse=newIng.id;
-          DATA.ingredients.push(newIng);
-          toast('✅ Ingrédient "'+ing.nom.trim()+'" créé dans Airtable');
-        }catch(e){console.error('Erreur création ingrédient:',e);}
-      }
-      if(ingIdToUse){
-        const iF={'Recette':[recIdFinal],'Ingrédient':[ingIdToUse],'Quantité par portion':ing.qte||0};
-        const res=await create('Recettes_Ingrédients',iF);DATA.ri.push(res);
-      }
-    }else if(!ing.isNew&&!ing.toDelete&&ing.id&&(ing.nom.trim()||ing.ingId)){
-      const iF={'Ingrédient':ing.ingId?[ing.ingId]:[],'Quantité par portion':ing.qte||0};
-      await patch('Recettes_Ingrédients',ing.id,iF);
-      const ri=DATA.ri.find(r=>r.id===ing.id);if(ri)Object.assign(ri.fields,iF);
-    }
-  }
-  toast('✅ Recette enregistrée !');closeModal('modalRecette');renderRecettes();
-}
-
-// ══════════════════════════════════════
-//  CLIENTS
-// ══════════════════════════════════════
-function renderClients(){
-  const rows=DATA.clients.map(c=>{
-    const f=c.fields;
-    const initials=(f['Nom']||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
-    return`<tr>
-      <td><div style="display:flex;align-items:center;gap:10px"><div class="tbl-avatar">${initials}</div><div><div style="font-weight:600">${f['Nom']||'–'}</div><div style="font-size:11px;color:var(--txl)">${f['E-mail']||''}</div></div></div></td>
-      <td>${f['Téléphone']||'–'}</td>
-      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f['Adresse']||'–'}</td>
-      <td>${f['Notes']||f['Commentaires']||'–'}</td>
-      <td style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="editerClient('${c.id}')">✏️ Modifier</button><button class="btn btn-danger btn-sm" onclick="supprimerClient('${c.id}')">🗑️</button></td>
-    </tr>`;
-  }).join('');
-  showContent(`<div class="card">
-    <div class="card-head">
-      <div class="card-tit">👥 Clients <span>${DATA.clients.length}</span></div>
-      <button class="btn btn-primary" onclick="nouveauClient()">+ Nouveau client</button>
-    </div>
-    <div class="tbl-wrap"><table class="tbl">
-      <thead><tr><th>Client</th><th>Téléphone</th><th>Adresse</th><th>Notes</th><th>Action</th></tr></thead>
-      <tbody>${rows||'<tr><td colspan="5" class="empty">Aucun client</td></tr>'}</tbody>
-    </table></div>
-  </div>`);
-}
-function nouveauClient(){['cId','cNom','cEmail','cTel','cMdp','cAdresse','cNotes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('modalCliTit').textContent='Nouveau client';openModal('modalClient');}
-function editerClient(id){
-  const cli=DATA.clients.find(c=>c.id===id);if(!cli)return;const f=cli.fields;
-  document.getElementById('cId').value=id;document.getElementById('cNom').value=f['Nom']||'';
-  document.getElementById('cEmail').value=f['E-mail']||'';document.getElementById('cTel').value=f['Téléphone']||'';
-  document.getElementById('cMdp').value=f['MOT DE PASSE']||'';document.getElementById('cAdresse').value=f['Adresse']||'';
-  document.getElementById('modalCliTit').textContent='Modifier · '+(f['Nom']||'client');openModal('modalClient');
-}
-async function saveClient(){
-  const id=document.getElementById('cId').value;
-  const fields={'Nom':document.getElementById('cNom').value,'E-mail':document.getElementById('cEmail').value,'Téléphone':document.getElementById('cTel').value,'MOT DE PASSE':document.getElementById('cMdp').value,'Adresse':document.getElementById('cAdresse').value};
-  if(id){await patch('Clients',id,fields);const cli=DATA.clients.find(c=>c.id===id);if(cli)Object.assign(cli.fields,fields);toast('✅ Client modifié');}
-  else{const res=await create('Clients',fields);DATA.clients.push(res);toast('✅ Client créé');}
-  closeModal('modalClient');renderClients();
-}
-
-// ══════════════════════════════════════
-//  SALARIÉS
-// ══════════════════════════════════════
-function renderSalaries(){
-  const rows=DATA.salaries.map(s=>{
-    const f=s.fields;
-    const initials=(f['Nom']||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
-    const nbCmds=DATA.commandes.filter(c=>c.fields['Assigné à']===f['Nom']).length;
-    return`<tr>
-      <td><div style="display:flex;align-items:center;gap:10px"><div class="tbl-avatar">${initials}</div><div style="font-weight:600">${f['Nom']||'–'}</div></div></td>
-      <td>${f['Email']||f['E-mail']||'–'}</td>
-      <td>${f['Téléphone']||'–'}</td>
-      <td><span class="badge b-ok">${nbCmds} commande(s)</span></td>
-      <td style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="editerSalarie('${s.id}')">✏️ Modifier</button><button class="btn btn-danger btn-sm" onclick="supprimerSalarie('${s.id}')">🗑️</button></td>
-    </tr>`;
-  }).join('');
-  showContent(`<div class="card">
-    <div class="card-head">
-      <div class="card-tit">👩‍🍳 Salariés <span>${DATA.salaries.length}</span></div>
-      <button class="btn btn-primary" onclick="nouveauSalarie()">+ Nouveau salarié</button>
-    </div>
-    <div class="tbl-wrap"><table class="tbl">
-      <thead><tr><th>Salarié</th><th>Email</th><th>Téléphone</th><th>Activité</th><th>Action</th></tr></thead>
-      <tbody>${rows||'<tr><td colspan="5" class="empty">Aucun salarié</td></tr>'}</tbody>
-    </table>
-  </div>`);
-}
-function nouveauSalarie(){['sId','sNom','sEmail','sTel','sMdp'].forEach(id=>document.getElementById(id).value='');document.getElementById('modalSalTit').textContent='Nouveau salarié';openModal('modalSalarie');}
-function editerSalarie(id){
-  const sal=DATA.salaries.find(s=>s.id===id);if(!sal)return;const f=sal.fields;
-  document.getElementById('sId').value=id;document.getElementById('sNom').value=f['Nom']||'';
-  document.getElementById('sEmail').value=f['Email']||f['E-mail']||'';document.getElementById('sTel').value=f['Téléphone']||'';
-  document.getElementById('sMdp').value=f['Mot de passe']||'';
-  document.getElementById('modalSalTit').textContent='Modifier · '+(f['Nom']||'salarié');openModal('modalSalarie');
-}
-async function saveSalarie(){
-  const id=document.getElementById('sId').value;
-  const fields={'Nom':document.getElementById('sNom').value,'Email':document.getElementById('sEmail').value,'Mot de passe':document.getElementById('sMdp').value};
-  if(id){await patch('Salariés',id,fields);const sal=DATA.salaries.find(s=>s.id===id);if(sal)Object.assign(sal.fields,fields);toast('✅ Salarié modifié');}
-  else{const res=await create('Salariés',fields);DATA.salaries.push(res);toast('✅ Salarié créé');}
-  closeModal('modalSalarie');renderSalaries();
-}
-
-// ══════════════════════════════════════
-//  CRÉNEAUX
-// ══════════════════════════════════════
-function renderCreneaux(){
-  const jours=['Lundi','Mardi','Mercredi','Jeudi','Vendredi'];
-  const semaine=getMonday(crenOffset);
-  const todayMon=getMonday(0);
-  const isPasse=semaine<todayMon;
-  const slots=[{key:'matin',label:'Matin',hours:'09h – 12h'},{key:'apmidi',label:'Après-midi',hours:'13h – 16h'}];
-  const joursHtml=jours.map(jour=>{
-    const cmdJ=DATA.commandes.filter(c=>(c.fields['Semaine du']||'').includes(semaine)&&(c.fields['Créneau']||'').toLowerCase().includes(jour.toLowerCase()));
-    const slotsHtml=slots.map(s=>{
-      const k=`${jour}_${s.key}`;
-      const actif=crActif(semaine,k);
-      const cmdS=cmdJ.filter(c=>(c.fields['Créneau']||'').toLowerCase().includes(s.label.toLowerCase().slice(0,4)));
-      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px solid var(--bgd)">
-        <div>
-          <div style="font-size:12px;font-weight:500;color:var(--tx)">${s.label}</div>
-          <div style="font-size:11px;color:var(--txl)">${s.hours} · ${cmdS.length} cmd</div>
-        </div>
-        ${isPasse
-          ?`<span style="font-size:10px;color:var(--txl)">passé</span>`
-          :`<button class="cren-btn ${actif?'on':'off'}" style="width:auto;padding:4px 10px" onclick="toggleCren('${semaine}','${k}',${actif})">${actif?'✓':'✗'}</button>`
-        }
-      </div>`;
-    }).join('');
-    return`<div class="cren-card${isPasse?' past':''}">
-      <div class="cren-jour">${jour}</div>
-      ${slotsHtml}
-    </div>`;
-  }).join('');
-  showContent(`<div class="card">
-    <div class="card-head">
-      <div class="card-tit">🕐 Créneaux</div>
-    </div>
-    <div class="snav">
-      <button class="snav-btn" onclick="changeCren(-1)">◀</button>
-      <div class="snav-label">${semLabel(crenOffset)}</div>
-      <button class="snav-btn" onclick="changeCren(1)">▶</button>
-      ${crenOffset!==0?`<button class="snav-today" onclick="changeCren(${-crenOffset})">Semaine en cours</button>`:''}
-    </div>
-    ${isPasse?`<div style="font-size:12px;color:var(--cr);padding:10px 14px;background:#fff5f5;border-radius:10px;margin-bottom:14px">⚠️ Semaine passée — modification désactivée</div>`:''}
-    <div class="cren-grid">${joursHtml}</div>
-    <p style="font-size:12px;color:var(--txl);margin-top:14px">Les créneaux fermés n'apparaissent pas dans le portail client.</p>
-  </div>`);
-}
-function changeCren(d){crenOffset+=d;renderCreneaux()}
-function toggleCren(sem,k,actif){toggleCrenAirtable(sem,k,actif)}
-
-async function supprimerRecette(id){
-  if(!confirm('Supprimer ce plat ? Cette action est irréversible.'))return;
-  await del('Recettes',id);
-  DATA.recettes=DATA.recettes.filter(r=>r.id!==id);
-  toast('🗑️ Plat supprimé');renderRecettes();
-}
-async function supprimerClient(id){
-  if(!confirm('Supprimer ce client ?'))return;
-  await del('Clients',id);
-  DATA.clients=DATA.clients.filter(c=>c.id!==id);
-  toast('🗑️ Client supprimé');renderClients();
-}
-async function supprimerSalarie(id){
-  if(!confirm('Supprimer ce salarié ?'))return;
-  await del('Salariés',id);
-  DATA.salaries=DATA.salaries.filter(s=>s.id!==id);
-  toast('🗑️ Salarié supprimé');renderSalaries();
-}
-// ══════════════════════════════════════
-//  ARIA
-// ══════════════════════════════════════
-function toggleAria(){
-  const p=document.getElementById('ariaPanel');p.classList.toggle('open');
-  if(p.classList.contains('open'))setTimeout(()=>document.getElementById('aInput')?.focus(),350);
-}
-function buildAriaSys(){
-  const now=new Date();const semaine=getMonday(0);
-  const cmdSem=DATA.commandes.filter(c=>(c.fields['Semaine du']||'').includes(semaine));
-  const resolveN=v=>{if(!v)return null;const val=Array.isArray(v)?v[0]:v;if(typeof val==='string'&&!val.startsWith('rec'))return val;return DATA.recettes.find(r=>r.id===val)?.fields['Nom du plat']||null;};
-  const recFmt=DATA.recettes.map(r=>{
-    const f=r.fields;
-    const ings=DATA.ri.filter(x=>(x.fields['Nom ligne']||'').startsWith(f['Nom du plat']||'')).map(x=>{
-      const nl=x.fields['Nom ligne']||'';const nom=nl.includes(' - ')?nl.split(' - ').slice(1).join(' - '):'';
-      const q=x.fields['Quantité par portion']||0;const uR=x.fields['Unité par défaut'];const u=Array.isArray(uR)?uR[0]:(uR||'');
-      return`${nom}${q?` (${q}${u&&u!=='Unité par défaut'?' '+u:''})` :''}`;
-    });
-    return{nom:f['Nom du plat']||'',cat:f['Catégorie']||'',actif:!!f['Active ?'],frigo:f['Frigo en jours']||0,preparation:f['Instructions préparation']||'',rechauffage:f['Instructions réchauffage']||'',conservation:f['Conservation']||'',ings};
-  });
-  // Toutes les commandes groupées par semaine
-  const cmdParSemaine={};
-  DATA.commandes.forEach(c=>{
-    const sem=c.fields['Semaine du']||'?';
-    if(!cmdParSemaine[sem])cmdParSemaine[sem]=[];
-    cmdParSemaine[sem].push(c);
-  });
-  const cmdSemHtml=Object.entries(cmdParSemaine).sort((a,b)=>b[0].localeCompare(a[0])).map(([sem,cmds])=>{
-    return`SEMAINE ${sem} (${cmds.length} cmd):\n`+cmds.map(c=>{
-      const f=c.fields;
-      const plats=[f['Plat 1'],f['Plat 2'],f['Plat 3'],f['Plat 4'],f['Plat 5']].map(resolveN).filter(Boolean);
-      return`  - ${f['Client']||'?'} | ${f['Créneau']||'?'} | ${plats.join(', ')} | ${f['Statut']||'?'} | Assigné: ${f['Assigné à']||'–'} | Portions: ${f['Nb portions']||4}`;
-    }).join('\n');
-  }).join('\n\n');
-
-  // Créneaux actifs/fermés
-  const crenHtml=Object.entries(crenCache).map(([k,v])=>`${k}: ${v.actif?'ouvert':'FERMÉ'}`).join(' | ')||'aucun configuré';
-
-  // Clients complets
-  const clientsHtml=DATA.clients.map(c=>`${c.fields['Nom']||''} | ${c.fields['E-mail']||''} | ${c.fields['Téléphone']||''} | ${c.fields['Adresse']||''}`).join('\n');
-
-  // Salariés
-  const salHtml=DATA.salaries.map(s=>`${s.fields['Nom']||''} | ${s.fields['Email']||''}`).join('\n');
-
-  // Ingrédients
-  const ingHtml=DATA.ingredients.map(i=>`${i.fields['Nom ingrédient']||''} (${i.fields['Unité par défaut']||''})`).join(', ');
-
-  ariaSys=`Tu es ARIA, assistante intelligente d'Alizée, gérante de "Le Goût du Lien" (batch cooking, 60€/sem, 5 plats, 4 portions). Réponds en français, concis, chaleureux. **Gras** pour les infos clés. Tu as accès à TOUTES les données Airtable en temps réel.
-
-AUJOURD'HUI: ${now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}
-SEMAINE EN COURS: ${semaine}
-
-━━━ TOUTES LES COMMANDES (${DATA.commandes.length} total) ━━━
-${cmdSemHtml||'Aucune commande'}
-
-━━━ RECETTES COMPLÈTES (${recFmt.length} total) ━━━
-${recFmt.map(r=>`• ${r.nom} [${r.cat}] ${r.actif?'✓ ACTIF':'✗ INACTIF'}
-  Conservation: ${r.frigo}j frigo | Préparation: ${r.preparation||'–'}
-  Réchauffage: ${r.rechauffage||'–'}
-  Ingrédients/portion: ${r.ings.join(', ')||'–'}`).join('\n\n')}
-
-━━━ CLIENTS (${DATA.clients.length}) ━━━
-${clientsHtml||'Aucun'}
-
-━━━ SALARIÉS (${DATA.salaries.length}) ━━━
-${salHtml||'Aucun'}
-
-━━━ INGRÉDIENTS (${DATA.ingredients.length}) ━━━
-${ingHtml||'Aucun'}
-
-━━━ CRÉNEAUX ━━━
-${crenHtml}`;
-}
-async function reloadAriaData(){
-  document.getElementById('ariaSt').textContent='Actualisation...';
-  try{
-    const [commandes,recettes,ri,clients,salaries,ingredients]=await Promise.all([
-      fetchAll('Commandes','sort[0][field]=Semaine+du&sort[0][direction]=desc'),
-      fetchAll('Recettes','sort[0][field]=Nom+du+plat&sort[0][direction]=asc'),
-      fetchAll('Recettes_Ingrédients','sort[0][field]=Ordre&sort[0][direction]=asc'),
-      fetchAll('Clients'),fetchAll('Salariés'),fetchAll('Ingrédients'),
-    ]);
-    DATA={commandes,recettes,ri,clients,salaries,ingredients};
-    await loadCreneaux();
-    buildAriaSys();
-    document.getElementById('ariaSt').textContent=`${DATA.recettes.filter(r=>r.fields['Active ?']).length} plats · données fraîches`;
-    addAriaMsg('bot','🔄 **Données actualisées !** Je connais maintenant les dernières infos.');
-  }catch(e){addAriaMsg('bot','Erreur lors de l\'actualisation.');}
-}
-function addAriaMsg(type,text){
-  const div=document.getElementById('aMsgs');const m=document.createElement('div');m.className='a-msg '+type;
-  const html=text.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
-  m.innerHTML=`<div class="a-av">${type==='bot'?'🌿':'👤'}</div><div class="a-bub">${html}</div>`;
-  div.appendChild(m);div.scrollTop=div.scrollHeight;
-}
-function addTypingAria(){const div=document.getElementById('aMsgs');const t=document.createElement('div');t.className='a-msg bot';t.id='atyping';t.innerHTML='<div class="a-av">🌿</div><div class="a-bub"><div class="typing"><span></span><span></span><span></span></div></div>';div.appendChild(t);div.scrollTop=div.scrollHeight;}
-function removeTypingAria(){document.getElementById('atyping')?.remove()}
-function useASug(btn){document.getElementById('aInput').value=btn.textContent.trim();sendAria();}
-async function sendAria(){
-  const inp=document.getElementById('aInput');const msg=inp.value.trim();
-  if(!msg||ariaBusy)return;inp.value='';ariaBusy=true;document.getElementById('aSend').disabled=true;
-  addAriaMsg('user',msg);ariaConv.push({role:'user',content:msg});addTypingAria();
-  try{
-    const r=await fetch('/.netlify/functions/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:900,system:ariaSys,messages:ariaConv})});
-    const d=await r.json();removeTypingAria();
-    const reply=d.content?.[0]?.text||(d.error?'Erreur: '+d.error.message:'Pas de réponse.');
-    addAriaMsg('bot',reply);ariaConv.push({role:'assistant',content:reply});
-    if(ariaConv.length>20)ariaConv=ariaConv.slice(-20);speak(reply);
-  }catch(e){removeTypingAria();addAriaMsg('bot','Erreur de connexion.');}
-  ariaBusy=false;document.getElementById('aSend').disabled=false;inp.focus();
-}
-function resetAriaConv(){ariaConv=[];document.getElementById('aMsgs').innerHTML='';addAriaMsg('bot','Conversation réinitialisée 🌿 Comment puis-je vous aider ?');}
-function speak(text){
-  if(!synth)return;synth.cancel();
-  const utt=new SpeechSynthesisUtterance(text.replace(/\*\*/g,'').replace(/\n/g,' '));
-  utt.lang='fr-FR';utt.rate=1.0;
-  const frV=synth.getVoices().find(v=>v.lang.startsWith('fr'));if(frV)utt.voice=frV;
-  synth.speak(utt);
-}
-function toggleMic(){
-  if(isRec){stopMic();return}
-  if(!('webkitSpeechRecognition'in window||'SpeechRecognition'in window)){addAriaMsg('bot','Reconnaissance vocale disponible sur Chrome.');return;}
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  recognition=new SR();recognition.lang='fr-FR';recognition.continuous=false;recognition.interimResults=false;
-  recognition.onstart=()=>{isRec=true;document.getElementById('aMic').classList.add('rec');document.getElementById('aMic').textContent='⏹️';};
-  recognition.onresult=e=>{document.getElementById('aInput').value=e.results[0][0].transcript;stopMic();sendAria();};
-  recognition.onerror=recognition.onend=()=>stopMic();recognition.start();
-}
-function stopMic(){isRec=false;document.getElementById('aMic').classList.remove('rec');document.getElementById('aMic').textContent='🎤';recognition?.stop();}
-document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.activeElement===document.getElementById('aInput'))sendAria();});
-
-// ── AUTO LOGIN ──
-if(sessionStorage.getItem('adm')==='1'){
-  document.getElementById('pLogin').style.display='none';
-  document.getElementById('pApp').style.display='flex';
-  chargerTout();
-}
-</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="admin.js"></script>
 </body>
 </html>
