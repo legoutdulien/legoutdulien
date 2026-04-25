@@ -251,7 +251,8 @@ const RAYON_COLOR = {
   'Produits frais': '#66bb6a'
 };
 
-function loadCourses(platIds) {
+// Calcule les rayons agreges pour les plats donnes : reutilise par loadCourses + imprimerCourses
+function buildCoursesData(platIds) {
   const rayons = {};
   platIds.forEach(pid => {
     const ris = recettesIngredients.filter(ri => ri.recette_id === pid);
@@ -266,7 +267,11 @@ function loadCourses(platIds) {
       rayons[ray][ing.nom].qte += qte;
     });
   });
-  const sorted = Object.entries(rayons).sort((a, b) => a[0].localeCompare(b[0]));
+  return Object.entries(rayons).sort((a, b) => a[0].localeCompare(b[0]));
+}
+
+function loadCourses(platIds) {
+  const sorted = buildCoursesData(platIds);
   const el = $('coursesDiv');
   if (!sorted.length) { el.innerHTML = '<p style="color:var(--txl);padding:20px">Aucun ingredient trouve.</p>'; return; }
 
@@ -352,28 +357,48 @@ function voirIngDetail(platId) {
 }
 
 function imprimerCourses() {
-  const coursesDiv = $('coursesDiv');
-  if (!coursesDiv) return;
   const semaineEl = document.querySelector('.cbanner p');
   const semaine = semaineEl ? semaineEl.textContent : '';
+  const sorted = buildCoursesData(platsDetailCache.map(p => p.id));
+
+  const printHtml = sorted.map(([ray, ings]) => {
+    const items = Object.entries(ings);
+    const emoji = REMOJI[ray] || '🛒';
+    return `<div class="r">
+      <h2>${emoji} ${escapeHtml(ray)} <span class="cnt">${items.length}</span></h2>
+      ${items.map(([n, { qte, u }]) => `<div class="i">
+        <span class="ck"></span>
+        <span class="nm">${escapeHtml(n)}</span>
+        <span class="qt">${qte > 0 ? fmtN(qte) + (u ? ' ' + u : '') : '–'}</span>
+      </div>`).join('')}
+    </div>`;
+  }).join('');
+
   const win = window.open('', '_blank');
   win.document.write(`<!DOCTYPE html><html><head>
     <meta charset="UTF-8">
     <title>Liste de courses - Le Gout du Lien</title>
     <style>
-      body{font-family:'Helvetica Neue',Arial,sans-serif;max-width:600px;margin:40px auto;padding:20px;color:#2c2c2c}
-      h1{font-size:22px;margin-bottom:4px;color:#3d6b4f}
-      .sub{font-size:13px;color:#6b6b6b;margin-bottom:24px}
-      h2{font-size:15px;font-weight:600;border-bottom:2px solid #ede7db;padding-bottom:6px;margin:20px 0 10px}
-      .item{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0ece4;font-size:14px}
-      .qte{color:#3d6b4f;font-weight:500}
-      @media print{body{margin:20px}}
+      *{box-sizing:border-box}
+      body{font-family:'Helvetica Neue',Arial,sans-serif;max-width:520px;margin:24px auto;padding:0 20px;color:#222;font-size:12px;line-height:1.4}
+      h1{font-size:17px;margin:0 0 2px;color:#3d6b4f;font-weight:700}
+      .sub{font-size:10px;color:#777;margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px}
+      .r{margin-bottom:10px;break-inside:avoid;page-break-inside:avoid}
+      .r h2{font-size:12px;font-weight:600;border-bottom:1.5px solid #ddd;padding-bottom:2px;margin:0 0 4px;color:#333;display:flex;align-items:baseline;gap:5px}
+      .r h2 .cnt{font-size:9px;color:#999;font-weight:400;margin-left:auto}
+      .i{display:flex;align-items:center;gap:7px;padding:2px 0;font-size:11px;line-height:1.3}
+      .i .ck{display:inline-block;width:10px;height:10px;border:1px solid #555;border-radius:2px;flex-shrink:0}
+      .i .nm{flex:1}
+      .i .qt{color:#3d6b4f;font-weight:600;font-size:10px;white-space:nowrap}
+      .foot{margin-top:18px;font-size:9px;color:#bbb;text-align:center;border-top:1px solid #eee;padding-top:8px}
+      @page{margin:10mm}
+      @media print{body{margin:0;max-width:100%;padding:0 10mm}}
     </style>
   </head><body>
-    <h1>Le Gout du Lien</h1>
-    <div class="sub">Liste de courses · ${escapeHtml(semaine)}</div>
-    ${coursesDiv.innerHTML}
-    <div style="margin-top:30px;font-size:11px;color:#aaa;text-align:center">Imprime depuis legoutdulien.netlify.app</div>
+    <h1>Liste de courses · Le Gout du Lien</h1>
+    <div class="sub">${escapeHtml(semaine)} · ${escapeHtml(clientProfile?.nom || '')}</div>
+    ${printHtml}
+    <div class="foot">Imprime depuis legoutdulien.netlify.app</div>
   </body></html>`);
   win.document.close();
   win.focus();
