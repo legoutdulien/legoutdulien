@@ -496,33 +496,12 @@ function voirIngSel(platId) {
   voirIngDetail(platId);
 }
 
-async function valider() {
+function valider() {
   if (sel.length < 5 || !semSel || !crenSel) return;
-  showLoad('Enregistrement...');
-  try {
-    const payload = {
-      client_id: clientProfile.id,
-      semaine_du: semSel.id,
-      creneau: crenSel.lbl,
-      statut: 'En attente de paiement',
-      plat_1_id: sel[0].id,
-      plat_2_id: sel[1].id,
-      plat_3_id: sel[2].id,
-      plat_4_id: sel[3].id,
-      plat_5_id: sel[4].id,
-      nombre_portions: 4
-    };
-    const { data, error } = await sb.from('commandes').insert(payload).select().single();
-    if (error) throw error;
-    afficherRecap(data.id);
-  } catch (e) {
-    showToast('Erreur: ' + (e.message || e), 'err');
-  } finally {
-    hideLoad();
-  }
+  afficherRecap();
 }
 
-function afficherRecap(commandeId) {
+function afficherRecap() {
   const pop = document.createElement('div');
   pop.id = 'recapPop';
   pop.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px';
@@ -533,11 +512,11 @@ function afficherRecap(commandeId) {
     <span style="font-size:14px">${escapeHtml(p.nom)}</span>
   </div>`).join('');
 
-  pop.innerHTML = `<div style="background:#fff;border-radius:20px;padding:0;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);overflow:hidden;max-height:90vh;overflow-y:auto">
+  pop.innerHTML = `<div id="recapBox" style="background:#fff;border-radius:20px;padding:0;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);overflow:hidden;max-height:90vh;overflow-y:auto">
     <div style="background:#3d6b4f;padding:24px;text-align:center;color:#fff">
-      <div style="font-size:36px;margin-bottom:10px">✅</div>
-      <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-bottom:4px">Commande enregistree</div>
-      <div style="font-size:13px;opacity:.85">Voici le recapitulatif</div>
+      <div style="font-size:36px;margin-bottom:10px">📋</div>
+      <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-bottom:4px">Recapitulatif</div>
+      <div style="font-size:13px;opacity:.85">Verifiez votre selection avant de confirmer</div>
     </div>
     <div style="padding:24px">
       <div style="background:#f8f4ee;border-radius:12px;padding:14px 16px;margin-bottom:16px">
@@ -557,32 +536,71 @@ function afficherRecap(commandeId) {
         <span style="font-size:20px;font-weight:700;color:#3d6b4f">60€</span>
       </div>
       <div style="background:#fff8e7;border-left:3px solid #f9c74f;border-radius:10px;padding:14px 16px;margin-bottom:20px">
-        <div style="font-size:13px;font-weight:600;margin-bottom:6px;color:#8a6a1a">💳 Paiement via URSSAF</div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:6px;color:#8a6a1a">💳 Paiement automatique via URSSAF</div>
         <div style="font-size:12px;line-height:1.6;color:#5a5a3a">
-          Vous serez prelev(e)e de <strong>60€</strong> sur votre compte URSSAF particulier-employeur dans les jours qui suivent la declaration. L'avance immediate du credit d'impot (50%) est deja deduite.<br><br>
-          Votre commande passe en <strong>"En attente de paiement"</strong> et sera <strong>confirmee par Alizee</strong> apres declaration URSSAF.
+          Une fois la prestation declaree par Alizee, l'URSSAF prelevera <strong>60€</strong> directement sur votre compte bancaire (l'avance immediate du credit d'impot de 50% est deja deduite — vous payez 60€ au lieu de 120€).<br><br>
+          Vous n'avez <strong>rien a faire</strong> : votre commande passera en "Confirmee" des la declaration validee.
         </div>
       </div>
-      <button id="recapOk" style="display:block;width:100%;padding:14px;background:#3d6b4f;color:#fff;border-radius:12px;border:none;font-weight:500;font-size:15px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:10px">Voir mes commandes</button>
-      <button id="recapAnnuler" style="width:100%;padding:12px;background:#f8f4ee;color:#6b6b6b;border-radius:12px;border:none;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif">Annuler cette commande</button>
+      <button id="recapConfirm" style="display:block;width:100%;padding:14px;background:#3d6b4f;color:#fff;border-radius:12px;border:none;font-weight:500;font-size:15px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:10px">✓ Confirmer ma commande</button>
+      <button id="recapModifier" style="width:100%;padding:12px;background:#f8f4ee;color:#6b6b6b;border-radius:12px;border:none;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif">← Modifier ma selection</button>
     </div>
   </div>`;
   document.body.appendChild(pop);
 
-  $('recapOk').addEventListener('click', async () => {
-    pop.remove();
-    sel = []; semSel = null; crenSel = null;
-    await chargerMesCommandes();
-    showPage('pDash');
-  });
-  $('recapAnnuler').addEventListener('click', async () => {
-    if (!confirm('Annuler cette commande ?')) return;
-    if (commandeId) {
-      try { await sb.from('commandes').delete().eq('id', commandeId); } catch (e) { /* silent */ }
-    }
-    pop.remove();
-    showToast('Commande annulee');
-  });
+  $('recapModifier').addEventListener('click', () => pop.remove());
+  $('recapConfirm').addEventListener('click', () => confirmerCommande(pop));
+}
+
+async function confirmerCommande(pop) {
+  const btn = $('recapConfirm');
+  btn.disabled = true;
+  btn.textContent = 'Enregistrement...';
+  btn.style.opacity = '0.6';
+  btn.style.cursor = 'not-allowed';
+  try {
+    const payload = {
+      client_id: clientProfile.id,
+      semaine_du: semSel.id,
+      creneau: crenSel.lbl,
+      statut: 'En attente de paiement',
+      plat_1_id: sel[0].id,
+      plat_2_id: sel[1].id,
+      plat_3_id: sel[2].id,
+      plat_4_id: sel[3].id,
+      plat_5_id: sel[4].id,
+      nombre_portions: 4
+    };
+    const { error } = await sb.from('commandes').insert(payload);
+    if (error) throw error;
+
+    // Remplace le contenu de la modal par l'ecran de succes
+    $('recapBox').innerHTML = `
+      <div style="background:#3d6b4f;padding:32px 24px;text-align:center;color:#fff">
+        <div style="font-size:54px;margin-bottom:12px">✅</div>
+        <div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:700;margin-bottom:6px">Commande validee !</div>
+        <div style="font-size:13px;opacity:.85">Merci, on s'occupe de tout</div>
+      </div>
+      <div style="padding:28px 24px">
+        <p style="font-size:14px;line-height:1.7;color:#2c2c2c;margin-bottom:18px">
+          Alizee va emettre votre facture via Abby et l'URSSAF prelevera <strong>60€</strong> sur votre compte bancaire.<br><br>
+          Vous recevrez une notification quand votre commande passera en <strong>"Confirmee"</strong>.
+        </p>
+        <button id="recapClose" style="display:block;width:100%;padding:14px;background:#3d6b4f;color:#fff;border-radius:12px;border:none;font-weight:500;font-size:15px;cursor:pointer;font-family:'DM Sans',sans-serif">Voir mes commandes</button>
+      </div>`;
+    $('recapClose').addEventListener('click', async () => {
+      pop.remove();
+      sel = []; semSel = null; crenSel = null;
+      await chargerMesCommandes();
+      showPage('pDash');
+    });
+  } catch (e) {
+    btn.disabled = false;
+    btn.textContent = '✓ Confirmer ma commande';
+    btn.style.opacity = '1';
+    btn.style.cursor = 'pointer';
+    showToast('Erreur: ' + (e.message || e), 'err');
+  }
 }
 
 // --- bind events ---
