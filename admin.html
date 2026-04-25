@@ -264,11 +264,31 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
 @media(max-width:600px){
   .tbl{min-width:500px}
 }
+@keyframes fadeInUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.fade-in{animation:fadeInUp .55s cubic-bezier(.16,.84,.44,1) backwards}
+.overlay.open .modal{animation:scaleIn .28s cubic-bezier(.16,.84,.44,1) backwards}
+.cmd-card,.rec-card,.stat-card,.cren-card{transition:transform .25s cubic-bezier(.16,.84,.44,1),box-shadow .25s ease,border-color .2s ease}
+.btn,.tbtn,.lb,.snav-btn{transition:transform .15s ease,box-shadow .2s ease,background .2s ease,opacity .2s ease}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(45,90,61,.4)}
+.btn-primary:active{transform:translateY(0)}
+.cmd-card:hover,.rec-card:hover{transform:translateY(-2px)}
+.tab{transition:color .2s ease,border-color .2s ease}
+.aria-fab{transition:transform .2s ease}
+.aria-fab:hover{transform:scale(1.08)}
+.login-bg-svg{position:fixed;pointer-events:none;opacity:.06;z-index:0}
+#pLogin .lcard{position:relative;z-index:1;animation:fadeInUp .6s cubic-bezier(.16,.84,.44,1) backwards}
+#pLogin .llogo{animation:float 3.5s ease-in-out infinite}
+.content > .card{animation:fadeInUp .4s cubic-bezier(.16,.84,.44,1) backwards}
 </style>
 </head>
 <body>
 
 <div id="pLogin">
+  <svg class="login-bg-svg" style="top:8%;left:6%;width:140px" viewBox="0 0 100 100" fill="#fff"><path d="M50 10 Q60 30 50 50 Q40 30 50 10 M50 50 Q60 70 50 90 Q40 70 50 50 M30 50 Q50 60 70 50 M50 30 Q40 50 50 70"/></svg>
+  <svg class="login-bg-svg" style="bottom:10%;right:8%;width:110px" viewBox="0 0 100 100" fill="#fff"><path d="M20 50 Q35 20 50 50 Q35 80 20 50 M50 50 Q65 20 80 50 Q65 80 50 50"/></svg>
+  <svg class="login-bg-svg" style="top:55%;left:15%;width:70px" viewBox="0 0 100 100" fill="#fff"><circle cx="50" cy="50" r="20"/><path d="M50 30 Q70 50 50 70 Q30 50 50 30"/></svg>
   <div class="lcard">
     <img src="https://res.cloudinary.com/dgoqyp3wn/image/upload/v1774719838/ChatGPT_Image_28_mars_2026_18_37_48_u200aw.png" alt="Le Gout du Lien" style="height:80px;width:auto;object-fit:contain;display:block;margin:0 auto 16px;border-radius:12px">
     <div class="ltit">Le Gout du Lien</div>

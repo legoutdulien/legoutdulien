@@ -102,7 +102,10 @@ async function logout() {
 async function loadDash() {
   const prenom = (clientProfile.nom || '').split(' ')[0];
   $('unom').textContent = prenom;
-  $('welcomeTxt').textContent = `Bonjour ${prenom} !`;
+  $('welcomeTxt').textContent = `Bonjour ${prenom} ✨`;
+  const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+  const dateEl = $('welcomeDate');
+  if (dateEl) dateEl.textContent = today;
   showPage('pDash');
   await chargerMesCommandes();
 }

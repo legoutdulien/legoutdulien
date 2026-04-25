@@ -114,6 +114,29 @@ header{background:var(--vert);padding:0 24px;display:flex;align-items:center;jus
   .stats-row{grid-template-columns:1fr}
   #btnListe,#btnSem,#btnMois{padding:7px 10px;font-size:11px}
 }
+@keyframes fadeInUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.fade-in{animation:fadeInUp .55s cubic-bezier(.16,.84,.44,1) backwards}
+.mbg.show .mbox{animation:scaleIn .28s cubic-bezier(.16,.84,.44,1) backwards}
+.mission-card,.stat-card{transition:transform .25s cubic-bezier(.16,.84,.44,1),box-shadow .25s ease}
+.mission-card:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,.08)}
+.btnLogin,.hbtn{transition:transform .15s ease,box-shadow .2s ease,background .2s ease}
+.btnLogin:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(61,107,79,.3)}
+.btnLogin:active{transform:translateY(0)}
+.login-bg-svg{position:fixed;pointer-events:none;opacity:.07;z-index:0}
+#pLogin .lcard{position:relative;z-index:1;animation:fadeInUp .6s cubic-bezier(.16,.84,.44,1) backwards}
+.welcome-hero{background:linear-gradient(135deg,var(--vert),var(--vc));color:#fff;border-radius:20px;padding:24px 26px;margin-bottom:24px;position:relative;overflow:hidden;box-shadow:0 6px 24px rgba(61,107,79,.18)}
+.welcome-hero::before{content:'';position:absolute;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.07);top:-90px;right:-50px;pointer-events:none}
+.welcome-hero .wdate{font-size:11px;opacity:.78;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;position:relative;z-index:1}
+.welcome-hero .wtit{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;position:relative;z-index:1;line-height:1.1}
+.welcome-hero .wsub{font-size:13px;opacity:.88;margin-top:6px;position:relative;z-index:1}
+.welcome-hero .wleaf{position:absolute;top:50%;right:18px;transform:translateY(-50%);width:64px;height:64px;opacity:.18;z-index:0}
+@media(max-width:640px){
+  .welcome-hero{padding:20px;border-radius:16px}
+  .welcome-hero .wtit{font-size:22px}
+  .welcome-hero .wleaf{width:50px;height:50px;right:10px}
+}
 </style>
 </head>
 <body>
@@ -121,6 +144,9 @@ header{background:var(--vert);padding:0 24px;display:flex;align-items:center;jus
 
 <!-- LOGIN -->
 <div id="pLogin">
+  <svg class="login-bg-svg" style="top:8%;left:6%;width:140px" viewBox="0 0 100 100" fill="#3d6b4f"><path d="M50 10 Q60 30 50 50 Q40 30 50 10 M50 50 Q60 70 50 90 Q40 70 50 50 M30 50 Q50 60 70 50 M50 30 Q40 50 50 70"/></svg>
+  <svg class="login-bg-svg" style="bottom:10%;right:8%;width:110px" viewBox="0 0 100 100" fill="#3d6b4f"><path d="M20 50 Q35 20 50 50 Q35 80 20 50 M50 50 Q65 20 80 50 Q65 80 50 50"/></svg>
+  <svg class="login-bg-svg" style="top:55%;left:15%;width:70px" viewBox="0 0 100 100" fill="#3d6b4f"><circle cx="50" cy="50" r="20"/><path d="M50 30 Q70 50 50 70 Q30 50 50 30"/></svg>
   <div class="lcard">
     <img src="https://res.cloudinary.com/dgoqyp3wn/image/upload/v1774719838/ChatGPT_Image_28_mars_2026_18_37_48_u200aw.png" alt="Le Gout du Lien" style="height:70px;width:auto;object-fit:contain;display:block;margin:0 auto 12px">
     <div class="ltag">Espace salarie - Mon planning</div>
@@ -138,8 +164,12 @@ header{background:var(--vert);padding:0 24px;display:flex;align-items:center;jus
     <button class="hbtn" id="btnLogout">Deconnexion</button>
   </header>
   <div class="main">
-    <div class="welcome" id="welcomeTxt">Bonjour !</div>
-    <div class="welcome-sub">Voici vos missions de la semaine</div>
+    <div class="welcome-hero">
+      <svg class="wleaf" viewBox="0 0 100 100" fill="#fff"><path d="M50 8 Q70 30 60 55 Q80 60 78 88 Q60 78 55 55 Q35 50 22 70 Q22 45 40 38 Q35 18 50 8"/></svg>
+      <div class="wdate" id="welcomeDate"></div>
+      <div class="wtit" id="welcomeTxt">Bonjour !</div>
+      <div class="wsub">Voici vos missions de la semaine</div>
+    </div>
     <div class="sem-nav">
       <select class="sem-select" id="semSelect"></select>
     </div>
