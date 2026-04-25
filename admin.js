@@ -978,11 +978,15 @@ async function toggleCren(sem, slotKey, currentActif) {
 
 function renderCreneaux() {
   const jours = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi'];
+  const JMAP = { Lundi: 0, Mardi: 1, Mercredi: 2, Jeudi: 3, Vendredi: 4 };
   const semaine = getMonday(crenOffset);
   const todayMon = getMonday(0);
   const isPasse = semaine < todayMon;
+  const [yy, mm, dd] = semaine.split('-').map(Number);
   const slots = [{ key: 'matin', label: 'Matin', hours: '09h – 12h' }, { key: 'apmidi', label: 'Apres-midi', hours: '13h – 16h' }];
   const joursHtml = jours.map(jour => {
+    const jd = new Date(yy, mm - 1, dd + JMAP[jour]);
+    const dateLabel = jd.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
     const cmdJ = DATA.commandes.filter(c => (c.semaine_du || '').startsWith(semaine) && (c.creneau || '').toLowerCase().includes(jour.toLowerCase()));
     const slotsHtml = slots.map(s => {
       const k = `${jour}_${s.key}`;
@@ -998,6 +1002,7 @@ function renderCreneaux() {
     }).join('');
     return `<div class="cren-card${isPasse ? ' past' : ''}">
       <div class="cren-jour">${jour}</div>
+      <div style="font-size:11px;color:var(--txl);margin-top:-2px;margin-bottom:6px;text-transform:capitalize">${dateLabel}</div>
       ${slotsHtml}
     </div>`;
   }).join('');
