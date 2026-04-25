@@ -144,7 +144,6 @@ function showTab(tab) {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
   ({
     planning: renderPlanning,
-    calendrier: renderCalendrier,
     recettes: renderRecettes,
     clients: renderClients,
     salaries: renderSalaries,
@@ -152,8 +151,26 @@ function showTab(tab) {
   })[tab]?.();
 }
 
-// --- PLANNING ---
+// Vue active dans l'onglet Planning : 'liste' (hebdo) ou 'mois' (calendrier)
+let planningView = 'liste';
 function renderPlanning() {
+  if (planningView === 'mois') return renderPlanningMois();
+  return renderPlanningListe();
+}
+function planningSwitcher() {
+  const sel = (v) => v === planningView ? 'btn-primary' : 'btn-ghost';
+  return `<div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap">
+    <button id="vPlanListe" class="btn ${sel('liste')} btn-sm">📋 Liste hebdo</button>
+    <button id="vPlanMois" class="btn ${sel('mois')} btn-sm">🗓️ Calendrier mensuel</button>
+  </div>`;
+}
+function bindPlanningSwitcher() {
+  $('vPlanListe')?.addEventListener('click', () => { planningView = 'liste'; renderPlanning(); });
+  $('vPlanMois')?.addEventListener('click', () => { planningView = 'mois'; renderPlanning(); });
+}
+
+// --- PLANNING : VUE LISTE (hebdo) ---
+function renderPlanningListe() {
   const semaine = getMonday(curOffset);
   const cmdSem = DATA.commandes.filter(c => (c.semaine_du || '').startsWith(semaine));
   const salOpts = `<option value="">Non assigne</option>` +
@@ -196,6 +213,7 @@ function renderPlanning() {
   }).join('') : `<div class="empty"><div class="empty-icon">📭</div><div class="empty-txt">Aucune commande cette semaine</div></div>`;
 
   showContent(`<div class="card">
+    ${planningSwitcher()}
     <div class="card-head">
       <div class="card-tit">📅 Planning <span>${cmdSem.length} commande(s)</span></div>
     </div>
@@ -214,6 +232,7 @@ function renderPlanning() {
     if (sel && c.assigne_a_id) sel.value = c.assigne_a_id;
   });
 
+  bindPlanningSwitcher();
   $('prevSem')?.addEventListener('click', () => { curOffset--; renderPlanning(); });
   $('nextSem')?.addEventListener('click', () => { curOffset++; renderPlanning(); });
   $('todaySem')?.addEventListener('click', () => { curOffset = 0; renderPlanning(); });
@@ -357,8 +376,8 @@ function voirIngredients(recetteId, portions) {
   openModal('modalIng');
 }
 
-// --- CALENDRIER ---
-function renderCalendrier() {
+// --- PLANNING : VUE MOIS (calendrier) ---
+function renderPlanningMois() {
   const now = new Date();
   if (calYear === undefined) { calYear = now.getFullYear(); calMonth = now.getMonth(); }
   const y = calYear, m = calMonth;
@@ -398,6 +417,7 @@ function renderCalendrier() {
     </div>`;
   }).join('');
   showContent(`<div class="card">
+    ${planningSwitcher()}
     <div class="card-head">
       <div class="card-tit">🗓️ ${moisNoms[m]} ${y}</div>
       <div style="display:flex;gap:8px">
@@ -411,9 +431,10 @@ function renderCalendrier() {
       <div class="cal-grid">${grid}</div>
     </div>
   </div>`);
-  $('prevMois').addEventListener('click', () => { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendrier(); });
-  $('nextMois').addEventListener('click', () => { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCalendrier(); });
-  $('todayMois').addEventListener('click', () => { const n = new Date(); calYear = n.getFullYear(); calMonth = n.getMonth(); renderCalendrier(); });
+  bindPlanningSwitcher();
+  $('prevMois').addEventListener('click', () => { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderPlanningMois(); });
+  $('nextMois').addEventListener('click', () => { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderPlanningMois(); });
+  $('todayMois').addEventListener('click', () => { const n = new Date(); calYear = n.getFullYear(); calMonth = n.getMonth(); renderPlanningMois(); });
   $('content').querySelectorAll('.cal-day.has-cmd').forEach(d => d.addEventListener('click', () => voirJourCal(d.dataset.iso, parseInt(d.dataset.dow, 10))));
 }
 
