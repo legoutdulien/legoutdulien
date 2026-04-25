@@ -599,21 +599,67 @@ function editerRecette(id) {
 
 function uploadPhoto() { $('rPhotoFile').click(); }
 
+// Compresse une image : max 1200px de large, qualite JPEG 82%.
+// Retourne un Blob compresse, ou null si on ne peut pas / pas la peine de compresser.
+async function compressImage(file, maxWidth = 1200, quality = 0.82) {
+  if (!file.type || !file.type.startsWith('image/')) return null;
+  // HEIC/HEIF: la plupart des navigateurs ne savent pas les decoder via <img>
+  if (/heic|heif/i.test(file.type)) return null;
+  // Deja petit ? pas la peine
+  if (file.size < 200 * 1024) return null;
+
+  try {
+    const url = URL.createObjectURL(file);
+    const img = await new Promise((resolve, reject) => {
+      const i = new Image();
+      i.onload = () => resolve(i);
+      i.onerror = () => reject(new Error('decode-fail'));
+      i.src = url;
+    });
+    let w = img.naturalWidth, h = img.naturalHeight;
+    if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+    URL.revokeObjectURL(url);
+    return await new Promise((resolve) => canvas.toBlob(b => resolve(b), 'image/jpeg', quality));
+  } catch (e) {
+    return null;
+  }
+}
+
 async function handlePhotoFile(input) {
   const file = input.files[0]; if (!file) return;
   const btn = $('btnUpload'), nom = $('rPhotoNom'), preview = $('rPhotoPreview');
-  btn.textContent = '⏳ Upload en cours...'; btn.disabled = true;
-  nom.textContent = 'Envoi en cours...';
+  btn.textContent = '⏳ Compression...'; btn.disabled = true;
+  nom.textContent = 'Compression en cours...';
   try {
-    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    const compressed = await compressImage(file);
+    const blob = compressed || file;
+    const isJpeg = !!compressed;
+    const ext = isJpeg ? 'jpg' : ((file.name.split('.').pop() || 'jpg').toLowerCase());
+    const ctype = isJpeg ? 'image/jpeg' : (file.type || 'application/octet-stream');
     const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-    const { error } = await sb.storage.from(STORAGE_BUCKET).upload(filename, file, { upsert: false, contentType: file.type });
+
+    btn.textContent = '⏳ Upload...';
+    nom.textContent = `Envoi (${(blob.size / 1024).toFixed(0)} KB)...`;
+
+    const { error } = await sb.storage.from(STORAGE_BUCKET).upload(filename, blob, { upsert: false, contentType: ctype });
     if (error) throw error;
     const { data: pub } = sb.storage.from(STORAGE_BUCKET).getPublicUrl(filename);
     $('rPhoto').value = pub.publicUrl;
     preview.innerHTML = `<img src="${escapeHtml(pub.publicUrl)}" style="width:100%;height:100%;object-fit:cover">`;
-    nom.textContent = file.name;
-    toast('✅ Photo uploadee !');
+
+    if (compressed) {
+      const ratio = Math.round((1 - compressed.size / file.size) * 100);
+      const fromKB = (file.size / 1024).toFixed(0);
+      const toKB = (compressed.size / 1024).toFixed(0);
+      nom.textContent = `${file.name} (${fromKB}→${toKB} KB)`;
+      toast(`✅ Photo compressee -${ratio}% (${fromKB}→${toKB} KB)`);
+    } else {
+      nom.textContent = file.name;
+      toast('✅ Photo uploadee');
+    }
   } catch (e) {
     toast('Erreur upload: ' + (e.message || e));
     nom.textContent = 'Erreur';
