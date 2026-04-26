@@ -1234,11 +1234,17 @@ async function saveClient() {
 }
 
 async function supprimerClient(id) {
-  if (!confirm('Supprimer ce client (et son compte de connexion) ?')) return;
+  if (!confirm('Supprimer ce client et toutes ses donnees (commandes, favoris, compte) ?')) return;
   try {
+    // Nettoyage explicite avant suppression auth (defense en profondeur)
+    await sb.from('favoris').delete().eq('client_id', id);
+    await sb.from('commandes').delete().eq('client_id', id);
+    await sb.from('clients').delete().eq('id', id);
     await adminDeleteAuthUser(id);
     DATA.clients = DATA.clients.filter(c => c.id !== id);
-    toast('🗑️ Client supprime'); renderClients();
+    DATA.commandes = DATA.commandes.filter(c => c.client_id !== id);
+    toast('🗑️ Client et toutes ses donnees supprimes');
+    renderClients();
   } catch (e) {
     toast('Erreur: ' + (e.message || e));
   }
@@ -1259,12 +1265,12 @@ function renderSalaries() {
   }).join('');
   showContent(`<div class="card">
     <div class="card-head">
-      <div class="card-tit">👩‍🍳 Salaries <span>${DATA.salaries.length}</span></div>
-      <button class="btn btn-primary" id="btnNewSal">+ Nouveau salarie</button>
+      <div class="card-tit">🤝 Partenaires <span>${DATA.salaries.length}</span></div>
+      <button class="btn btn-primary" id="btnNewSal">+ Nouveau partenaire</button>
     </div>
     <div class="tbl-wrap"><table class="tbl">
-      <thead><tr><th>Salarie</th><th>Email</th><th>Telephone</th><th>Activite</th><th>Action</th></tr></thead>
-      <tbody>${rows || '<tr><td colspan="5" class="empty">Aucun salarie</td></tr>'}</tbody>
+      <thead><tr><th>Partenaire</th><th>Email</th><th>Telephone</th><th>Activite</th><th>Action</th></tr></thead>
+      <tbody>${rows || '<tr><td colspan="5" class="empty">Aucun partenaire</td></tr>'}</tbody>
     </table></div>
   </div>`);
   $('btnNewSal').addEventListener('click', nouveauSalarie);
@@ -1274,7 +1280,7 @@ function renderSalaries() {
 
 function nouveauSalarie() {
   ['sId', 'sNom', 'sEmail', 'sTel', 'sMdp'].forEach(id => $(id).value = '');
-  $('modalSalTit').textContent = 'Nouveau salarie'; openModal('modalSalarie');
+  $('modalSalTit').textContent = 'Nouveau partenaire'; openModal('modalSalarie');
 }
 function editerSalarie(id) {
   const s = getSalarie(id); if (!s) return;
@@ -1283,7 +1289,7 @@ function editerSalarie(id) {
   $('sEmail').value = s.email || '';
   $('sTel').value = s.telephone || '';
   $('sMdp').value = '';
-  $('modalSalTit').textContent = 'Modifier · ' + (s.nom || 'salarie');
+  $('modalSalTit').textContent = 'Modifier · ' + (s.nom || 'partenaire');
   openModal('modalSalarie');
 }
 async function saveSalarie() {
@@ -1303,14 +1309,14 @@ async function saveSalarie() {
       const { error } = await sb.from('salaries').update(payload).eq('id', id);
       if (error) throw error;
       const s = getSalarie(id); if (s) Object.assign(s, payload);
-      toast('✅ Salarie modifie');
+      toast('✅ Partenaire modifie');
     } else {
       if (!mdp) { toast('⚠️ Mot de passe obligatoire pour creation'); return; }
       const u = await adminCreateAuthUser({ email, password: mdp, type: 'salarie', nom, telephone });
       await new Promise(r => setTimeout(r, 200));
       const { data, error } = await sb.from('salaries').select('*').eq('id', u.id).single();
       if (!error && data) DATA.salaries.push(data);
-      toast('✅ Salarie cree');
+      toast('✅ Partenaire cree');
     }
     closeModal('modalSalarie'); renderSalaries();
   } catch (e) {
@@ -1318,11 +1324,16 @@ async function saveSalarie() {
   }
 }
 async function supprimerSalarie(id) {
-  if (!confirm('Supprimer ce salarie (et son compte de connexion) ?')) return;
+  if (!confirm('Supprimer ce partenaire (les commandes assignees seront desassignees) ?')) return;
   try {
+    // Desassigner les commandes (au cas ou cascade ne se declenche pas)
+    await sb.from('commandes').update({ assigne_a_id: null }).eq('assigne_a_id', id);
+    await sb.from('salaries').delete().eq('id', id);
     await adminDeleteAuthUser(id);
     DATA.salaries = DATA.salaries.filter(s => s.id !== id);
-    toast('🗑️ Salarie supprime'); renderSalaries();
+    DATA.commandes.forEach(c => { if (c.assigne_a_id === id) c.assigne_a_id = null; });
+    toast('🗑️ Partenaire supprime');
+    renderSalaries();
   } catch (e) {
     toast('Erreur: ' + (e.message || e));
   }
