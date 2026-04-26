@@ -28,6 +28,35 @@ let semSel = null;
 let crenSel = null;
 let platsDetailCache = [];
 let currentCmdId = null;
+let favoris = new Set();
+
+async function loadFavoris() {
+  if (!clientProfile) return;
+  try {
+    const { data } = await sb.from('favoris').select('recette_id').eq('client_id', clientProfile.id);
+    favoris = new Set((data || []).map(f => f.recette_id));
+  } catch (e) {
+    favoris = new Set();
+  }
+}
+
+async function toggleFavori(recetteId, btn) {
+  if (!clientProfile) return;
+  if (favoris.has(recetteId)) {
+    const { error } = await sb.from('favoris').delete().eq('client_id', clientProfile.id).eq('recette_id', recetteId);
+    if (error) { showToast('Erreur: ' + error.message, 'err'); return; }
+    favoris.delete(recetteId);
+    btn.textContent = '♡';
+    btn.classList.remove('on');
+  } else {
+    const { error } = await sb.from('favoris').insert({ client_id: clientProfile.id, recette_id: recetteId });
+    if (error) { showToast('Erreur: ' + error.message, 'err'); return; }
+    favoris.add(recetteId);
+    btn.textContent = '♥';
+    btn.classList.add('on');
+  }
+  if (platCatFilter === 'favoris') renderPlats();
+}
 
 // helpers UI
 const $ = (id) => document.getElementById(id);
@@ -108,6 +137,7 @@ async function loadDash() {
   const dateEl = $('welcomeDate');
   if (dateEl) dateEl.textContent = today;
   showPage('pDash');
+  await loadFavoris();
   await chargerMesCommandes();
 }
 
@@ -559,35 +589,45 @@ const CATS_FIXED = ['Viande', 'Poisson', 'Végé', 'Poulet', 'Pâtes', 'Cuisine 
 let platSearch = '';
 let platCatFilter = 'all';
 
-function renderPlatChips(containerId, current, onSelect) {
+function renderPlatChips(containerId, current, onSelect, includeFavoris = false) {
   const c = $(containerId); if (!c) return;
-  const chipCss = (active) => active
-    ? 'background:var(--vp);border-color:var(--vert);color:var(--vert);font-weight:600'
+  const chipCss = (active, fav) => active
+    ? (fav ? 'background:#fde2e4;border-color:#e63946;color:#e63946;font-weight:600' : 'background:var(--vp);border-color:var(--vert);color:var(--vert);font-weight:600')
     : 'background:var(--bg);border-color:var(--bgd);color:var(--txl)';
-  c.innerHTML = ['all', ...CATS_FIXED].map(cat => `<button class="cat-chip" data-cat="${escapeHtml(cat)}" style="padding:6px 13px;border:1.5px solid;border-radius:18px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:.15s;${chipCss(cat === current)}">${cat === 'all' ? 'Tous' : escapeHtml(cat)}</button>`).join('');
+  const cats = includeFavoris ? ['favoris', 'all', ...CATS_FIXED] : ['all', ...CATS_FIXED];
+  c.innerHTML = cats.map(cat => {
+    const label = cat === 'favoris' ? '❤️ Mes favoris' : cat === 'all' ? 'Tous' : cat;
+    return `<button class="cat-chip" data-cat="${escapeHtml(cat)}" style="padding:6px 13px;border:1.5px solid;border-radius:18px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:.15s;${chipCss(cat === current, cat === 'favoris')}">${escapeHtml(label)}</button>`;
+  }).join('');
   c.querySelectorAll('.cat-chip').forEach(b => b.addEventListener('click', () => onSelect(b.dataset.cat)));
 }
 
 function renderPlats() {
   const g = $('pgrid');
   g.innerHTML = '';
-  renderPlatChips('platCatChips', platCatFilter, (c) => { platCatFilter = c; renderPlats(); });
+  renderPlatChips('platCatChips', platCatFilter, (c) => { platCatFilter = c; renderPlats(); }, true);
   const search = platSearch.toLowerCase().trim();
   const actifs = recettes.filter(r => {
     if (getEtat(r) !== 'actif') return false;
-    if (platCatFilter !== 'all' && r.categorie !== platCatFilter) return false;
+    if (platCatFilter === 'favoris' && !favoris.has(r.id)) return false;
+    if (platCatFilter !== 'all' && platCatFilter !== 'favoris' && r.categorie !== platCatFilter) return false;
     if (search && !(r.nom_du_plat || '').toLowerCase().includes(search)) return false;
     return true;
   });
   if (!actifs.length) {
-    g.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="eicon">🔍</div><p>Aucun plat ne correspond a votre recherche.</p></div>`;
+    const msg = platCatFilter === 'favoris'
+      ? 'Vous n\'avez pas encore de favori. Cliquez sur le ♡ d\'un plat pour le marquer.'
+      : 'Aucun plat ne correspond a votre recherche.';
+    g.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="eicon">${platCatFilter === 'favoris' ? '❤️' : '🔍'}</div><p>${msg}</p></div>`;
     return;
   }
   actifs.forEach(rec => {
     const card = document.createElement('div');
     card.className = 'pcard';
     card.dataset.id = rec.id;
+    const isFav = favoris.has(rec.id);
     card.innerHTML = `
+      <button class="fav-btn ${isFav ? 'on' : ''}" data-act="fav" data-id="${rec.id}" title="${isFav ? 'Retirer des favoris' : 'Ajouter aux favoris'}">${isFav ? '♥' : '♡'}</button>
       <div class="pchk"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
       ${rec.photo_url ? `<img class="pimg" src="${escapeHtml(rec.photo_url)}" alt="${escapeHtml(rec.nom_du_plat)}" loading="lazy">` : `<div class="pph">🍽️</div>`}
       <div class="pinfo">
@@ -599,11 +639,16 @@ function renderPlats() {
       </div>`;
     card.addEventListener('click', (e) => {
       if (e.target.closest('[data-act="ing"]')) return;
+      if (e.target.closest('[data-act="fav"]')) return;
       togglePlat(rec.id, card);
     });
     card.querySelector('[data-act="ing"]').addEventListener('click', (e) => {
       e.stopPropagation();
       voirIngSel(rec.id);
+    });
+    card.querySelector('[data-act="fav"]').addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleFavori(rec.id, e.currentTarget);
     });
     g.appendChild(card);
   });

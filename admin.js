@@ -1611,6 +1611,33 @@ document.addEventListener('DOMContentLoaded', () => {
   $('btnAddIng').addEventListener('click', ajouterIngRow);
   $('btnUpload').addEventListener('click', uploadPhoto);
   $('rPhotoFile').addEventListener('change', (e) => handlePhotoFile(e.target));
+  // Drag & drop sur la zone photo
+  const dz = $('photoDropzone');
+  if (dz) {
+    ['dragenter', 'dragover'].forEach(evt => dz.addEventListener(evt, (e) => {
+      e.preventDefault(); e.stopPropagation();
+      dz.style.borderColor = 'var(--v3)';
+      dz.style.background = 'var(--vp)';
+    }));
+    ['dragleave', 'dragend'].forEach(evt => dz.addEventListener(evt, (e) => {
+      e.preventDefault(); e.stopPropagation();
+      dz.style.borderColor = 'var(--bgd)';
+      dz.style.background = '';
+    }));
+    dz.addEventListener('drop', (e) => {
+      e.preventDefault(); e.stopPropagation();
+      dz.style.borderColor = 'var(--bgd)';
+      dz.style.background = '';
+      const file = e.dataTransfer?.files?.[0];
+      if (!file) return;
+      if (!file.type.startsWith('image/')) { toast('⚠️ Glissez une image'); return; }
+      const input = $('rPhotoFile');
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      input.files = dt.files;
+      handlePhotoFile(input);
+    });
+  }
 
   $('ariaFab').addEventListener('click', toggleAria);
   $('ariaClose').addEventListener('click', toggleAria);

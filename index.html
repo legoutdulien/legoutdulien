@@ -156,6 +156,9 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
 .toast.show{transform:translateX(-50%) translateY(0)}
 .toast.err{background:#c62828}
 .toast.ok{background:var(--vert)}
+.fav-btn{position:absolute;top:12px;left:12px;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.95);border:none;cursor:pointer;font-size:18px;color:#bbb;display:flex;align-items:center;justify-content:center;z-index:2;transition:transform .15s ease,color .2s ease;box-shadow:0 2px 8px rgba(0,0,0,.1);font-family:Arial,sans-serif;line-height:1;padding:0}
+.fav-btn:hover{transform:scale(1.12)}
+.fav-btn.on{color:#e63946}
 @keyframes fadeInUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 @keyframes scaleIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
