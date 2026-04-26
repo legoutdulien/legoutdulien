@@ -70,7 +70,7 @@ async function logout() {
 // --- init dashboard ---
 async function initSalarie() {
   const prenom = (salarieProfile.nom || '').split(' ')[0];
-  $('welcomeTxt').textContent = `Bonjour ${prenom} ✨`;
+  $('welcomeTxt').textContent = `Bonjour ${prenom}`;
   const dateEl = $('welcomeDate');
   if (dateEl) dateEl.textContent = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
 
