@@ -1256,15 +1256,19 @@ async function saveClient() {
 async function supprimerClient(id) {
   if (!confirm('Supprimer ce client et toutes ses donnees (commandes, favoris, compte) ?')) return;
   try {
-    // Nettoyage explicite avant suppression auth (defense en profondeur)
     await sb.from('favoris').delete().eq('client_id', id);
     await sb.from('commandes').delete().eq('client_id', id);
     await sb.from('clients').delete().eq('id', id);
     await adminDeleteAuthUser(id);
-    DATA.clients = DATA.clients.filter(c => c.id !== id);
-    DATA.commandes = DATA.commandes.filter(c => c.client_id !== id);
+    const [{ data: cliData }, { data: cmdData }] = await Promise.all([
+      sb.from('clients').select('*'),
+      sb.from('commandes').select('*')
+    ]);
+    if (cliData) DATA.clients = cliData;
+    if (cmdData) DATA.commandes = cmdData;
     toast('🗑️ Client et toutes ses donnees supprimes');
-    renderClients();
+    const tab = document.querySelector('.tab.active')?.dataset.tab;
+    showTab(tab || 'clients');
   } catch (e) {
     toast('Erreur: ' + (e.message || e));
   }
@@ -1346,14 +1350,20 @@ async function saveSalarie() {
 async function supprimerSalarie(id) {
   if (!confirm('Supprimer ce partenaire (les commandes assignees seront desassignees) ?')) return;
   try {
-    // Desassigner les commandes (au cas ou cascade ne se declenche pas)
     await sb.from('commandes').update({ assigne_a_id: null }).eq('assigne_a_id', id);
     await sb.from('salaries').delete().eq('id', id);
     await adminDeleteAuthUser(id);
-    DATA.salaries = DATA.salaries.filter(s => s.id !== id);
-    DATA.commandes.forEach(c => { if (c.assigne_a_id === id) c.assigne_a_id = null; });
+    // Refetch frais depuis la DB pour eviter toute trace locale
+    const [{ data: salData }, { data: cmdData }] = await Promise.all([
+      sb.from('salaries').select('*'),
+      sb.from('commandes').select('*')
+    ]);
+    if (salData) DATA.salaries = salData;
+    if (cmdData) DATA.commandes = cmdData;
     toast('🗑️ Partenaire supprime');
-    renderSalaries();
+    // Re-render le tab courant pour rafraichir les dropdowns d'assignation
+    const tab = document.querySelector('.tab.active')?.dataset.tab;
+    showTab(tab || 'salaries');
   } catch (e) {
     toast('Erreur: ' + (e.message || e));
   }
