@@ -85,13 +85,12 @@ async function initSalarie() {
   if (dateEl) dateEl.textContent = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
 
   const sel = $('semSelect');
-  sel.innerHTML = '';
+  sel.innerHTML = '<option value="all" selected>📋 Toutes mes missions</option>';
   const lundis = getLundis();
-  lundis.forEach((s, i) => {
+  lundis.forEach((s) => {
     const opt = document.createElement('option');
     opt.value = s.id;
     opt.textContent = 'Semaine du ' + s.label;
-    if (i === 2) opt.selected = true;
     sel.appendChild(opt);
   });
 
@@ -178,9 +177,14 @@ function getIngredientsForRecette(recetteId) {
     .sort((a, b) => (a.ordre || 0) - (b.ordre || 0));
 }
 
+let currentMissions = [];
+
 function chargerMissions() {
   const semId = $('semSelect').value;
-  const mesMissions = allCommandesAssignees.filter(c => (c.semaine_du || '').startsWith(semId));
+  const mesMissions = (semId === 'all' || !semId)
+    ? [...allCommandesAssignees]
+    : allCommandesAssignees.filter(c => (c.semaine_du || '').startsWith(semId));
+  currentMissions = mesMissions;
   const confirmees = mesMissions.filter(c => c.statut === 'Confirmée').length;
   const totalPortions = mesMissions.reduce((a, c) => a + (c.nombre_portions || 4) * 5, 0);
 
@@ -195,17 +199,16 @@ function chargerMissions() {
     return;
   }
 
-  $('missionsDiv').innerHTML = mesMissions.map(cmd => {
+  $('missionsDiv').innerHTML = mesMissions.map((cmd, idx) => {
     const platIds = [cmd.plat_1_id, cmd.plat_2_id, cmd.plat_3_id, cmd.plat_4_id, cmd.plat_5_id].filter(Boolean);
     const plats = platIds.map(getRecette).filter(Boolean);
     const cl = cmd.client || {};
     const crenParts = (cmd.creneau || '').split('·');
     const crenJour = (crenParts[0] || '').trim();
     const crenHeure = (crenParts[1] || '').trim();
-    const portions = cmd.nombre_portions || 4;
     const ok = cmd.statut === 'Confirmée';
 
-    return `<div class="mission-card">
+    return `<div class="mission-card" data-idx="${idx}" style="cursor:pointer">
       <div class="mission-header">
         <div>
           <div class="mission-date">${escapeHtml(crenJour)}</div>
@@ -213,23 +216,86 @@ function chargerMissions() {
         </div>
         <span style="background:${ok ? '#e8f5e9' : '#fff8e1'};color:${ok ? '#2e7d32' : '#f57f17'};padding:4px 12px;border-radius:20px;font-size:12px;font-weight:500">${ok ? '✓ Confirmee' : '⏳ En attente'}</span>
       </div>
-      <div class="client-info">
-        <div class="client-nom">👤 ${escapeHtml(cl.nom || '–')}</div>
-        ${cl.telephone ? `<div class="client-detail">📞 <a href="tel:${encodeURIComponent(cl.telephone)}" style="color:var(--vert)">${escapeHtml(cl.telephone)}</a></div>` : ''}
-        ${cl.adresse ? `<div class="client-detail">📍 <a href="https://maps.google.com?q=${encodeURIComponent(cl.adresse)}" target="_blank" rel="noopener" style="color:var(--vert)">${escapeHtml(cl.adresse)}</a></div>` : ''}
-      </div>
-      <div class="plats-section">
-        <div style="font-size:12px;color:var(--txl);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">${plats.length} plat${plats.length > 1 ? 's' : ''} a preparer (${portions} portions chacun · cliquer pour voir les ingredients)</div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px">
-          ${plats.map(rec => `<button class="sal-plat-chip" data-id="${rec.id}" data-portions="${portions}" style="padding:9px 14px;background:var(--vp);border:1px solid var(--bgd);border-radius:18px;font-size:13px;color:var(--vert);cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;transition:transform .15s ease,background .15s ease;text-align:left">🍽️ ${escapeHtml(rec.nom_du_plat)}</button>`).join('')}
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:6px">
+        <div style="flex:1">
+          <div style="font-size:16px;font-weight:600;margin-bottom:4px">👤 ${escapeHtml(cl.nom || '–')}</div>
+          <div style="font-size:13px;color:var(--txl)">${plats.length} plat${plats.length > 1 ? 's' : ''} à préparer · clique pour les détails</div>
         </div>
+        <div style="font-size:28px;color:var(--vert);flex-shrink:0">›</div>
       </div>
     </div>`;
   }).join('');
 
-  $('missionsDiv').querySelectorAll('.sal-plat-chip').forEach(b => {
-    b.addEventListener('click', () => voirPlatDetailModal(b.dataset.id, parseInt(b.dataset.portions, 10) || 4));
+  $('missionsDiv').querySelectorAll('.mission-card').forEach(el => {
+    el.addEventListener('click', () => voirMissionComplete(parseInt(el.dataset.idx, 10)));
   });
+}
+
+function voirMissionComplete(idx) {
+  const cmd = currentMissions[idx]; if (!cmd) return;
+  const platIds = [cmd.plat_1_id, cmd.plat_2_id, cmd.plat_3_id, cmd.plat_4_id, cmd.plat_5_id].filter(Boolean);
+  const plats = platIds.map(getRecette).filter(Boolean);
+  const cl = cmd.client || {};
+  const crenParts = (cmd.creneau || '').split('·');
+  const crenJour = (crenParts[0] || '').trim();
+  const crenHeure = (crenParts[1] || '').trim();
+  const portions = cmd.nombre_portions || 4;
+  const ok = cmd.statut === 'Confirmée';
+
+  let mbg = document.getElementById('missionMbg');
+  if (!mbg) {
+    mbg = document.createElement('div');
+    mbg.id = 'missionMbg';
+    mbg.className = 'mbg';
+    mbg.innerHTML = '<div class="mbox" id="missionMbox" style="padding:0;overflow:hidden;max-width:600px"></div>';
+    document.body.appendChild(mbg);
+    mbg.addEventListener('click', (e) => { if (e.target === mbg) mbg.classList.remove('show'); });
+  }
+  document.getElementById('missionMbox').innerHTML = `
+    <div style="background:linear-gradient(135deg,var(--vert),var(--vc));color:#fff;padding:24px 26px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:14px">
+        <div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:2px">${escapeHtml(crenJour)}</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600">🕐 ${escapeHtml(crenHeure)}</div>
+        </div>
+        <span style="background:rgba(255,255,255,.2);color:#fff;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;white-space:nowrap">${ok ? '✓ Confirmee' : '⏳ En attente'}</span>
+      </div>
+    </div>
+    <div style="padding:22px;max-height:75vh;overflow-y:auto">
+      <div style="background:var(--bg);border-radius:12px;padding:14px 16px;margin-bottom:18px">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--txl);margin-bottom:6px">Cliente</div>
+        <div style="font-size:17px;font-weight:600;margin-bottom:6px">👤 ${escapeHtml(cl.nom || '–')}</div>
+        ${cl.telephone ? `<div style="font-size:14px;margin-bottom:4px">📞 <a href="tel:${encodeURIComponent(cl.telephone)}" style="color:var(--vert);font-weight:500;text-decoration:none">${escapeHtml(cl.telephone)}</a></div>` : ''}
+        ${cl.adresse ? `<div style="font-size:14px"><a href="https://maps.google.com?q=${encodeURIComponent(cl.adresse)}" target="_blank" rel="noopener" style="color:var(--vert);text-decoration:none">📍 ${escapeHtml(cl.adresse)} (Google Maps)</a></div>` : ''}
+        ${cl.notes ? `<div style="font-size:12px;color:var(--txl);margin-top:8px;padding-top:8px;border-top:1px solid var(--bgd);font-style:italic">📝 ${escapeHtml(cl.notes)}</div>` : ''}
+      </div>
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--txl);margin-bottom:10px;font-weight:600">${plats.length} plats à préparer (${portions} portions chacun)</div>
+      ${plats.map(rec => renderPlatComplet(rec, portions)).join('')}
+      <button class="mclose" id="missionMboxClose" style="margin-top:6px">Fermer</button>
+    </div>`;
+  mbg.classList.add('show');
+  document.getElementById('missionMboxClose').addEventListener('click', () => mbg.classList.remove('show'));
+}
+
+function renderPlatComplet(rec, portions) {
+  const ings = getIngredientsForRecette(rec.id);
+  const prep = rec.instructions_preparation || '';
+  return `<div style="background:var(--wh);border:1.5px solid var(--bgd);border-radius:12px;overflow:hidden;margin-bottom:14px">
+    ${rec.photo_url ? `<img src="${escapeAttr(rec.photo_url)}" alt="${escapeAttr(rec.nom_du_plat)}" style="width:100%;height:140px;object-fit:cover;display:block">` : ''}
+    <div style="padding:14px 16px">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--vert);margin-bottom:10px">🍽️ ${escapeHtml(rec.nom_du_plat)}</div>
+      ${prep ? `<div style="background:#fff8e7;border-left:3px solid #f9c74f;border-radius:8px;padding:10px 12px;margin-bottom:12px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#8a7a3a;font-weight:600;margin-bottom:4px">👩‍🍳 Préparation</div><div style="font-size:12px;line-height:1.6;white-space:pre-line">${escapeHtml(prep)}</div></div>` : ''}
+      ${ings.length ? `<div style="font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--txl);margin-bottom:6px;font-weight:600">🥕 Ingrédients (${portions} portions)</div>
+      ${ings.map(ri => {
+        const ing = getIngredient(ri.ingredient_id); if (!ing) return '';
+        const qte = (ri.quantite_par_portion || 0) * portions;
+        const u = ing.unite_par_defaut && ing.unite_par_defaut !== 'Unité par défaut' ? ing.unite_par_defaut : '';
+        return `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--bgd);font-size:13px"><span>${escapeHtml(ing.nom)}${ing.rayon ? ` <span style="font-size:10px;color:var(--txl)">(${escapeHtml(ing.rayon)})</span>` : ''}</span><span style="color:var(--vert);font-weight:600">${qte > 0 ? (Number.isInteger(qte) ? qte : qte.toFixed(2)) + (u ? ' ' + u : '') : '–'}</span></div>`;
+      }).join('')}` : '<p style="color:var(--txl);font-size:12px">Pas d\'ingredients renseignes</p>'}
+      ${rec.instructions_rechauffage ? `<div style="background:var(--vp);border-radius:8px;padding:8px 11px;margin-top:10px;font-size:12px"><strong style="color:var(--vert)">🔥 Réchauffage :</strong> ${escapeHtml(rec.instructions_rechauffage)}</div>` : ''}
+      ${rec.frigo_en_jours ? `<div style="font-size:11px;color:var(--txl);margin-top:6px">❄️ ${rec.frigo_en_jours} jours au réfrigérateur</div>` : ''}
+    </div>
+  </div>`;
 }
 
 function voirPlatDetailModal(recetteId, portions) {
