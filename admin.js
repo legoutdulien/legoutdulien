@@ -287,10 +287,23 @@ async function supprimerCommande(id) {
 }
 
 async function assignerSalarie(cmdId, salId) {
+  const cmd = DATA.commandes.find(x => x.id === cmdId);
+  const oldSalId = cmd?.assigne_a_id;
   const payload = { assigne_a_id: salId || null };
   const { error } = await sb.from('commandes').update(payload).eq('id', cmdId);
   if (error) { toast('Erreur: ' + error.message); return; }
-  const c = DATA.commandes.find(x => x.id === cmdId); if (c) c.assigne_a_id = salId || null;
+  if (cmd) cmd.assigne_a_id = salId || null;
+  // Notif partenaire si nouvelle assignation
+  if (salId && salId !== oldSalId) {
+    const cli = cmd ? getClient(cmd.client_id) : null;
+    try {
+      await sb.from('notifications').insert({
+        recipient_id: salId,
+        title: '🔔 Nouvelle mission assignée',
+        body: `${cli ? cli.nom : 'Une cliente'} · ${cmd?.creneau || ''}`
+      });
+    } catch (e) { /* silent */ }
+  }
   toast('✅ Assignation enregistree');
 }
 
@@ -361,6 +374,9 @@ function majSelectCreneau(valActuelle = '') {
 
 async function saveCommande() {
   const id = $('cmdId').value; if (!id) return;
+  const oldCmd = DATA.commandes.find(x => x.id === id);
+  const oldStatut = oldCmd?.statut;
+  const oldSalId = oldCmd?.assigne_a_id;
   const selIds = [...$('platSelectGrid').querySelectorAll('.plat-opt.sel')].map(e => e.dataset.id);
   const payload = {
     client_id: $('cmdClient').value || null,
@@ -377,7 +393,30 @@ async function saveCommande() {
   };
   const { error } = await sb.from('commandes').update(payload).eq('id', id);
   if (error) { toast('Erreur: ' + error.message); return; }
-  const c = DATA.commandes.find(x => x.id === id); if (c) Object.assign(c, payload);
+  if (oldCmd) Object.assign(oldCmd, payload);
+
+  // Notif client si confirmation
+  if (oldStatut !== 'Confirmée' && payload.statut === 'Confirmée' && payload.client_id) {
+    try {
+      const dt = payload.semaine_du ? new Date(payload.semaine_du + 'T00:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' }) : '';
+      await sb.from('notifications').insert({
+        recipient_id: payload.client_id,
+        title: 'Commande confirmée 🎉',
+        body: `Votre commande de la semaine du ${dt} est validée par Alizée.`
+      });
+    } catch (e) { /* silent */ }
+  }
+  // Notif partenaire si nouvelle assignation
+  if (payload.assigne_a_id && payload.assigne_a_id !== oldSalId) {
+    const cli = getClient(payload.client_id);
+    try {
+      await sb.from('notifications').insert({
+        recipient_id: payload.assigne_a_id,
+        title: '🔔 Nouvelle mission assignée',
+        body: `${cli ? cli.nom : 'Une cliente'} · ${payload.creneau || ''}`
+      });
+    } catch (e) { /* silent */ }
+  }
   toast('✅ Commande modifiee'); closeModal('modalCommande'); renderPlanning();
 }
 

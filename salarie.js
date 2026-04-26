@@ -125,6 +125,7 @@ async function initSalarie() {
 
     initCalSelects();
     chargerMissions();
+    await loadNotifs();
     setupRealtimeNotifs();
   } catch (e) {
     $('missionsDiv').innerHTML = `<p style="color:red;padding:20px">Erreur: ${e.message}</p>`;
@@ -134,20 +135,81 @@ async function initSalarie() {
 }
 
 let realtimeChannel = null;
+let notifsList = [];
+
+async function loadNotifs() {
+  if (!salarieProfile) return;
+  const { data } = await sb.from('notifications')
+    .select('*')
+    .eq('recipient_id', salarieProfile.id)
+    .order('created_at', { ascending: false })
+    .limit(20);
+  notifsList = data || [];
+  renderBell();
+}
+
+function renderBell() {
+  const unread = notifsList.filter(n => !n.lu).length;
+  const badge = $('notifBellBadge');
+  if (badge) {
+    badge.textContent = unread > 9 ? '9+' : String(unread);
+    badge.classList.toggle('show', unread > 0);
+  }
+  const panel = $('notifPanel');
+  if (!panel) return;
+  if (notifsList.length === 0) {
+    panel.innerHTML = `<div class="notif-panel-head">Notifications</div><div class="notif-empty">🔔 Aucune notification pour l'instant</div>`;
+    return;
+  }
+  panel.innerHTML = `
+    <div class="notif-panel-head">Notifications ${unread > 0 ? `· ${unread} non lue${unread > 1 ? 's' : ''}` : ''}</div>
+    ${notifsList.map(n => `
+      <div class="notif-item ${n.lu ? '' : 'unread'}" data-id="${n.id}">
+        <div class="notif-title">${escapeHtml(n.title)}</div>
+        ${n.body ? `<div class="notif-body">${escapeHtml(n.body)}</div>` : ''}
+        <div class="notif-time">${formatNotifTime(n.created_at)}</div>
+      </div>
+    `).join('')}
+  `;
+  panel.querySelectorAll('.notif-item').forEach(el => {
+    el.addEventListener('click', () => markNotifRead(el.dataset.id));
+  });
+}
+
+async function markNotifRead(id) {
+  const n = notifsList.find(x => x.id === id);
+  if (!n || n.lu) return;
+  n.lu = true;
+  renderBell();
+  try { await sb.from('notifications').update({ lu: true }).eq('id', id); } catch (e) {}
+}
+
+function formatNotifTime(iso) {
+  const d = new Date(iso); const now = new Date();
+  const diff = (now - d) / 1000;
+  if (diff < 60) return "à l'instant";
+  if (diff < 3600) return `il y a ${Math.floor(diff / 60)} min`;
+  if (diff < 86400) return `il y a ${Math.floor(diff / 3600)} h`;
+  return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+}
+
 function setupRealtimeNotifs() {
   if (realtimeChannel || !salarieProfile) return;
   realtimeChannel = sb.channel(`partenaire-${salarieProfile.id}`)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `recipient_id=eq.${salarieProfile.id}` }, (payload) => {
+      notifsList.unshift(payload.new);
+      if (notifsList.length > 20) notifsList.pop();
+      renderBell();
+      showToast('🔔 ' + payload.new.title, 'ok');
+    })
     .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'commandes' }, async (payload) => {
       const old = payload.old || {}, neu = payload.new || {};
-      // Si nouvelle assignation pour moi
       if (neu.assigne_a_id === salarieProfile.id && old.assigne_a_id !== salarieProfile.id) {
-        showToast('🔔 Nouvelle mission assignee !', 'ok');
         await refetchMissions();
       }
     })
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'commandes' }, async (payload) => {
       if (payload.new && payload.new.assigne_a_id === salarieProfile.id) {
-        showToast('🔔 Nouvelle mission assignee !', 'ok');
         await refetchMissions();
       }
     })
@@ -507,6 +569,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.body.addEventListener('click', (e) => {
     const t = e.target.closest('.plat-header');
     if (t && t.dataset.target) toggleIng(t.dataset.target);
+  });
+  // Cloche notifs
+  const bell = $('notifBell');
+  if (bell) bell.addEventListener('click', (e) => { e.stopPropagation(); $('notifPanel').classList.toggle('show'); });
+  document.addEventListener('click', (e) => {
+    const panel = $('notifPanel');
+    if (panel && panel.classList.contains('show') && !e.target.closest('#notifPanel') && !e.target.closest('#notifBell')) {
+      panel.classList.remove('show');
+    }
   });
 
   // Auto-login si session existe

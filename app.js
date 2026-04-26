@@ -137,19 +137,83 @@ async function loadDash() {
   const dateEl = $('welcomeDate');
   if (dateEl) dateEl.textContent = today;
   showPage('pDash');
-  await loadFavoris();
+  await Promise.all([loadFavoris(), loadNotifs()]);
   await chargerMesCommandes();
   setupRealtimeNotifs();
 }
 
 let realtimeChannel = null;
+let notifsList = [];
+
+async function loadNotifs() {
+  if (!clientProfile) return;
+  const { data } = await sb.from('notifications')
+    .select('*')
+    .eq('recipient_id', clientProfile.id)
+    .order('created_at', { ascending: false })
+    .limit(20);
+  notifsList = data || [];
+  renderBell();
+}
+
+function renderBell() {
+  const unread = notifsList.filter(n => !n.lu).length;
+  const badge = $('notifBellBadge');
+  if (badge) {
+    badge.textContent = unread > 9 ? '9+' : String(unread);
+    badge.classList.toggle('show', unread > 0);
+  }
+  const panel = $('notifPanel');
+  if (!panel) return;
+  if (notifsList.length === 0) {
+    panel.innerHTML = `<div class="notif-panel-head">Notifications</div><div class="notif-empty">🔔 Aucune notification pour l'instant</div>`;
+    return;
+  }
+  panel.innerHTML = `
+    <div class="notif-panel-head">Notifications ${unread > 0 ? `· ${unread} non lue${unread > 1 ? 's' : ''}` : ''}</div>
+    ${notifsList.map(n => `
+      <div class="notif-item ${n.lu ? '' : 'unread'}" data-id="${n.id}">
+        <div class="notif-title">${escapeHtml(n.title)}</div>
+        ${n.body ? `<div class="notif-body">${escapeHtml(n.body)}</div>` : ''}
+        <div class="notif-time">${formatNotifTime(n.created_at)}</div>
+      </div>
+    `).join('')}
+  `;
+  panel.querySelectorAll('.notif-item').forEach(el => {
+    el.addEventListener('click', () => markNotifRead(el.dataset.id));
+  });
+}
+
+async function markNotifRead(id) {
+  const n = notifsList.find(x => x.id === id);
+  if (!n || n.lu) return;
+  n.lu = true;
+  renderBell();
+  try { await sb.from('notifications').update({ lu: true }).eq('id', id); } catch (e) {}
+}
+
+function formatNotifTime(iso) {
+  const d = new Date(iso); const now = new Date();
+  const diff = (now - d) / 1000;
+  if (diff < 60) return "à l'instant";
+  if (diff < 3600) return `il y a ${Math.floor(diff / 60)} min`;
+  if (diff < 86400) return `il y a ${Math.floor(diff / 3600)} h`;
+  return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+}
+
 function setupRealtimeNotifs() {
   if (realtimeChannel || !clientProfile) return;
   realtimeChannel = sb.channel(`client-${clientProfile.id}`)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `recipient_id=eq.${clientProfile.id}` }, (payload) => {
+      notifsList.unshift(payload.new);
+      if (notifsList.length > 20) notifsList.pop();
+      renderBell();
+      showToast('🔔 ' + payload.new.title, 'ok');
+    })
     .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'commandes', filter: `client_id=eq.${clientProfile.id}` }, (payload) => {
-      const old = payload.old || {}, neu = payload.new || {};
+      // refetch en arriere-plan pour mise a jour de l'affichage
+      const neu = payload.new || {}, old = payload.old || {};
       if (neu.statut === 'Confirmée' && old.statut !== 'Confirmée') {
-        showToast('🎉 Votre commande a ete confirmee par Alizee !', 'ok');
         chargerMesCommandes();
       }
     })
@@ -832,6 +896,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   $('iEmail').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
   $('iMdp').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
   $('mbg').addEventListener('click', (e) => { if (e.target === $('mbg')) $('mbg').classList.remove('show'); });
+  // Cloche notifications
+  const bell = $('notifBell');
+  if (bell) {
+    bell.addEventListener('click', (e) => {
+      e.stopPropagation();
+      $('notifPanel').classList.toggle('show');
+    });
+  }
+  document.addEventListener('click', (e) => {
+    const panel = $('notifPanel');
+    if (panel && panel.classList.contains('show') && !e.target.closest('#notifPanel') && !e.target.closest('#notifBell')) {
+      panel.classList.remove('show');
+    }
+  });
 
   const { data: { session } } = await sb.auth.getSession();
   if (session) {
