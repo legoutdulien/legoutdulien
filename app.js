@@ -38,9 +38,10 @@ const showToast = (m, t) => {
   setTimeout(() => { el.className = 'toast'; }, 3000);
 };
 const showPage = (p) => {
-  ['pLogin', 'pDash', 'pApp', 'pDetail'].forEach(x => { const el = $(x); if (el) el.style.display = 'none'; });
+  ['pLogin', 'pDash', 'pApp', 'pDetail', 'pAVenir'].forEach(x => { const el = $(x); if (el) el.style.display = 'none'; });
   const el = $(p); if (el) el.style.display = p === 'pLogin' ? 'flex' : 'block';
 };
+const getEtat = (r) => (r && r.etat) ? r.etat : (r && r.active ? 'actif' : 'inactif');
 
 function escapeHtml(s) {
   if (s == null) return '';
@@ -408,6 +409,29 @@ function imprimerCourses() {
   setTimeout(() => win.print(), 500);
 }
 
+// --- NOUVEAUTES A VENIR ---
+async function showAVenir() {
+  showPage('pAVenir');
+  if (!recettes.length) await loadRecettesData();
+  const aVenir = recettes.filter(r => getEtat(r) === 'a_venir');
+  const grid = $('aVenirGrid');
+  if (!aVenir.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="eicon">⏰</div><p>Aucune nouveauté annoncée pour le moment.<br>Revenez bientôt — Alizée prépare de nouvelles recettes !</p></div>`;
+    return;
+  }
+  grid.innerHTML = aVenir.map(rec => `
+    <div class="pcard" style="cursor:default">
+      ${rec.photo_url ? `<img class="pimg" src="${escapeHtml(rec.photo_url)}" alt="${escapeHtml(rec.nom_du_plat)}" loading="lazy">` : `<div class="pph">🍽️</div>`}
+      <div class="pinfo">
+        <div class="ptop">
+          <span class="pcat ${catCls(rec.categorie)}">${escapeHtml(rec.categorie || 'Plat')}</span>
+        </div>
+        <div class="pnom">${escapeHtml(rec.nom_du_plat)}</div>
+        <div style="font-size:11px;font-style:italic;color:var(--txl);margin-top:6px">Disponible prochainement</div>
+      </div>
+    </div>`).join('');
+}
+
 // --- APP COMMANDE (selection plats) ---
 async function showApp() {
   sel = []; semSel = null; crenSel = null;
@@ -520,7 +544,7 @@ async function affCreneaux(sem) {
 function renderPlats() {
   const g = $('pgrid');
   g.innerHTML = '';
-  const actifs = recettes.filter(r => r.active);
+  const actifs = recettes.filter(r => getEtat(r) === 'actif');
   actifs.forEach(rec => {
     const card = document.createElement('div');
     card.className = 'pcard';
@@ -699,6 +723,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   $('btnRetourDash2').addEventListener('click', () => showPage('pDash'));
   $('cardCommander').addEventListener('click', showApp);
   $('cardMesCommandes').addEventListener('click', showMesCommandes);
+  $('cardAVenir').addEventListener('click', showAVenir);
+  $('btnRetourFromAVenir').addEventListener('click', () => showPage('pDash'));
+  $('btnLogoutAVenir').addEventListener('click', logout);
   $('bval').addEventListener('click', valider);
   $('iEmail').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
   $('iMdp').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });

@@ -397,8 +397,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
         </select>
       </div>
       <div class="fg"><label>Frigo (jours)</label><input id="rFrigo" type="number" min="1" max="10" value="5"></div>
-      <div class="fg"><label>Active ?</label>
-        <select id="rActif"><option value="true">Oui</option><option value="false">Non</option></select>
+      <div class="fg"><label>Statut</label>
+        <select id="rEtat">
+          <option value="actif">✓ Actif (visible et commandable)</option>
+          <option value="a_venir">⏳ À venir (avant-première client)</option>
+          <option value="inactif">✗ Inactif (cache totalement)</option>
+        </select>
       </div>
       <div class="fg" style="grid-column:1/-1"><label>Instructions preparation</label><textarea id="rPrep" rows="3" placeholder="Etapes de preparation pour les salaries..."></textarea></div>
       <div class="fg" style="grid-column:1/-1"><label>Instructions rechauffage</label><textarea id="rRechauffage" rows="2" placeholder="Comment rechauffer ce plat..."></textarea></div>

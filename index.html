@@ -32,7 +32,8 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
 .main{padding:36px 32px 60px;max-width:1100px;margin:0 auto}
 .welcome{font-family:'Playfair Display',serif;font-size:28px;font-weight:600;margin-bottom:8px}
 .welcome-sub{font-size:15px;color:var(--txl);margin-bottom:32px}
-.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:40px}
+.dash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:40px}
+@media(max-width:900px){.dash-grid{grid-template-columns:1fr 1fr}}
 .dash-card{background:var(--wh);border-radius:var(--r);padding:28px;box-shadow:var(--sh);cursor:pointer;transition:transform .2s,box-shadow .2s;border:2px solid transparent}
 .dash-card:hover{transform:translateY(-3px);box-shadow:0 8px 32px rgba(0,0,0,.12)}
 .dash-card.primary{background:var(--vert);color:#fff}
@@ -268,6 +269,11 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
         <h3>Mes commandes</h3>
         <p>Consultez vos commandes passees, votre liste de courses et vos conseils de rechauffage.</p>
       </div>
+      <div class="dash-card" id="cardAVenir">
+        <div class="dash-icon">⏰</div>
+        <h3>Nouveautés à venir</h3>
+        <p>Découvrez en avant-première les prochains plats qui arrivent à la carte.</p>
+      </div>
     </div>
     <div id="dashCommandes"></div>
   </div>
@@ -314,6 +320,26 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
       <span id="bcren">Choisissez une semaine et un creneau</span>
     </div>
     <button class="bval" id="bval" disabled>Valider ma semaine</button>
+  </div>
+</div>
+
+<!-- NOUVEAUTES A VENIR -->
+<div id="pAVenir" style="display:none">
+  <header>
+    <div class="logo">Le Goût du Lien</div>
+    <div class="hbtns">
+      <button class="hbtn" id="btnRetourFromAVenir">← Tableau de bord</button>
+      <button class="hbtn" id="btnLogoutAVenir">Deconnexion</button>
+    </div>
+  </header>
+  <div class="main">
+    <div class="welcome-hero">
+      <svg class="wleaf" viewBox="0 0 100 100" fill="#fff"><path d="M50 8 Q70 30 60 55 Q80 60 78 88 Q60 78 55 55 Q35 50 22 70 Q22 45 40 38 Q35 18 50 8"/></svg>
+      <div class="wdate">Avant-première</div>
+      <div class="wtit">Nouveautés à venir</div>
+      <div class="wsub">Les prochains plats que vous pourrez bientôt commander</div>
+    </div>
+    <div class="pgrid" id="aVenirGrid"></div>
   </div>
 </div>
 

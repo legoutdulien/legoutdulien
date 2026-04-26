@@ -133,6 +133,7 @@ function semLabel(off = 0) {
   return `${mon.toLocaleDateString('fr-FR', o)} – ${fri.toLocaleDateString('fr-FR', o)}`;
 }
 function getRecette(id) { return DATA.recettes.find(r => r.id === id); }
+function getEtat(r) { return (r && r.etat) ? r.etat : (r && r.active ? 'actif' : 'inactif'); }
 function getClient(id) { return DATA.clients.find(c => c.id === id); }
 function getSalarie(id) { return DATA.salaries.find(s => s.id === id); }
 function platsOfCommande(c) {
@@ -296,7 +297,7 @@ function editerCommande(id) {
   $('cmdStatut').value = cmd.statut || 'En attente de paiement';
 
   const selPlatIds = [cmd.plat_1_id, cmd.plat_2_id, cmd.plat_3_id, cmd.plat_4_id, cmd.plat_5_id].filter(Boolean);
-  const platsActifs = DATA.recettes.filter(r => r.active);
+  const platsActifs = DATA.recettes.filter(r => getEtat(r) === 'actif');
   $('platSelectGrid').innerHTML = platsActifs.map(r => {
     const sel = selPlatIds.includes(r.id) ? ' sel' : '';
     return `<div class="plat-opt${sel}" data-id="${r.id}">${escapeHtml(r.nom_du_plat)}</div>`;
@@ -627,13 +628,18 @@ function renderStats() {
 function renderRecettes() {
   const recGrid = DATA.recettes.map(r => {
     const nbIngs = DATA.ri.filter(x => x.recette_id === r.id).length;
-    return `<div class="rec-card${r.active ? '' : ' inactif'}" data-id="${r.id}">
+    const etat = getEtat(r);
+    const badgeStyle = etat === 'actif' ? 'background:#e8f5e9;color:#2e7d32'
+                     : etat === 'a_venir' ? 'background:#fff8e1;color:#f57f17'
+                     : 'background:#ffebee;color:#c62828';
+    const badgeTxt = etat === 'actif' ? '✓ Actif' : etat === 'a_venir' ? '⏳ A venir' : '✗ Inactif';
+    return `<div class="rec-card${etat === 'actif' ? '' : ' inactif'}" data-id="${r.id}">
       ${r.photo_url ? `<img src="${escapeHtml(r.photo_url)}" style="width:100%;height:130px;object-fit:cover;display:block">` : `<div class="rec-img">🍽️</div>`}
       <div class="rec-body">
         <div class="rec-nom">${escapeHtml(r.nom_du_plat)}</div>
         <div class="rec-cat">${escapeHtml(r.categorie || '–')} · ${nbIngs} ingr. · ${r.frigo_en_jours || '?'}j frigo</div>
         <div class="rec-footer">
-          <button data-act="toggle-rec" data-id="${r.id}" data-active="${r.active}" style="padding:4px 10px;border-radius:16px;font-size:11px;font-weight:500;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;background:${r.active ? '#e8f5e9' : '#ffebee'};color:${r.active ? '#2e7d32' : '#c62828'}">${r.active ? '✓ Actif' : '✗ Inactif'}</button>
+          <button data-act="cycle-rec" data-id="${r.id}" data-etat="${etat}" title="Clic pour changer le statut" style="padding:4px 10px;border-radius:16px;font-size:11px;font-weight:500;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;${badgeStyle}">${badgeTxt}</button>
           <button class="btn btn-ghost btn-sm" data-act="dup-rec" data-id="${r.id}" title="Dupliquer">📋</button>
           <button class="btn btn-danger btn-sm" data-act="del-rec" data-id="${r.id}">🗑️</button>
         </div>
@@ -656,9 +662,9 @@ function renderRecettes() {
       editerRecette(c.dataset.id);
     });
   });
-  $('content').querySelectorAll('[data-act="toggle-rec"]').forEach(b => b.addEventListener('click', (e) => {
+  $('content').querySelectorAll('[data-act="cycle-rec"]').forEach(b => b.addEventListener('click', (e) => {
     e.stopPropagation();
-    toggleRecette(b.dataset.id, b.dataset.active === 'true');
+    cycleEtatRecette(b.dataset.id, b.dataset.etat);
   }));
   $('content').querySelectorAll('[data-act="del-rec"]').forEach(b => b.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -679,7 +685,7 @@ function dupliquerRecette(id) {
   $('rPrep').value = rec.instructions_preparation || '';
   $('rRechauffage').value = rec.instructions_rechauffage || '';
   $('rCongelation').value = rec.congelation || '';
-  $('rActif').value = 'true';
+  $('rEtat').value = 'actif';
   $('rPhoto').value = rec.photo_url || '';
   $('rPhotoPreview').innerHTML = rec.photo_url ? `<img src="${escapeHtml(rec.photo_url)}" style="width:100%;height:100%;object-fit:cover">` : '🍽️';
   $('rPhotoNom').textContent = rec.photo_url ? 'Photo dupliquee — modifiable' : 'Aucune photo';
@@ -744,12 +750,14 @@ function promptRayonsPourNouveauxIngredients(newIngs) {
   });
 }
 
-async function toggleRecette(id, isActive) {
-  const newVal = !isActive;
-  const { error } = await sb.from('recettes').update({ active: newVal }).eq('id', id);
+async function cycleEtatRecette(id, currentEtat) {
+  const next = { actif: 'a_venir', a_venir: 'inactif', inactif: 'actif' }[currentEtat] || 'actif';
+  const { error } = await sb.from('recettes').update({ etat: next, active: next === 'actif' }).eq('id', id);
   if (error) { toast('Erreur: ' + error.message); return; }
-  const r = getRecette(id); if (r) r.active = newVal;
-  toast(newVal ? '✅ Recette activee' : 'Recette desactivee'); renderRecettes();
+  const r = getRecette(id); if (r) { r.etat = next; r.active = (next === 'actif'); }
+  const label = next === 'actif' ? '✓ Actif' : next === 'a_venir' ? '⏳ A venir' : '✗ Inactif';
+  toast(`Statut: ${label}`);
+  renderRecettes();
 }
 
 async function supprimerRecette(id) {
@@ -825,7 +833,7 @@ function nouvelleRecette() {
   $('btnUpload').textContent = '📷 Choisir une photo'; $('btnUpload').disabled = false;
   $('rCat').value = 'Viande';
   $('rFrigo').value = '5';
-  $('rActif').value = 'true';
+  $('rEtat').value = 'actif';
   $('modalRecTit').textContent = 'Nouvelle recette';
   ingBuffer = []; renderIngRows(); openModal('modalRecette');
 }
@@ -839,7 +847,7 @@ function editerRecette(id) {
   $('rPrep').value = rec.instructions_preparation || '';
   $('rRechauffage').value = rec.instructions_rechauffage || '';
   $('rCongelation').value = rec.congelation || '';
-  $('rActif').value = rec.active ? 'true' : 'false';
+  $('rEtat').value = getEtat(rec);
   $('modalRecTit').textContent = 'Modifier · ' + (rec.nom_du_plat || 'recette');
   $('rPhoto').value = rec.photo_url || '';
   $('rPhotoPreview').innerHTML = rec.photo_url ? `<img src="${escapeHtml(rec.photo_url)}" style="width:100%;height:100%;object-fit:cover">` : '🍽️';
@@ -984,6 +992,7 @@ async function saveRecette() {
 
   try {
     const photoUrl = ($('rPhoto').value || '').trim();
+    const etat = $('rEtat').value;
     const payload = {
       nom_du_plat: nom,
       categorie: $('rCat').value,
@@ -992,7 +1001,8 @@ async function saveRecette() {
       instructions_rechauffage: $('rRechauffage').value,
       congelation: $('rCongelation').value,
       photo_url: photoUrl || null,
-      active: $('rActif').value === 'true'
+      etat,
+      active: etat === 'actif'
     };
     let recId = id;
     if (id) {
