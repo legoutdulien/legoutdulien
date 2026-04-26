@@ -139,6 +139,21 @@ async function loadDash() {
   showPage('pDash');
   await loadFavoris();
   await chargerMesCommandes();
+  setupRealtimeNotifs();
+}
+
+let realtimeChannel = null;
+function setupRealtimeNotifs() {
+  if (realtimeChannel || !clientProfile) return;
+  realtimeChannel = sb.channel(`client-${clientProfile.id}`)
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'commandes', filter: `client_id=eq.${clientProfile.id}` }, (payload) => {
+      const old = payload.old || {}, neu = payload.new || {};
+      if (neu.statut === 'Confirmée' && old.statut !== 'Confirmée') {
+        showToast('🎉 Votre commande a ete confirmee par Alizee !', 'ok');
+        chargerMesCommandes();
+      }
+    })
+    .subscribe();
 }
 
 async function chargerMesCommandes() {

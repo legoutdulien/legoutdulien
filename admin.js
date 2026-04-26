@@ -100,6 +100,7 @@ async function chargerTout() {
     DATA.creneaux = crenR.data || [];
 
     populateUnitDatalist();
+    setupRealtimeNotifs();
     $('ariaFab').style.display = 'flex';
     const actifs = DATA.recettes.filter(r => r.active).length;
     $('topStat').textContent = `${DATA.commandes.length} commandes · ${actifs} plats actifs`;
@@ -164,6 +165,25 @@ function populateUnitDatalist() {
   if (!dl) return;
   const units = [...new Set(DATA.ingredients.map(i => i.unite_par_defaut).filter(u => u && u !== 'Unité par défaut'))].sort();
   dl.innerHTML = units.map(u => `<option value="${escapeHtml(u)}">`).join('');
+}
+
+let adminRealtimeChannel = null;
+function setupRealtimeNotifs() {
+  if (adminRealtimeChannel) return;
+  adminRealtimeChannel = sb.channel('admin-orders')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'commandes' }, async (payload) => {
+      // Recharge les donnees pour avoir la nouvelle commande dans DATA
+      const { data } = await sb.from('commandes').select('*').order('semaine_du', { ascending: false });
+      if (data) DATA.commandes = data;
+      const cli = payload.new && payload.new.client_id ? getClient(payload.new.client_id) : null;
+      const nom = cli ? cli.nom : 'un client';
+      toast(`🔔 Nouvelle commande de ${nom} !`);
+      // Re-render selon onglet courant
+      const activeTab = document.querySelector('.tab.active')?.dataset.tab;
+      if (activeTab === 'planning') renderPlanning();
+      if (activeTab === 'stats') renderStats();
+    })
+    .subscribe();
 }
 
 // Vue active dans l'onglet Planning : 'liste' (hebdo) ou 'mois' (calendrier)

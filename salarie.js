@@ -21,6 +21,16 @@ const hideLoad = () => $('lov').style.display = 'none';
 const showErr = (msg) => { const e = $('lerr'); e.textContent = msg; e.style.display = 'block'; };
 const hideErr = () => { $('lerr').style.display = 'none'; };
 
+function showToast(msg, type) {
+  const t = document.createElement('div');
+  t.style.cssText = "position:fixed;bottom:30px;left:50%;transform:translateX(-50%);padding:12px 22px;border-radius:10px;font-size:14px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.25);color:#fff;font-family:'DM Sans',sans-serif;transition:opacity .3s;max-width:90vw;text-align:center";
+  t.style.background = type === 'ok' ? '#3d6b4f' : type === 'err' ? '#c62828' : '#2c2c2c';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.style.opacity = '0', 3500);
+  setTimeout(() => t.remove(), 4000);
+}
+
 // --- helpers semaines ---
 function getLundis() {
   const res = [];
@@ -116,11 +126,43 @@ async function initSalarie() {
 
     initCalSelects();
     chargerMissions();
+    setupRealtimeNotifs();
   } catch (e) {
     $('missionsDiv').innerHTML = `<p style="color:red;padding:20px">Erreur: ${e.message}</p>`;
   } finally {
     hideLoad();
   }
+}
+
+let realtimeChannel = null;
+function setupRealtimeNotifs() {
+  if (realtimeChannel || !salarieProfile) return;
+  realtimeChannel = sb.channel(`partenaire-${salarieProfile.id}`)
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'commandes' }, async (payload) => {
+      const old = payload.old || {}, neu = payload.new || {};
+      // Si nouvelle assignation pour moi
+      if (neu.assigne_a_id === salarieProfile.id && old.assigne_a_id !== salarieProfile.id) {
+        showToast('🔔 Nouvelle mission assignee !', 'ok');
+        await refetchMissions();
+      }
+    })
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'commandes' }, async (payload) => {
+      if (payload.new && payload.new.assigne_a_id === salarieProfile.id) {
+        showToast('🔔 Nouvelle mission assignee !', 'ok');
+        await refetchMissions();
+      }
+    })
+    .subscribe();
+}
+
+async function refetchMissions() {
+  if (!salarieProfile) return;
+  const { data } = await sb.from('commandes')
+    .select(`id, semaine_du, creneau, statut, plat_1_id, plat_2_id, plat_3_id, plat_4_id, plat_5_id, nombre_portions, assigne_a_id, client:clients(id, nom, email, telephone, adresse, notes)`)
+    .eq('assigne_a_id', salarieProfile.id)
+    .order('semaine_du', { ascending: false });
+  allCommandesAssignees = data || [];
+  chargerMissions();
 }
 
 // --- rendu missions ---
