@@ -410,10 +410,24 @@ function imprimerCourses() {
 }
 
 // --- NOUVEAUTES A VENIR ---
+let aVenirSearch = '';
+let aVenirCatFilter = 'all';
+
 async function showAVenir() {
   showPage('pAVenir');
   if (!recettes.length) await loadRecettesData();
-  const aVenir = recettes.filter(r => getEtat(r) === 'a_venir');
+  renderAVenirGrid();
+}
+
+function renderAVenirGrid() {
+  renderPlatChips('aVenirCatChips', aVenirCatFilter, (c) => { aVenirCatFilter = c; renderAVenirGrid(); });
+  const search = aVenirSearch.toLowerCase().trim();
+  const aVenir = recettes.filter(r => {
+    if (getEtat(r) !== 'a_venir') return false;
+    if (aVenirCatFilter !== 'all' && r.categorie !== aVenirCatFilter) return false;
+    if (search && !(r.nom_du_plat || '').toLowerCase().includes(search)) return false;
+    return true;
+  });
   const grid = $('aVenirGrid');
   if (!aVenir.length) {
     grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="eicon">⏰</div><p>Aucune nouveauté annoncée pour le moment.<br>Revenez bientôt — Alizée prépare de nouvelles recettes !</p></div>`;
@@ -541,10 +555,34 @@ async function affCreneaux(sem) {
   });
 }
 
+const CATS_FIXED = ['Viande', 'Poisson', 'Végé', 'Poulet', 'Pâtes', 'Cuisine du monde'];
+let platSearch = '';
+let platCatFilter = 'all';
+
+function renderPlatChips(containerId, current, onSelect) {
+  const c = $(containerId); if (!c) return;
+  const chipCss = (active) => active
+    ? 'background:var(--vp);border-color:var(--vert);color:var(--vert);font-weight:600'
+    : 'background:var(--bg);border-color:var(--bgd);color:var(--txl)';
+  c.innerHTML = ['all', ...CATS_FIXED].map(cat => `<button class="cat-chip" data-cat="${escapeHtml(cat)}" style="padding:6px 13px;border:1.5px solid;border-radius:18px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:.15s;${chipCss(cat === current)}">${cat === 'all' ? 'Tous' : escapeHtml(cat)}</button>`).join('');
+  c.querySelectorAll('.cat-chip').forEach(b => b.addEventListener('click', () => onSelect(b.dataset.cat)));
+}
+
 function renderPlats() {
   const g = $('pgrid');
   g.innerHTML = '';
-  const actifs = recettes.filter(r => getEtat(r) === 'actif');
+  renderPlatChips('platCatChips', platCatFilter, (c) => { platCatFilter = c; renderPlats(); });
+  const search = platSearch.toLowerCase().trim();
+  const actifs = recettes.filter(r => {
+    if (getEtat(r) !== 'actif') return false;
+    if (platCatFilter !== 'all' && r.categorie !== platCatFilter) return false;
+    if (search && !(r.nom_du_plat || '').toLowerCase().includes(search)) return false;
+    return true;
+  });
+  if (!actifs.length) {
+    g.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="eicon">🔍</div><p>Aucun plat ne correspond a votre recherche.</p></div>`;
+    return;
+  }
   actifs.forEach(rec => {
     const card = document.createElement('div');
     card.className = 'pcard';
@@ -726,6 +764,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   $('cardAVenir').addEventListener('click', showAVenir);
   $('btnRetourFromAVenir').addEventListener('click', () => showPage('pDash'));
   $('btnLogoutAVenir').addEventListener('click', logout);
+  // Recherche plats (selection commande)
+  const ps = $('platSearch'); if (ps) ps.addEventListener('input', (e) => { platSearch = e.target.value; renderPlats(); setTimeout(() => { ps.focus(); ps.setSelectionRange(ps.value.length, ps.value.length); }, 0); });
+  // Recherche plats (page Nouveautes a venir)
+  const avs = $('aVenirSearch'); if (avs) avs.addEventListener('input', (e) => { aVenirSearch = e.target.value; renderAVenirGrid(); setTimeout(() => { avs.focus(); avs.setSelectionRange(avs.value.length, avs.value.length); }, 0); });
   $('bval').addEventListener('click', valider);
   $('iEmail').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
   $('iMdp').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });

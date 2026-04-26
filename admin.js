@@ -22,6 +22,7 @@ function escapeHtml(s) {
   if (s == null) return '';
   return String(s).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
 }
+const escapeAttr = escapeHtml;
 function toast(msg) {
   const t = $('toast'); t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2600);
@@ -625,14 +626,27 @@ function renderStats() {
 }
 
 // --- RECETTES ---
+const CATS_FIXED = ['Viande', 'Poisson', 'Végé', 'Poulet', 'Pâtes', 'Cuisine du monde'];
+let recetteSearch = '';
+let recetteCatFilter = 'all';
+let recetteEtatFilter = 'all';
+
 function renderRecettes() {
-  const recGrid = DATA.recettes.map(r => {
+  const search = recetteSearch.toLowerCase().trim();
+  const filtered = DATA.recettes.filter(r => {
+    if (recetteCatFilter !== 'all' && r.categorie !== recetteCatFilter) return false;
+    if (recetteEtatFilter !== 'all' && getEtat(r) !== recetteEtatFilter) return false;
+    if (search && !(r.nom_du_plat || '').toLowerCase().includes(search)) return false;
+    return true;
+  });
+  const recGrid = filtered.map(r => {
     const nbIngs = DATA.ri.filter(x => x.recette_id === r.id).length;
     const etat = getEtat(r);
     const badgeStyle = etat === 'actif' ? 'background:#e8f5e9;color:#2e7d32'
                      : etat === 'a_venir' ? 'background:#fff8e1;color:#f57f17'
+                     : etat === 'en_stock' ? 'background:#e8eaf6;color:#3949ab'
                      : 'background:#ffebee;color:#c62828';
-    const badgeTxt = etat === 'actif' ? '✓ Actif' : etat === 'a_venir' ? '⏳ A venir' : '✗ Inactif';
+    const badgeTxt = etat === 'actif' ? '✓ Actif' : etat === 'a_venir' ? '⏳ A venir' : etat === 'en_stock' ? '📦 En stock' : '✗ Inactif';
     return `<div class="rec-card${etat === 'actif' ? '' : ' inactif'}" data-id="${r.id}">
       ${r.photo_url ? `<img src="${escapeHtml(r.photo_url)}" style="width:100%;height:130px;object-fit:cover;display:block">` : `<div class="rec-img">🍽️</div>`}
       <div class="rec-body">
@@ -647,14 +661,42 @@ function renderRecettes() {
     </div>`;
   }).join('');
 
+  const chipCss = (active) => active
+    ? 'background:var(--vp);border-color:var(--v3);color:var(--v2);font-weight:600'
+    : 'background:var(--bgc);border-color:var(--bgd);color:var(--txm)';
+  const catChips = ['all', ...CATS_FIXED].map(c => `<button class="rec-cat-chip" data-cat="${escapeHtml(c)}" style="padding:5px 12px;border:1.5px solid;border-radius:16px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:.15s;${chipCss(c === recetteCatFilter)}">${c === 'all' ? 'Toutes' : escapeHtml(c)}</button>`).join('');
+  const etatChips = [['all', 'Tous statuts'], ['actif', '✓ Actif'], ['a_venir', '⏳ À venir'], ['en_stock', '📦 En stock'], ['inactif', '✗ Inactif']]
+    .map(([v, l]) => `<button class="rec-etat-chip" data-etat="${v}" style="padding:5px 12px;border:1.5px solid;border-radius:16px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:.15s;${chipCss(v === recetteEtatFilter)}">${escapeHtml(l)}</button>`).join('');
+
   showContent(`<div class="card">
     <div class="card-head">
-      <div class="card-tit">🍽️ Recettes <span>${DATA.recettes.length} plats</span></div>
+      <div class="card-tit">🍽️ Recettes <span>${filtered.length} / ${DATA.recettes.length}</span></div>
       <button class="btn btn-primary" id="btnNewRec">+ Nouvelle recette</button>
     </div>
-    <div class="rec-grid">${recGrid || '<div class="empty"><div class="empty-icon">🍽️</div><div class="empty-txt">Aucune recette</div></div>'}</div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px">
+      <input type="text" id="recSearch" placeholder="🔍 Rechercher un plat..." value="${escapeAttr(recetteSearch)}" style="padding:9px 14px;border:1.5px solid var(--bgd);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;background:var(--wh);color:var(--tx);width:100%">
+      <div style="display:flex;flex-wrap:wrap;gap:6px">${catChips}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">${etatChips}</div>
+    </div>
+    <div class="rec-grid">${recGrid || '<div class="empty"><div class="empty-icon">🍽️</div><div class="empty-txt">Aucune recette ne correspond aux filtres</div></div>'}</div>
   </div>`);
 
+  $('recSearch').addEventListener('input', (e) => {
+    recetteSearch = e.target.value;
+    // re-render uniquement la grille pour ne pas perdre le focus
+    const filtered2 = DATA.recettes.filter(r => {
+      const s = recetteSearch.toLowerCase().trim();
+      if (recetteCatFilter !== 'all' && r.categorie !== recetteCatFilter) return false;
+      if (recetteEtatFilter !== 'all' && getEtat(r) !== recetteEtatFilter) return false;
+      if (s && !(r.nom_du_plat || '').toLowerCase().includes(s)) return false;
+      return true;
+    });
+    // simple : re-render full
+    renderRecettes();
+    setTimeout(() => { const inp = $('recSearch'); if (inp) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); } }, 0);
+  });
+  $('content').querySelectorAll('.rec-cat-chip').forEach(c => c.addEventListener('click', () => { recetteCatFilter = c.dataset.cat; renderRecettes(); }));
+  $('content').querySelectorAll('.rec-etat-chip').forEach(c => c.addEventListener('click', () => { recetteEtatFilter = c.dataset.etat; renderRecettes(); }));
   $('btnNewRec').addEventListener('click', nouvelleRecette);
   $('content').querySelectorAll('.rec-card').forEach(c => {
     c.addEventListener('click', (e) => {
@@ -751,11 +793,11 @@ function promptRayonsPourNouveauxIngredients(newIngs) {
 }
 
 async function cycleEtatRecette(id, currentEtat) {
-  const next = { actif: 'a_venir', a_venir: 'inactif', inactif: 'actif' }[currentEtat] || 'actif';
+  const next = { actif: 'a_venir', a_venir: 'en_stock', en_stock: 'inactif', inactif: 'actif' }[currentEtat] || 'actif';
   const { error } = await sb.from('recettes').update({ etat: next, active: next === 'actif' }).eq('id', id);
   if (error) { toast('Erreur: ' + error.message); return; }
   const r = getRecette(id); if (r) { r.etat = next; r.active = (next === 'actif'); }
-  const label = next === 'actif' ? '✓ Actif' : next === 'a_venir' ? '⏳ A venir' : '✗ Inactif';
+  const label = next === 'actif' ? '✓ Actif' : next === 'a_venir' ? '⏳ A venir' : next === 'en_stock' ? '📦 En stock' : '✗ Inactif';
   toast(`Statut: ${label}`);
   renderRecettes();
 }

@@ -312,6 +312,10 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
       </div>
     </div>
     <div class="stit">Les plats de cette semaine</div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px">
+      <input type="text" id="platSearch" placeholder="🔍 Rechercher un plat..." style="padding:11px 14px;border:1.5px solid var(--bgd);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;background:var(--wh);color:var(--tx);width:100%">
+      <div id="platCatChips" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+    </div>
     <div class="pgrid" id="pgrid"></div>
   </div>
   <div class="barre" id="barre">
@@ -338,6 +342,10 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
       <div class="wdate">Avant-première</div>
       <div class="wtit">Nouveautés à venir</div>
       <div class="wsub">Les prochains plats que vous pourrez bientôt commander</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px">
+      <input type="text" id="aVenirSearch" placeholder="🔍 Rechercher..." style="padding:11px 14px;border:1.5px solid var(--bgd);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;background:var(--wh);color:var(--tx);width:100%">
+      <div id="aVenirCatChips" style="display:flex;flex-wrap:wrap;gap:6px"></div>
     </div>
     <div class="pgrid" id="aVenirGrid"></div>
   </div>
