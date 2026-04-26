@@ -1351,7 +1351,12 @@ function renderCreneaux() {
 // --- ARIA ---
 function toggleAria() {
   const p = $('ariaPanel'); p.classList.toggle('open');
-  if (p.classList.contains('open')) setTimeout(() => $('aInput').focus(), 350);
+  if (p.classList.contains('open')) {
+    setTimeout(() => $('aInput').focus(), 350);
+  } else {
+    // Fermeture du panneau : stoppe la voix si elle parlait
+    stopAriaSpeech();
+  }
 }
 function buildAriaSys() {
   const now = new Date();
@@ -1461,11 +1466,61 @@ function resetAriaConv() {
   addAriaMsg('bot', 'Conversation reinitialisee 🌿 Comment puis-je vous aider ?');
 }
 
+// Etat de la voix : prefere persiste dans localStorage. Par defaut OFF.
+let voiceEnabled = localStorage.getItem('aria-voice-enabled') === '1';
+let ariaSpeaking = false;
+
+function updateVoiceBtn() {
+  const btn = $('aVoice');
+  if (!btn) return;
+  btn.classList.remove('on', 'speaking');
+  if (ariaSpeaking) {
+    btn.classList.add('speaking');
+    btn.textContent = '⏹️';
+    btn.title = 'ARIA est en train de parler — clic pour stopper';
+  } else if (voiceEnabled) {
+    btn.classList.add('on');
+    btn.textContent = '🔊';
+    btn.title = 'Voix activee — clic pour couper';
+  } else {
+    btn.textContent = '🔇';
+    btn.title = 'Voix coupee — clic pour activer';
+  }
+}
+
+function setVoiceEnabled(on) {
+  voiceEnabled = on;
+  localStorage.setItem('aria-voice-enabled', on ? '1' : '0');
+  updateVoiceBtn();
+}
+
+function toggleVoice() {
+  // Si ARIA parle, on stoppe la voix immediatement
+  if (ariaSpeaking) {
+    if (synth) synth.cancel();
+    ariaSpeaking = false;
+    updateVoiceBtn();
+    return;
+  }
+  setVoiceEnabled(!voiceEnabled);
+}
+
+function stopAriaSpeech() {
+  if (synth && ariaSpeaking) synth.cancel();
+  ariaSpeaking = false;
+  updateVoiceBtn();
+}
+
 function speak(text) {
-  if (!synth) return; synth.cancel();
+  if (!voiceEnabled) return;
+  if (!synth) return;
+  synth.cancel();
   const u = new SpeechSynthesisUtterance(text.replace(/\*\*/g, '').replace(/\n/g, ' '));
   u.lang = 'fr-FR'; u.rate = 1.0;
   const fr = synth.getVoices().find(v => v.lang.startsWith('fr')); if (fr) u.voice = fr;
+  u.onstart = () => { ariaSpeaking = true; updateVoiceBtn(); };
+  u.onend = () => { ariaSpeaking = false; updateVoiceBtn(); };
+  u.onerror = () => { ariaSpeaking = false; updateVoiceBtn(); };
   synth.speak(u);
 }
 function toggleMic() {
@@ -1476,7 +1531,13 @@ function toggleMic() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   recognition = new SR(); recognition.lang = 'fr-FR'; recognition.continuous = false; recognition.interimResults = false;
   recognition.onstart = () => { isRec = true; $('aMic').classList.add('rec'); $('aMic').textContent = '⏹️'; };
-  recognition.onresult = e => { $('aInput').value = e.results[0][0].transcript; stopMic(); sendAria(); };
+  recognition.onresult = e => {
+    // Si l'utilisateur parle, on active automatiquement la voix de sortie
+    if (!voiceEnabled) setVoiceEnabled(true);
+    $('aInput').value = e.results[0][0].transcript;
+    stopMic();
+    sendAria();
+  };
   recognition.onerror = recognition.onend = () => stopMic();
   recognition.start();
 }
@@ -1506,6 +1567,8 @@ document.addEventListener('DOMContentLoaded', () => {
   $('ariaReset').addEventListener('click', resetAriaConv);
   $('aSend').addEventListener('click', sendAria);
   $('aMic').addEventListener('click', toggleMic);
+  $('aVoice').addEventListener('click', toggleVoice);
+  updateVoiceBtn();
   $('aInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendAria(); });
   $('aSugs').querySelectorAll('.a-sug').forEach(b => b.addEventListener('click', () => { $('aInput').value = b.textContent.trim(); sendAria(); }));
 

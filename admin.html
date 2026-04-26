@@ -207,6 +207,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
 .a-mic{width:36px;height:36px;background:var(--vp);border:1.5px solid var(--vl);border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;transition:.2s}
 .a-mic.rec{background:linear-gradient(135deg,var(--v2),var(--v3));border-color:var(--v2);animation:micPulse .9s infinite}
 @keyframes micPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.a-voice{width:36px;height:36px;background:var(--bgc);border:1.5px solid var(--bgd);border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;transition:.2s}
+.a-voice:hover{background:var(--bgd)}
+.a-voice.on{background:var(--vp);border-color:var(--vl)}
+.a-voice.speaking{background:linear-gradient(135deg,var(--v2),var(--v3));border-color:var(--v2);color:#fff;animation:micPulse 1.2s infinite}
 .a-reload{width:36px;height:36px;background:var(--bgc);border:1.5px solid var(--bgd);border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;transition:.15s}
 .a-reload:hover{background:var(--vp);border-color:var(--vl)}
 .toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%);background:var(--n2);color:#fff;padding:10px 22px;border-radius:22px;font-size:13px;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.25)}
@@ -357,7 +361,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
     <div class="a-inp-wrap">
       <div class="a-inp-row">
         <input class="a-inp" type="text" id="aInput" placeholder="Posez votre question...">
-        <button class="a-mic" id="aMic">🎤</button>
+        <button class="a-mic" id="aMic" title="Parler a ARIA (micro)">🎤</button>
+        <button class="a-voice" id="aVoice" title="Voix coupee — clic pour activer">🔇</button>
         <button class="a-reload" id="aReload2" title="Actualiser les donnees">🔄</button>
         <button class="a-send" id="aSend" disabled>
           <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
