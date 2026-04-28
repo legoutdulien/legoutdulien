@@ -97,6 +97,7 @@ function catCls(c) {
   if (l.includes('vég') || l.includes('vege')) return 'cv';
   if (l.includes('viande')) return 'cm';
   if (l.includes('poisson')) return 'cp';
+  if (l.includes('post partum')) return 'cpp';
   return 'cd';
 }
 
@@ -681,7 +682,7 @@ async function affCreneaux(sem) {
   });
 }
 
-const CATS_FIXED = ['Viande', 'Poisson', 'Végé', 'Poulet', 'Pâtes', 'Cuisine du monde'];
+const CATS_FIXED = ['Viande', 'Poisson', 'Végé', 'Poulet', 'Pâtes', 'Cuisine du monde', 'Post partum'];
 let platSearch = '';
 let platCatFilter = 'all';
 

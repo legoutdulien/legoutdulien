@@ -703,7 +703,7 @@ function renderStats() {
 }
 
 // --- RECETTES ---
-const CATS_FIXED = ['Viande', 'Poisson', 'Végé', 'Poulet', 'Pâtes', 'Cuisine du monde'];
+const CATS_FIXED = ['Viande', 'Poisson', 'Végé', 'Poulet', 'Pâtes', 'Cuisine du monde', 'Post partum'];
 let recetteSearch = '';
 let recetteCatFilter = 'all';
 let recetteEtatFilter = 'all';
