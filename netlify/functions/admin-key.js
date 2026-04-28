@@ -42,7 +42,7 @@ exports.handler = async (event) => {
       const user = await userRes.json();
 
       const adminRes = await fetch(
-        `${url}/rest/v1/admins_entreprise?user_id=eq.${user.id}&select=entreprise_id,nom,entreprises(plan,nom_marque,active)`,
+        `${url}/rest/v1/admins_entreprise?user_id=eq.${user.id}&select=entreprise_id,nom,entreprises(plan,nom_marque,active,couleur_principale,couleur_secondaire,logo_url)`,
         { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
       );
       const admins = await adminRes.json();
@@ -63,6 +63,9 @@ exports.handler = async (event) => {
           nom: admins[0].nom,
           plan: ent.plan || 'standard',
           nom_marque: ent.nom_marque || '',
+          couleur_principale: ent.couleur_principale || null,
+          couleur_secondaire: ent.couleur_secondaire || null,
+          logo_url: ent.logo_url || null,
           user_id: user.id,
           email: user.email
         })

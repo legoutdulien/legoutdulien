@@ -14,7 +14,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
-  --v1:#1a3d28;--v2:#2d5a3d;--v3:#4a7c59;--v4:#6fa882;--vp:#e8f0e9;--vl:#c8dcc8;--va:#a8c8a8;
+  --brand-primary:#2d5a3d;
+  --brand-secondary:#4a7c59;
+  --v1:color-mix(in srgb, var(--brand-primary) 75%, #000);
+  --v2:var(--brand-primary);
+  --v3:var(--brand-secondary);
+  --v4:color-mix(in srgb, var(--brand-secondary) 70%, #fff);
+  --vp:color-mix(in srgb, var(--brand-secondary) 12%, #fff);
+  --vl:color-mix(in srgb, var(--brand-secondary) 30%, #fff);
+  --va:color-mix(in srgb, var(--brand-secondary) 55%, #fff);
   --n1:#0a0a08;--n2:#1a1a16;--n3:#2d2d26;
   --bg:#f6f5f0;--bgc:#eeede6;--bgd:#e2e1d8;
   --tx:#18180f;--txm:#4a4a3a;--txl:#8a8a72;
@@ -24,17 +32,11 @@
 }
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);height:100vh;display:flex;flex-direction:column;overflow:hidden;font-size:14px}
-#pLogin{flex:1;display:flex;align-items:center;justify-content:center;background:var(--n1);background-image:radial-gradient(ellipse 60% 70% at 15% 50%,rgba(45,90,61,.4),transparent),radial-gradient(ellipse 40% 50% at 85% 20%,rgba(74,124,89,.2),transparent);padding:20px}
-.lcard{background:rgba(255,255,255,.04);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.09);border-radius:28px;padding:52px 44px;width:100%;max-width:420px;text-align:center}
-.llogo{width:72px;height:72px;margin:0 auto 24px;background:linear-gradient(135deg,var(--v2),var(--v3));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 8px 32px rgba(45,90,61,.4)}
-.ltit{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;color:#fff;letter-spacing:3px;margin-bottom:6px}
-.lsub{font-size:12px;color:rgba(255,255,255,.3);letter-spacing:1px;margin-bottom:40px;text-transform:uppercase}
-.li{width:100%;padding:14px 18px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;color:#fff;outline:none;margin-bottom:12px;transition:.2s}
-.li:focus{border-color:rgba(74,124,89,.6);background:rgba(255,255,255,.09)}
-.li::placeholder{color:rgba(255,255,255,.2)}
-.lb{width:100%;padding:15px;background:linear-gradient(135deg,var(--v2),var(--v3));color:#fff;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;letter-spacing:.5px;transition:.2s}
-.lb:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(45,90,61,.4)}
-.lerr{color:#ff7070;font-size:13px;margin-top:12px;display:none}
+#pLogin{flex:1;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:20px}
+.lcard{background:var(--wh);border:1px solid var(--bgd);border-radius:20px;padding:44px 36px;width:100%;max-width:380px;text-align:center;box-shadow:var(--sh)}
+.ltit{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:400;color:var(--tx);letter-spacing:.5px;margin-bottom:6px}
+.lsub{font-size:12px;color:var(--txl);letter-spacing:.3px;margin-bottom:24px}
+.lerr{color:#c62828;font-size:13px;margin-top:12px;display:none}
 #pApp{display:none;flex-direction:column;height:100%}
 .topbar{background:var(--n1);height:56px;padding:0 28px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.05)}
 .brand{display:flex;align-items:center;gap:12px}

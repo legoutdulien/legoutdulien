@@ -986,8 +986,8 @@ function applyBranding(b) {
     const note = document.querySelector('#pLogin .lcard > div[style*="margin-top:20px"]');
     if (note) note.textContent = `Probleme ? Contactez ${b.nom_contact}.`;
   }
-  if (b.couleur_principale) document.documentElement.style.setProperty('--vert', b.couleur_principale);
-  if (b.couleur_secondaire) document.documentElement.style.setProperty('--vc', b.couleur_secondaire);
+  if (b.couleur_principale) document.documentElement.style.setProperty('--brand-primary', b.couleur_principale);
+  if (b.couleur_secondaire) document.documentElement.style.setProperty('--brand-secondary', b.couleur_secondaire);
   if (b.logo_url) {
     const llogo = document.querySelector('#pLogin .llogo');
     if (llogo && !document.getElementById('brandingLogoImg')) {

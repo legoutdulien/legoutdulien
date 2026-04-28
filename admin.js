@@ -110,11 +110,21 @@ async function loadAdminFromSession() {
     CURRENT_PLAN = cfg.plan || 'standard';
     document.body.classList.toggle('plan-founder', isFounder());
     document.body.classList.toggle('plan-standard', !isFounder());
-    // Branding immediat (titre + nom) avant le full load
+    // Branding immediat (titre + nom + couleurs + logo) avant le full load
     if (cfg.nom_marque) {
       document.title = cfg.nom_marque + ' · Admin';
       const sTit = $('splashTitle'); if (sTit) sTit.textContent = cfg.nom_marque;
       const tNom = $('topbarBrandName'); if (tNom) tNom.textContent = cfg.nom_marque;
+    }
+    if (cfg.couleur_principale) document.documentElement.style.setProperty('--brand-primary', cfg.couleur_principale);
+    if (cfg.couleur_secondaire) document.documentElement.style.setProperty('--brand-secondary', cfg.couleur_secondaire);
+    if (cfg.logo_url) {
+      const sImg = $('splashLogoImg');
+      if (sImg) { sImg.src = cfg.logo_url; sImg.style.display = 'block'; }
+      const tImg = $('topbarLogoImg');
+      const tEmoji = $('topbarLogoEmoji');
+      if (tImg) { tImg.src = cfg.logo_url; tImg.style.display = 'block'; }
+      if (tEmoji) tEmoji.style.display = 'none';
     }
     sb = window.supabase.createClient(SB_URL, SB_SERVICE_KEY, {
       auth: { persistSession: false, autoRefreshToken: false }
@@ -1602,6 +1612,8 @@ function applyEntrepriseBranding() {
     const sImg = $('splashLogoImg');
     if (sImg) { sImg.src = e.logo_url; sImg.style.display = 'block'; }
   }
+  if (e.couleur_principale) document.documentElement.style.setProperty('--brand-primary', e.couleur_principale);
+  if (e.couleur_secondaire) document.documentElement.style.setProperty('--brand-secondary', e.couleur_secondaire);
 }
 
 async function renderParametres() {
@@ -1733,6 +1745,8 @@ async function saveParametres() {
     const { error } = await sb.from('entreprises').update(payload).eq('id', CURRENT_ENTREPRISE_ID);
     if (error) throw error;
     Object.assign(getCurrentEntreprise(), payload);
+    // Applique tout de suite le nouveau branding (nom + logo + couleurs)
+    applyEntrepriseBranding();
     $('prmStatus').textContent = '✅ Enregistré';
     toast('✅ Paramètres mis à jour');
     setTimeout(() => { $('prmStatus').textContent = ''; }, 3000);
