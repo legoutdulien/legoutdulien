@@ -41,7 +41,7 @@ async function checkPlanLimit(kind, label) {
 
 const STORAGE_BUCKET = 'photos-recettes';
 
-const DATA = { commandes: [], recettes: [], ri: [], clients: [], salaries: [], ingredients: [], creneaux: [], creneauxTemplate: [], entreprises: [] };
+const DATA = { commandes: [], recettes: [], ri: [], clients: [], salaries: [], ingredients: [], creneaux: [], creneauxTemplate: [], entreprises: [], forfaits: [] };
 const JOURS_ORDER = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
 const JMAP_FULL = { Lundi: 0, Mardi: 1, Mercredi: 2, Jeudi: 3, Vendredi: 4, Samedi: 5, Dimanche: 6 };
 
@@ -152,7 +152,7 @@ function scoped(q) {
 
 async function chargerTout() {
   try {
-    const [cmdR, recR, cliR, salR, ingR, crenR, ctR, entR] = await Promise.all([
+    const [cmdR, recR, cliR, salR, ingR, crenR, ctR, entR, forfR] = await Promise.all([
       scoped(sb.from('commandes').select('*')).order('semaine_du', { ascending: false }),
       scoped(sb.from('recettes').select('*')).order('nom_du_plat', { ascending: true }),
       scoped(sb.from('clients').select('*')).order('nom', { ascending: true }),
@@ -163,7 +163,8 @@ async function chargerTout() {
       // Founder voit toutes les entreprises (super-admin), sinon seulement la sienne
       isFounder()
         ? sb.from('entreprises').select('*').order('nom_marque', { ascending: true })
-        : sb.from('entreprises').select('*').eq('id', CURRENT_ENTREPRISE_ID)
+        : sb.from('entreprises').select('*').eq('id', CURRENT_ENTREPRISE_ID),
+      scoped(sb.from('forfaits').select('*')).order('ordre', { ascending: true })
     ]);
     if (cmdR.error) throw cmdR.error;
     if (recR.error) throw recR.error;
@@ -180,6 +181,7 @@ async function chargerTout() {
     DATA.creneaux = crenR.data || [];
     DATA.creneauxTemplate = ctR.data || [];
     DATA.entreprises = entR.data || [];
+    DATA.forfaits = (forfR && forfR.data) || [];
 
     // recettes_ingredients : pas de colonne entreprise_id, on filtre via les recettes chargees
     const recIds = new Set(DATA.recettes.map(r => r.id));
@@ -647,8 +649,9 @@ function renderStats() {
   // KPIs
   const cmdConfMois = DATA.commandes.filter(c => inMonth(c, thisMonthIso) && isConfirme(c));
   const cmdConfPrev = DATA.commandes.filter(c => inMonth(c, prevMonthIso) && isConfirme(c));
-  const caMois = cmdConfMois.length * PRIX_PRESTATION;
-  const caPrev = cmdConfPrev.length * PRIX_PRESTATION;
+  const sumMontant = (cmds) => cmds.reduce((sum, c) => sum + Number(c.montant ?? PRIX_PRESTATION), 0);
+  const caMois = sumMontant(cmdConfMois);
+  const caPrev = sumMontant(cmdConfPrev);
   let deltaPct = 0, deltaSym = '→';
   if (caPrev > 0) {
     deltaPct = Math.round((caMois - caPrev) / caPrev * 100);
@@ -677,14 +680,16 @@ function renderStats() {
     .map(([id, n]) => ({ rec: getRecette(id), n }))
     .filter(x => x.rec);
 
-  // Top 3 clientes (toutes commandes confondues)
-  const clientCount = {};
+  // Top 3 clientes (toutes commandes confondues) — count + ca
+  const clientStats = {};
   DATA.commandes.forEach(c => {
     if (!c.client_id) return;
-    clientCount[c.client_id] = (clientCount[c.client_id] || 0) + 1;
+    if (!clientStats[c.client_id]) clientStats[c.client_id] = { n: 0, ca: 0 };
+    clientStats[c.client_id].n += 1;
+    clientStats[c.client_id].ca += Number(c.montant ?? PRIX_PRESTATION);
   });
-  const topClients = Object.entries(clientCount).sort((a, b) => b[1] - a[1]).slice(0, 3)
-    .map(([id, n]) => ({ cli: getClient(id), n }))
+  const topClients = Object.entries(clientStats).sort((a, b) => b[1].n - a[1].n).slice(0, 3)
+    .map(([id, s]) => ({ cli: getClient(id), n: s.n, ca: s.ca }))
     .filter(x => x.cli);
 
   // Mini bar chart CA 6 derniers mois
@@ -692,7 +697,7 @@ function renderStats() {
   for (let i = 5; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-    const ca = DATA.commandes.filter(c => inMonth(c, ym) && isConfirme(c)).length * PRIX_PRESTATION;
+    const ca = sumMontant(DATA.commandes.filter(c => inMonth(c, ym) && isConfirme(c)));
     monthsBars.push({ label: d.toLocaleDateString('fr-FR', { month: 'short' }), ca });
   }
   const maxCa = Math.max(1, ...monthsBars.map(m => m.ca));
@@ -716,7 +721,7 @@ function renderStats() {
       <div class="stat-card">
         <div class="stat-val" style="color:${cmdAFacturer.length > 0 ? 'var(--or)' : 'var(--v2)'}">${cmdAFacturer.length}</div>
         <div class="stat-lbl">A facturer</div>
-        <div style="margin-top:4px;font-size:12px;color:var(--txl)">${cmdAFacturer.length * PRIX_PRESTATION}€ en attente</div>
+        <div style="margin-top:4px;font-size:12px;color:var(--txl)">${sumMontant(cmdAFacturer)}€ en attente</div>
       </div>
       <div class="stat-card">
         <div class="stat-val">${cmdSemaine.length}</div>
@@ -742,7 +747,7 @@ function renderStats() {
             <span style="background:linear-gradient(135deg,var(--v2),var(--v3));color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0">${i + 1}</span>
             <div style="flex:1">
               <div style="font-weight:600">${escapeHtml(c.cli.nom)}</div>
-              <div style="font-size:11px;color:var(--txl)">${c.n} commande${c.n > 1 ? 's' : ''} · ${c.n * PRIX_PRESTATION}€ CA</div>
+              <div style="font-size:11px;color:var(--txl)">${c.n} commande${c.n > 1 ? 's' : ''} · ${c.ca}€ CA</div>
             </div>
           </div>`).join('') : '<p style="color:var(--txl);font-size:12px">Aucune cliente fidele pour l instant</p>'}
       </div>
@@ -1691,11 +1696,22 @@ async function renderParametres() {
       <div style="font-size:11px;color:var(--txl);margin-top:4px">Texte libre — décris ton mode de paiement comme tu le veux. C'est ce que verra ta cliente après commande.</div>
     </div>
 
-    <div style="display:flex;gap:12px;margin-top:24px">
-      <button class="btn btn-pri" id="prmSave">💾 Enregistrer</button>
+    <div style="display:flex;gap:12px;margin-top:24px;padding-bottom:24px;border-bottom:1px solid var(--bgd)">
+      <button class="btn btn-pri" id="prmSave">💾 Enregistrer mes paramètres</button>
       <span id="prmStatus" style="font-size:13px;color:var(--txl);align-self:center"></span>
     </div>
+
+    <div style="margin-top:32px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <h3 style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--v2)">📦 Mes forfaits</h3>
+        <button class="btn btn-pri btn-sm" id="prmAddForfait">+ Ajouter un forfait</button>
+      </div>
+      <p style="color:var(--txm);font-size:13px;margin-bottom:18px">Définis tes offres : tes clientes choisiront un forfait au moment de leur commande, et le prix de la commande dérive du forfait choisi.</p>
+      <div id="prmForfaitsList"></div>
+      <div id="prmForfaitForm" style="display:none"></div>
+    </div>
   </div>`);
+  renderForfaitsList();
 
   // Bind events
   $('prmBtnUpload').addEventListener('click', () => $('prmFile').click());
@@ -1709,6 +1725,108 @@ async function renderParametres() {
     $(id + 'Hex').addEventListener('input', e => { if (/^#[0-9a-f]{6}$/i.test(e.target.value)) $(id).value = e.target.value; });
   });
   $('prmSave').addEventListener('click', saveParametres);
+  $('prmAddForfait').addEventListener('click', () => openForfaitForm(null));
+}
+
+function renderForfaitsList() {
+  const list = $('prmForfaitsList');
+  if (!list) return;
+  const forfaits = [...DATA.forfaits].sort((a, b) => (a.ordre || 0) - (b.ordre || 0));
+  if (!forfaits.length) {
+    list.innerHTML = `<div style="background:var(--bgc);border:1.5px dashed var(--bgd);border-radius:14px;padding:24px;text-align:center;color:var(--txl);font-size:13px">Aucun forfait pour le moment. Crée ton premier pour que tes clientes puissent commander.</div>`;
+    return;
+  }
+  list.innerHTML = forfaits.map(f => `
+    <div style="background:var(--wh);border:1.5px solid var(--bgd);border-radius:14px;padding:16px 18px;margin-bottom:10px;display:flex;align-items:center;gap:14px;${!f.active ? 'opacity:.5' : ''}">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
+          <strong style="font-size:15px;color:var(--tx)">${escapeHtml(f.nom)}</strong>
+          ${f.badge ? `<span style="background:var(--vp);color:var(--v2);font-size:10px;padding:2px 8px;border-radius:10px;text-transform:uppercase;letter-spacing:.3px">${escapeHtml(f.badge)}</span>` : ''}
+          ${!f.active ? `<span style="background:var(--bgd);color:var(--txl);font-size:10px;padding:2px 8px;border-radius:10px">Inactif</span>` : ''}
+        </div>
+        ${f.description ? `<div style="font-size:12px;color:var(--txm);line-height:1.4">${escapeHtml(f.description)}</div>` : ''}
+      </div>
+      <div style="font-size:18px;font-weight:600;color:var(--v2);white-space:nowrap">${f.prix}€</div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" data-act="edit-forf" data-id="${f.id}">✏️</button>
+        <button class="btn btn-danger btn-sm" data-act="del-forf" data-id="${f.id}">🗑️</button>
+      </div>
+    </div>
+  `).join('');
+  list.querySelectorAll('[data-act="edit-forf"]').forEach(b => b.addEventListener('click', () => openForfaitForm(b.dataset.id)));
+  list.querySelectorAll('[data-act="del-forf"]').forEach(b => b.addEventListener('click', () => supprimerForfait(b.dataset.id)));
+}
+
+function openForfaitForm(id) {
+  const f = id ? DATA.forfaits.find(x => x.id === id) : null;
+  const form = $('prmForfaitForm');
+  form.style.display = 'block';
+  form.innerHTML = `
+    <div style="background:var(--bgc);border:1.5px solid var(--vl);border-radius:14px;padding:18px;margin-top:10px">
+      <div style="font-weight:600;margin-bottom:14px;color:var(--v2)">${id ? '✏️ Modifier le forfait' : '+ Nouveau forfait'}</div>
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px">
+        <div class="fg"><label>Nom *</label><input id="forfNom" type="text" placeholder="Ex: Découverte, Semaine, Mensuel" value="${escapeAttr(f?.nom || '')}"></div>
+        <div class="fg"><label>Prix (€) *</label><input id="forfPrix" type="number" min="0" step="0.01" placeholder="60" value="${escapeAttr(String(f?.prix ?? ''))}"></div>
+      </div>
+      <div class="fg" style="margin-bottom:12px"><label>Description (optionnel — visible client)</label><textarea id="forfDesc" rows="2" placeholder="Ex: 5 plats batch cookés, 4 portions, liste de courses 48h avant">${escapeHtml(f?.description || '')}</textarea></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px">
+        <div class="fg"><label>Badge (optionnel)</label><input id="forfBadge" type="text" placeholder="Ex: Bienvenue, Meilleure offre" value="${escapeAttr(f?.badge || '')}"></div>
+        <div class="fg"><label>Ordre d'affichage</label><input id="forfOrdre" type="number" min="0" step="1" value="${f?.ordre ?? 0}"></div>
+        <div class="fg"><label>Statut</label><select id="forfActive"><option value="true" ${f?.active !== false ? 'selected' : ''}>✓ Actif</option><option value="false" ${f?.active === false ? 'selected' : ''}>✗ Inactif</option></select></div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-pri" id="forfSave">💾 ${id ? 'Enregistrer' : 'Créer'}</button>
+        <button class="btn btn-ghost" id="forfCancel">Annuler</button>
+      </div>
+    </div>
+  `;
+  $('forfSave').addEventListener('click', () => saveForfait(id));
+  $('forfCancel').addEventListener('click', () => { form.style.display = 'none'; form.innerHTML = ''; });
+}
+
+async function saveForfait(id) {
+  const nom = $('forfNom').value.trim();
+  const prix = parseFloat($('forfPrix').value);
+  const description = $('forfDesc').value.trim();
+  const badge = $('forfBadge').value.trim();
+  const ordre = parseInt($('forfOrdre').value, 10) || 0;
+  const active = $('forfActive').value === 'true';
+  if (!nom) { toast('⚠️ Nom du forfait obligatoire'); return; }
+  if (isNaN(prix) || prix < 0) { toast('⚠️ Prix invalide'); return; }
+
+  const payload = { nom, prix, description: description || null, badge: badge || null, ordre, active };
+  try {
+    if (id) {
+      const { error } = await sb.from('forfaits').update(payload).eq('id', id);
+      if (error) throw error;
+      const f = DATA.forfaits.find(x => x.id === id); if (f) Object.assign(f, payload);
+      toast('✅ Forfait modifié');
+    } else {
+      const { data, error } = await sb.from('forfaits').insert({ ...payload, entreprise_id: CURRENT_ENTREPRISE_ID }).select().single();
+      if (error) throw error;
+      DATA.forfaits.push(data);
+      toast('✅ Forfait créé');
+    }
+    $('prmForfaitForm').style.display = 'none';
+    $('prmForfaitForm').innerHTML = '';
+    renderForfaitsList();
+  } catch (e) {
+    toast('Erreur : ' + (e.message || e));
+  }
+}
+
+async function supprimerForfait(id) {
+  const f = DATA.forfaits.find(x => x.id === id); if (!f) return;
+  if (!confirm(`Supprimer le forfait "${f.nom}" ?\nLes commandes existantes ne sont pas affectées (le prix reste figé sur la commande).`)) return;
+  try {
+    const { error } = await sb.from('forfaits').delete().eq('id', id);
+    if (error) throw error;
+    DATA.forfaits = DATA.forfaits.filter(x => x.id !== id);
+    toast('🗑️ Forfait supprimé');
+    renderForfaitsList();
+  } catch (e) {
+    toast('Erreur : ' + (e.message || e));
+  }
 }
 
 async function uploadParametresLogo(file) {

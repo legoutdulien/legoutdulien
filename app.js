@@ -35,6 +35,8 @@ let platsDetailCache = [];
 let currentCmdId = null;
 let currentDetailPortions = 4;
 let favoris = new Set();
+let forfaits = [];
+let forfaitSel = null;
 
 async function loadFavoris() {
   if (!clientProfile) return;
@@ -171,9 +173,18 @@ async function loadDash() {
   const dateEl = $('welcomeDate');
   if (dateEl) dateEl.textContent = today;
   showPage('pDash');
-  await Promise.all([loadFavoris(), loadNotifs()]);
+  await Promise.all([loadFavoris(), loadNotifs(), loadForfaits()]);
   await chargerMesCommandes();
   setupRealtimeNotifs();
+}
+
+async function loadForfaits() {
+  try {
+    const { data } = await sb.from('forfaits').select('*').eq('active', true).order('ordre', { ascending: true });
+    forfaits = data || [];
+  } catch (e) {
+    forfaits = [];
+  }
 }
 
 let realtimeChannel = null;
@@ -826,9 +837,14 @@ function afficherRecap() {
   pop.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px';
   const semaine = semSel ? semSel.label : '';
   const creneau = crenSel ? crenSel.lbl : '';
-  const montantClient = CURRENT_BRANDING?.montant_client_default ?? 60;
   const instructionsPaiement = CURRENT_BRANDING?.instructions_paiement || '';
   const cuisiniereName = CURRENT_BRANDING?.nom_contact || 'votre cuisiniere';
+
+  // Initialise la selection forfait : par defaut le 1er actif (ou le moins cher)
+  if (!forfaitSel || !forfaits.find(f => f.id === forfaitSel.id)) {
+    forfaitSel = forfaits[0] || null;
+  }
+  const montantClient = forfaitSel?.prix ?? CURRENT_BRANDING?.montant_client_default ?? 60;
   const platsHtml = sel.map((p, i) => `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #ede7db">
     <span style="background:var(--vp);color:var(--vert);width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0">${i + 1}</span>
     <span style="font-size:14px">${escapeHtml(p.nom)}</span>
@@ -853,9 +869,27 @@ function afficherRecap() {
         <div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#6b6b6b;margin-bottom:8px">🍽️ Vos 5 plats</div>
         ${platsHtml}
       </div>
+      ${forfaits.length > 1 ? `<div style="background:#f8f4ee;border-radius:12px;padding:14px 16px;margin-bottom:16px">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#6b6b6b;margin-bottom:10px">📦 Choisissez votre forfait</div>
+        <div id="forfaitChoix" style="display:flex;flex-direction:column;gap:8px">
+          ${forfaits.map(f => `
+            <label style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:2px solid ${f.id === forfaitSel?.id ? 'var(--vert)' : 'var(--bgd)'};border-radius:10px;cursor:pointer;background:${f.id === forfaitSel?.id ? 'var(--vp)' : 'var(--wh)'};transition:.15s">
+              <input type="radio" name="forfaitRadio" value="${f.id}" ${f.id === forfaitSel?.id ? 'checked' : ''} style="margin-top:2px;flex-shrink:0">
+              <div style="flex:1;min-width:0">
+                <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:2px">
+                  <strong style="font-size:14px">${escapeHtml(f.nom)}</strong>
+                  ${f.badge ? `<span style="background:var(--vp);color:var(--vert);font-size:10px;padding:1px 7px;border-radius:8px;text-transform:uppercase;letter-spacing:.3px">${escapeHtml(f.badge)}</span>` : ''}
+                </div>
+                ${f.description ? `<div style="font-size:11px;color:#6b6b6b;line-height:1.4">${escapeHtml(f.description)}</div>` : ''}
+              </div>
+              <span style="font-size:16px;font-weight:700;color:var(--vert);white-space:nowrap">${f.prix}€</span>
+            </label>
+          `).join('')}
+        </div>
+      </div>` : ''}
       <div style="background:var(--vp);border-radius:12px;padding:12px 16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
         <span style="font-size:15px;font-weight:500">A votre charge</span>
-        <span style="font-size:20px;font-weight:700;color:var(--vert)">${montantClient}€</span>
+        <span id="recapMontant" style="font-size:20px;font-weight:700;color:var(--vert)">${montantClient}€</span>
       </div>
       ${instructionsPaiement ? `<div style="background:#fff8e7;border-left:3px solid #f9c74f;border-radius:10px;padding:14px 16px;margin-bottom:20px">
         <div style="font-size:13px;font-weight:600;margin-bottom:6px;color:#8a6a1a">💳 Modalité de paiement</div>
@@ -869,6 +903,21 @@ function afficherRecap() {
 
   $('recapModifier').addEventListener('click', () => pop.remove());
   $('recapConfirm').addEventListener('click', () => confirmerCommande(pop));
+  // Sync radio forfait → met a jour montant et selection
+  document.querySelectorAll('input[name="forfaitRadio"]').forEach(r => {
+    r.addEventListener('change', () => {
+      forfaitSel = forfaits.find(f => f.id === r.value) || null;
+      const m = $('recapMontant');
+      if (m && forfaitSel) m.textContent = `${forfaitSel.prix}€`;
+      // Re-render labels pour highlight visuel
+      document.querySelectorAll('#forfaitChoix label').forEach(lab => {
+        const inp = lab.querySelector('input');
+        const isSel = inp.value === forfaitSel?.id;
+        lab.style.borderColor = isSel ? 'var(--vert)' : 'var(--bgd)';
+        lab.style.background = isSel ? 'var(--vp)' : 'var(--wh)';
+      });
+    });
+  });
 }
 
 async function confirmerCommande(pop) {
@@ -891,7 +940,9 @@ async function confirmerCommande(pop) {
       plat_3_id: sel[2].id,
       plat_4_id: sel[3].id,
       plat_5_id: sel[4].id,
-      nombre_portions: clientProfile?.nombre_portions || 4
+      nombre_portions: clientProfile?.nombre_portions || 4,
+      forfait_id: forfaitSel?.id || null,
+      montant: forfaitSel?.prix ?? CURRENT_BRANDING?.montant_client_default ?? 60
     };
     const { error } = await sb.from('commandes').insert(payload);
     if (error) throw error;
