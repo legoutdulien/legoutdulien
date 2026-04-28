@@ -1595,8 +1595,12 @@ function applyEntrepriseBranding() {
     const sTit = $('splashTitle'); if (sTit) sTit.textContent = e.nom_marque;
   }
   if (e.logo_url) {
-    const tImg = $('topbarLogoImg'); if (tImg) tImg.src = e.logo_url;
-    const sImg = $('splashLogoImg'); if (sImg) sImg.src = e.logo_url;
+    const tImg = $('topbarLogoImg');
+    const tEmoji = $('topbarLogoEmoji');
+    if (tImg) { tImg.src = e.logo_url; tImg.style.display = 'block'; }
+    if (tEmoji) tEmoji.style.display = 'none';
+    const sImg = $('splashLogoImg');
+    if (sImg) { sImg.src = e.logo_url; sImg.style.display = 'block'; }
   }
 }
 
