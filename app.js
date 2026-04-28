@@ -102,6 +102,19 @@ function catCls(c) {
 }
 
 // --- AUTH ---
+// Detecte le role d'un user authentifie : 'admin' | 'salarie' | 'client' | null
+async function detectRole(userId) {
+  const [adm, sal, cli] = await Promise.all([
+    sb.from('admins_entreprise').select('entreprise_id').eq('user_id', userId).maybeSingle(),
+    sb.from('salaries').select('*').eq('id', userId).maybeSingle(),
+    sb.from('clients').select('*').eq('id', userId).maybeSingle()
+  ]);
+  if (adm.data) return { role: 'admin', data: adm.data };
+  if (sal.data) return { role: 'salarie', data: sal.data };
+  if (cli.data) return { role: 'client', data: cli.data };
+  return { role: null };
+}
+
 async function login() {
   const email = $('iEmail').value.trim();
   const mdp = $('iMdp').value.trim();
@@ -114,13 +127,22 @@ async function login() {
   try {
     const { data: auth, error: authErr } = await sb.auth.signInWithPassword({ email, password: mdp });
     if (authErr) throw new Error('Email ou mot de passe incorrect.');
-    const { data: profile, error: pErr } = await sb.from('clients').select('*').eq('id', auth.user.id).single();
-    if (pErr || !profile) {
-      await sb.auth.signOut();
-      throw new Error("Ce compte n'est pas un compte client.");
+    const r = await detectRole(auth.user.id);
+    if (r.role === 'admin') {
+      window.location.href = 'admin.html';
+      return;
     }
-    clientProfile = profile;
-    await loadDash();
+    if (r.role === 'salarie') {
+      window.location.href = 'salarie.html';
+      return;
+    }
+    if (r.role === 'client') {
+      clientProfile = r.data;
+      await loadDash();
+      return;
+    }
+    await sb.auth.signOut();
+    throw new Error("Ce compte n'est rattache a aucune entreprise.");
   } catch (e) {
     err.textContent = e.message || String(e); err.style.display = 'block';
   } finally {
@@ -932,9 +954,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const { data: { session } } = await sb.auth.getSession();
   if (session) {
-    const { data: profile } = await sb.from('clients').select('*').eq('id', session.user.id).single();
-    if (profile) {
-      clientProfile = profile;
+    const r = await detectRole(session.user.id);
+    if (r.role === 'admin') { window.location.href = 'admin.html'; return; }
+    if (r.role === 'salarie') { window.location.href = 'salarie.html'; return; }
+    if (r.role === 'client') {
+      clientProfile = r.data;
       await loadDash();
       return;
     }

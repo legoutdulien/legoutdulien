@@ -75,7 +75,7 @@ async function login() {
 
 async function logout() {
   await sb.auth.signOut();
-  location.reload();
+  window.location.href = '/';
 }
 
 // --- init dashboard ---
@@ -586,7 +586,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // Auto-login si session existe
+  // Auto-login si session existe — sinon redirige vers le login unifie
   const { data: { session } } = await sb.auth.getSession();
   if (session) {
     const { data: profile } = await sb.from('salaries').select('*').eq('id', session.user.id).single();
@@ -597,5 +597,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     await sb.auth.signOut();
   }
-  $('pLogin').style.display = 'flex';
+  window.location.href = '/';
 });

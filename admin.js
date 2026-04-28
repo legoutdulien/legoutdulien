@@ -1,10 +1,16 @@
 // admin.js — Dashboard Admin Le Gout du Lien
-// L'admin recupere la service_role key depuis /.netlify/functions/admin-key
-// apres verification du mot de passe (variable d'env Netlify ADMIN_PASSWORD).
+// Auth via Supabase + admins_entreprise (multi-tenant). Le service_role est
+// recupere via /.netlify/functions/admin-key apres validation de la session.
+
+const SB_PUBLIC_URL = 'https://loiaubdlhkcnohtbwtxg.supabase.co';
+const SB_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxvaWF1YmRsaGtjbm9odGJ3dHhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMzU1NDAsImV4cCI6MjA5MjcxMTU0MH0.2S2xnnpFT-kcblTzSC_x2ybSUUipUi5jMPe_DbNBUcA';
+const sbAuth = window.supabase.createClient(SB_PUBLIC_URL, SB_ANON_KEY);
 
 let SB_URL = '';
 let SB_SERVICE_KEY = '';
 let sb = null;
+let CURRENT_ENTREPRISE_ID = null;
+let CURRENT_ADMIN_NOM = '';
 
 const STORAGE_BUCKET = 'photos-recettes';
 
@@ -46,44 +52,49 @@ function openModal(id) { $(id).classList.add('open'); }
 function closeModal(id) { $(id).classList.remove('open'); }
 
 // --- AUTH ---
-async function login() {
-  const mdp = $('iMdp').value.trim();
+// Le login se fait sur la page d'accueil (login unifie). admin.html ne fait
+// qu'un check de session : si la session correspond a un admin valide on
+// charge l'app, sinon on renvoie sur /.
+async function loadAdminFromSession() {
   const err = $('lerr');
-  err.style.display = 'none';
-  if (!mdp) { err.textContent = 'Mot de passe requis'; err.style.display = 'block'; return; }
+  if (err) err.style.display = 'none';
   try {
+    const { data: { session } } = await sbAuth.auth.getSession();
+    if (!session) {
+      window.location.href = '/';
+      return;
+    }
     const r = await fetch('/.netlify/functions/admin-key', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password: mdp })
+      body: JSON.stringify({ access_token: session.access_token })
     });
     if (!r.ok) {
-      const d = await r.json().catch(() => ({}));
-      err.textContent = d.error || 'Mot de passe incorrect';
-      err.style.display = 'block';
+      // 401 = session morte (signOut), 403 = pas admin (juste rediriger)
+      if (r.status === 401) await sbAuth.auth.signOut();
+      window.location.href = '/';
       return;
     }
     const cfg = await r.json();
     SB_URL = cfg.url;
     SB_SERVICE_KEY = cfg.key;
+    CURRENT_ENTREPRISE_ID = cfg.entreprise_id;
+    CURRENT_ADMIN_NOM = cfg.nom || '';
     sb = window.supabase.createClient(SB_URL, SB_SERVICE_KEY, {
       auth: { persistSession: false, autoRefreshToken: false }
     });
-    sessionStorage.setItem('admUrl', SB_URL);
-    sessionStorage.setItem('admKey', SB_SERVICE_KEY);
     $('pLogin').style.display = 'none';
     $('pApp').style.display = 'flex';
     chargerTout();
   } catch (e) {
-    err.textContent = 'Erreur reseau: ' + e.message;
-    err.style.display = 'block';
+    if (err) { err.textContent = 'Erreur : ' + e.message; err.style.display = 'block'; }
+    setTimeout(() => { window.location.href = '/'; }, 2000);
   }
 }
 
-function logout() {
-  sessionStorage.removeItem('admUrl');
-  sessionStorage.removeItem('admKey');
-  location.reload();
+async function logout() {
+  await sbAuth.auth.signOut();
+  window.location.href = '/';
 }
 
 // --- DATA LOAD ---
@@ -1623,17 +1634,52 @@ async function saveEntreprise() {
 
   try {
     if (id) {
+      // Modification : mise a jour des champs + eventuel update du compte auth
       const { error } = await sb.from('entreprises').update(payload).eq('id', id);
       if (error) throw error;
       const e = DATA.entreprises.find(x => x.id === id); if (e) Object.assign(e, payload);
+
+      // Si email ou password change, on met a jour le compte Supabase auth associe
+      const { data: link } = await sb.from('admins_entreprise')
+        .select('user_id').eq('entreprise_id', id).maybeSingle();
+      if (link && link.user_id) {
+        const update = {};
+        if (e && email !== e.admin_email) update.email = email;
+        if (pwd) update.password = pwd;
+        if (Object.keys(update).length) {
+          await adminUpdateAuthUser(link.user_id, update);
+        }
+      }
       toast('✅ Cuisinière modifiée');
     } else {
-      const { data, error } = await sb.from('entreprises').insert({ ...payload, active: true }).select().single();
+      // Creation : 1) entreprise, 2) compte auth, 3) lien admins_entreprise
+      const { data: ent, error } = await sb.from('entreprises').insert({ ...payload, active: true }).select().single();
       if (error) throw error;
-      DATA.entreprises.push(data);
-      // Rappel vocal des credentials a la cuisinière
-      const url = slug + '.mybatch.cooking/admin.html';
-      alert(`✅ Compte créé !\n\nÀ communiquer à ${contact} :\n\n📧 Email : ${email}\n🔑 Mot de passe : ${pwd}\n🔗 URL admin : ${url}\n\nIls pourront ensuite personnaliser leur logo, couleurs, montant et instructions de paiement depuis leur espace.`);
+
+      let authUser;
+      try {
+        authUser = await adminCreateAuthUser({ email, password: pwd, type: 'admin', nom: contact });
+      } catch (eAuth) {
+        // Rollback : on supprime l'entreprise pour ne pas laisser un orphelin
+        await sb.from('entreprises').delete().eq('id', ent.id);
+        throw new Error('Creation compte auth echouee : ' + eAuth.message);
+      }
+
+      const { error: linkErr } = await sb.from('admins_entreprise').insert({
+        user_id: authUser.id,
+        entreprise_id: ent.id,
+        nom: contact
+      });
+      if (linkErr) {
+        // Rollback complet
+        await adminDeleteAuthUser(authUser.id);
+        await sb.from('entreprises').delete().eq('id', ent.id);
+        throw linkErr;
+      }
+
+      DATA.entreprises.push(ent);
+      const url = slug + '.mybatch.cooking';
+      alert(`✅ Compte créé !\n\nÀ communiquer à ${contact} :\n\n📧 Email : ${email}\n🔑 Mot de passe : ${pwd}\n🔗 URL : ${url}\n\nElle se connectera sur cette URL avec son email et son mot de passe — l'interface admin s'ouvrira automatiquement. Elle pourra ensuite personnaliser son logo, ses couleurs, son montant client et ses instructions de paiement depuis son espace.`);
     }
     closeModal('modalEntreprise');
     renderEntreprises();
@@ -1646,8 +1692,20 @@ async function supprimerEntreprise(id) {
   const e = DATA.entreprises.find(x => x.id === id); if (!e) return;
   if (!confirm(`⚠️ Supprimer "${e.nom_marque}" ?\nTOUTES ses données (clients, recettes, commandes) seront supprimées définitivement.`)) return;
   try {
+    // Recupere l'admin auth associe pour le supprimer apres l'entreprise
+    const { data: links } = await sb.from('admins_entreprise')
+      .select('user_id').eq('entreprise_id', id);
+
     const { error } = await sb.from('entreprises').delete().eq('id', id);
     if (error) throw error;
+
+    // Supprime les comptes auth admin de cette entreprise
+    if (Array.isArray(links)) {
+      for (const l of links) {
+        if (l.user_id) await adminDeleteAuthUser(l.user_id).catch(() => {});
+      }
+    }
+
     DATA.entreprises = DATA.entreprises.filter(x => x.id !== id);
     toast('🗑️ Entreprise supprimée');
     renderEntreprises();
@@ -1989,9 +2047,7 @@ function stopMic() { isRec = false; $('aMic').classList.remove('rec'); $('aMic')
 
 // --- BIND EVENTS ---
 document.addEventListener('DOMContentLoaded', () => {
-  $('btnLogin').addEventListener('click', login);
   $('btnLogout').addEventListener('click', logout);
-  $('iMdp').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
 
   document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => showTab(t.dataset.tab)));
   document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () => closeModal(b.dataset.close)));
@@ -2045,14 +2101,6 @@ document.addEventListener('DOMContentLoaded', () => {
   $('aInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendAria(); });
   $('aSugs').querySelectorAll('.a-sug').forEach(b => b.addEventListener('click', () => { $('aInput').value = b.textContent.trim(); sendAria(); }));
 
-  // Auto-login si session
-  const u = sessionStorage.getItem('admUrl');
-  const k = sessionStorage.getItem('admKey');
-  if (u && k) {
-    SB_URL = u; SB_SERVICE_KEY = k;
-    sb = window.supabase.createClient(SB_URL, SB_SERVICE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
-    $('pLogin').style.display = 'none';
-    $('pApp').style.display = 'flex';
-    chargerTout();
-  }
+  // Verification de session admin -> charge le dashboard ou redirige vers /
+  loadAdminFromSession();
 });
