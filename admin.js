@@ -8,7 +8,7 @@ let sb = null;
 
 const STORAGE_BUCKET = 'photos-recettes';
 
-const DATA = { commandes: [], recettes: [], ri: [], clients: [], salaries: [], ingredients: [], creneaux: [], creneauxTemplate: [] };
+const DATA = { commandes: [], recettes: [], ri: [], clients: [], salaries: [], ingredients: [], creneaux: [], creneauxTemplate: [], entreprises: [] };
 const JOURS_ORDER = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
 const JMAP_FULL = { Lundi: 0, Mardi: 1, Mercredi: 2, Jeudi: 3, Vendredi: 4, Samedi: 5, Dimanche: 6 };
 
@@ -89,7 +89,7 @@ function logout() {
 // --- DATA LOAD ---
 async function chargerTout() {
   try {
-    const [cmdR, recR, riR, cliR, salR, ingR, crenR, ctR] = await Promise.all([
+    const [cmdR, recR, riR, cliR, salR, ingR, crenR, ctR, entR] = await Promise.all([
       sb.from('commandes').select('*').order('semaine_du', { ascending: false }),
       sb.from('recettes').select('*').order('nom_du_plat', { ascending: true }),
       sb.from('recettes_ingredients').select('*').order('ordre', { ascending: true }),
@@ -97,7 +97,8 @@ async function chargerTout() {
       sb.from('salaries').select('*').order('nom', { ascending: true }),
       sb.from('ingredients').select('*').order('nom', { ascending: true }),
       sb.from('creneaux').select('*'),
-      sb.from('creneaux_template').select('*')
+      sb.from('creneaux_template').select('*'),
+      sb.from('entreprises').select('*').order('nom_marque', { ascending: true })
     ]);
     if (cmdR.error) throw cmdR.error;
     if (recR.error) throw recR.error;
@@ -115,6 +116,7 @@ async function chargerTout() {
     DATA.ingredients = ingR.data || [];
     DATA.creneaux = crenR.data || [];
     DATA.creneauxTemplate = ctR.data || [];
+    DATA.entreprises = entR.data || [];
 
     populateUnitDatalist();
     setupRealtimeNotifs();
@@ -169,7 +171,8 @@ function showTab(tab) {
     recettes: renderRecettes,
     clients: renderClients,
     salaries: renderSalaries,
-    creneaux: renderCreneaux
+    creneaux: renderCreneaux,
+    entreprises: renderEntreprises
   })[tab]?.();
 }
 
@@ -1506,6 +1509,171 @@ function renderCreneaux() {
   $('btnParamCreneaux').addEventListener('click', ouvrirParametresCreneaux);
 }
 
+// === ENTREPRISES (super-admin) ===
+function renderEntreprises() {
+  const ents = DATA.entreprises;
+  const stats = {};
+  ents.forEach(e => { stats[e.id] = { clients: 0, recettes: 0, commandes: 0 }; });
+  DATA.clients.forEach(c => { if (stats[c.entreprise_id]) stats[c.entreprise_id].clients++; });
+  DATA.recettes.forEach(r => { if (stats[r.entreprise_id]) stats[r.entreprise_id].recettes++; });
+  DATA.commandes.forEach(c => { if (stats[c.entreprise_id]) stats[c.entreprise_id].commandes++; });
+
+  const rows = ents.map(e => {
+    const s = stats[e.id] || { clients: 0, recettes: 0, commandes: 0 };
+    const planBadge = e.plan === 'founder'
+      ? '<span class="badge b-att" style="background:#e8f0e9;color:#2d5a3d">👑 Founder</span>'
+      : '<span class="badge b-ok">💼 Standard</span>';
+    const activeBadge = e.active
+      ? '<span class="badge b-ok">✓ Actif</span>'
+      : '<span class="badge" style="background:#fdecea;color:#c62828">⏸️ Suspendu</span>';
+    return `<tr>
+      <td><div style="display:flex;align-items:center;gap:10px">
+        ${e.logo_url ? `<img src="${escapeHtml(e.logo_url)}" style="width:36px;height:36px;border-radius:8px;object-fit:cover">` : `<div style="width:36px;height:36px;border-radius:8px;background:${escapeHtml(e.couleur_principale || '#3d6b4f')};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:16px">${escapeHtml((e.nom_marque || '?').charAt(0).toUpperCase())}</div>`}
+        <div>
+          <div style="font-weight:600">${escapeHtml(e.nom_marque)}</div>
+          <div style="font-size:11px;color:var(--txl)">${escapeHtml(e.slug)}.mybatch.cooking</div>
+        </div>
+      </div></td>
+      <td>${planBadge}</td>
+      <td>${activeBadge}</td>
+      <td style="font-size:12px">${s.clients} clients · ${s.recettes} recettes · ${s.commandes} commandes</td>
+      <td>${escapeHtml(e.montant_client_default || 0)}€</td>
+      <td>${escapeHtml(e.admin_email || '–')}</td>
+      <td style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" data-act="edit-ent" data-id="${e.id}">✏️ Modifier</button>
+        ${e.plan !== 'founder' ? `<button class="btn btn-danger btn-sm" data-act="del-ent" data-id="${e.id}">🗑️</button>` : ''}
+      </td>
+    </tr>`;
+  }).join('');
+
+  showContent(`<div class="card">
+    <div class="card-head">
+      <div class="card-tit">🏢 Entreprises <span>${ents.length}</span></div>
+      <button class="btn btn-primary" id="btnNewEnt">+ Nouvelle cuisinière</button>
+    </div>
+    <p style="font-size:13px;color:var(--txm);margin-bottom:14px">Tu vois ici toutes les cuisinières qui utilisent la plateforme. Crée un compte pour onboarder une nouvelle, ou suspends-le si elle ne paie pas.</p>
+    <div class="tbl-wrap"><table class="tbl">
+      <thead><tr><th>Cuisinière</th><th>Plan</th><th>Statut</th><th>Activité</th><th>Montant</th><th>Email</th><th>Action</th></tr></thead>
+      <tbody>${rows || '<tr><td colspan="7" class="empty">Aucune entreprise</td></tr>'}</tbody>
+    </table></div>
+  </div>`);
+
+  $('btnNewEnt').addEventListener('click', nouvelleEntreprise);
+  $('content').querySelectorAll('[data-act="edit-ent"]').forEach(b => b.addEventListener('click', () => editerEntreprise(b.dataset.id)));
+  $('content').querySelectorAll('[data-act="del-ent"]').forEach(b => b.addEventListener('click', () => supprimerEntreprise(b.dataset.id)));
+}
+
+function nouvelleEntreprise() {
+  ['entId', 'entNom', 'entSlug', 'entEmail', 'entLogo', 'entInstructions'].forEach(id => { const el = $(id); if (el) el.value = ''; });
+  $('entPlan').value = 'standard';
+  $('entMontant').value = 60;
+  $('entCouleur1').value = '#3d6b4f';
+  $('entCouleur2').value = '#5a8a6a';
+  $('entActive').value = 'true';
+  $('entLogoPreview').innerHTML = '🏢';
+  $('entLogoNom').textContent = 'Format carré recommandé';
+  $('modalEntTit').textContent = 'Nouvelle cuisinière';
+  openModal('modalEntreprise');
+}
+
+function editerEntreprise(id) {
+  const e = DATA.entreprises.find(x => x.id === id); if (!e) return;
+  $('entId').value = id;
+  $('entNom').value = e.nom_marque || '';
+  $('entSlug').value = e.slug || '';
+  $('entEmail').value = e.admin_email || '';
+  $('entPlan').value = e.plan || 'standard';
+  $('entMontant').value = e.montant_client_default || 60;
+  $('entCouleur1').value = e.couleur_principale || '#3d6b4f';
+  $('entCouleur2').value = e.couleur_secondaire || '#5a8a6a';
+  $('entActive').value = e.active ? 'true' : 'false';
+  $('entInstructions').value = e.instructions_paiement || '';
+  $('entLogo').value = e.logo_url || '';
+  $('entLogoPreview').innerHTML = e.logo_url ? `<img src="${escapeHtml(e.logo_url)}" style="width:100%;height:100%;object-fit:cover">` : '🏢';
+  $('entLogoNom').textContent = e.logo_url ? 'Logo existant — cliquer pour changer' : 'Format carré recommandé';
+  $('modalEntTit').textContent = 'Modifier · ' + (e.nom_marque || 'entreprise');
+  openModal('modalEntreprise');
+}
+
+async function saveEntreprise() {
+  const id = $('entId').value;
+  const nom = $('entNom').value.trim();
+  const slug = $('entSlug').value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
+  const email = $('entEmail').value.trim();
+  if (!nom || !slug || !email) { toast('⚠️ Nom, slug et email obligatoires'); return; }
+  // Doublon slug
+  const dup = DATA.entreprises.find(e => e.slug === slug && e.id !== id);
+  if (dup) { toast('⚠️ Le slug "' + slug + '" est déjà pris'); return; }
+
+  const payload = {
+    nom_marque: nom,
+    slug,
+    admin_email: email,
+    plan: $('entPlan').value,
+    montant_client_default: parseInt($('entMontant').value, 10) || 60,
+    couleur_principale: $('entCouleur1').value,
+    couleur_secondaire: $('entCouleur2').value,
+    active: $('entActive').value === 'true',
+    instructions_paiement: $('entInstructions').value.trim() || null,
+    logo_url: ($('entLogo').value || '').trim() || null
+  };
+
+  try {
+    if (id) {
+      const { error } = await sb.from('entreprises').update(payload).eq('id', id);
+      if (error) throw error;
+      const e = DATA.entreprises.find(x => x.id === id); if (e) Object.assign(e, payload);
+      toast('✅ Entreprise modifiée');
+    } else {
+      const { data, error } = await sb.from('entreprises').insert(payload).select().single();
+      if (error) throw error;
+      DATA.entreprises.push(data);
+      toast('✅ Entreprise créée — URL : ' + slug + '.mybatch.cooking');
+    }
+    closeModal('modalEntreprise');
+    renderEntreprises();
+  } catch (e) {
+    toast('Erreur: ' + (e.message || e));
+  }
+}
+
+async function supprimerEntreprise(id) {
+  const e = DATA.entreprises.find(x => x.id === id); if (!e) return;
+  if (!confirm(`⚠️ Supprimer "${e.nom_marque}" ?\nTOUTES ses données (clients, recettes, commandes) seront supprimées définitivement.`)) return;
+  try {
+    const { error } = await sb.from('entreprises').delete().eq('id', id);
+    if (error) throw error;
+    DATA.entreprises = DATA.entreprises.filter(x => x.id !== id);
+    toast('🗑️ Entreprise supprimée');
+    renderEntreprises();
+  } catch (e) {
+    toast('Erreur: ' + (e.message || e));
+  }
+}
+
+// Upload logo entreprise
+async function uploadEntLogo(file) {
+  const btn = $('entBtnUpload'), nom = $('entLogoNom'), preview = $('entLogoPreview');
+  btn.textContent = '⏳ Upload...'; btn.disabled = true;
+  try {
+    const compressed = await compressImage(file, 600, 0.85);
+    const blob = compressed || file;
+    const ext = compressed ? 'jpg' : ((file.name.split('.').pop() || 'jpg').toLowerCase());
+    const ctype = compressed ? 'image/jpeg' : (file.type || 'image/jpeg');
+    const filename = `logos/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const { error } = await sb.storage.from(STORAGE_BUCKET).upload(filename, blob, { upsert: false, contentType: ctype });
+    if (error) throw error;
+    const { data: pub } = sb.storage.from(STORAGE_BUCKET).getPublicUrl(filename);
+    $('entLogo').value = pub.publicUrl;
+    preview.innerHTML = `<img src="${escapeHtml(pub.publicUrl)}" style="width:100%;height:100%;object-fit:cover">`;
+    nom.textContent = file.name;
+    toast('✅ Logo uploadé');
+  } catch (e) {
+    toast('Erreur upload : ' + (e.message || e));
+  }
+  btn.textContent = '📷 Changer le logo'; btn.disabled = false;
+}
+
 // === PARAMETRES CRENEAUX ===
 function ouvrirParametresCreneaux() {
   renderParamCreneauxBody();
@@ -1827,6 +1995,9 @@ document.addEventListener('DOMContentLoaded', () => {
   $('btnSaveCli').addEventListener('click', saveClient);
   $('btnSaveSal').addEventListener('click', saveSalarie);
   $('btnSaveCmd').addEventListener('click', saveCommande);
+  $('btnSaveEnt').addEventListener('click', saveEntreprise);
+  $('entBtnUpload').addEventListener('click', () => $('entLogoFile').click());
+  $('entLogoFile').addEventListener('change', (e) => { const f = e.target.files[0]; if (f) uploadEntLogo(f); });
   $('btnAddIng').addEventListener('click', ajouterIngRow);
   $('btnUpload').addEventListener('click', uploadPhoto);
   $('rPhotoFile').addEventListener('change', (e) => handlePhotoFile(e.target));
