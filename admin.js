@@ -122,10 +122,11 @@ async function loadAdminFromSession() {
       const sImg = $('splashLogoImg');
       if (sImg) { sImg.src = cfg.logo_url; sImg.style.display = 'block'; }
       const tImg = $('topbarLogoImg');
-      const tEmoji = $('topbarLogoEmoji');
-      if (tImg) { tImg.src = cfg.logo_url; tImg.style.display = 'block'; }
-      if (tEmoji) tEmoji.style.display = 'none';
+      const tBox = $('topbarLogoBox');
+      if (tImg) { tImg.src = cfg.logo_url; }
+      if (tBox) tBox.style.display = 'flex';
     }
+    if (cfg.couleur_topbar) document.documentElement.style.setProperty('--topbar-bg', cfg.couleur_topbar);
     sb = window.supabase.createClient(SB_URL, SB_SERVICE_KEY, {
       auth: { persistSession: false, autoRefreshToken: false }
     });
@@ -1604,16 +1605,21 @@ function applyEntrepriseBranding() {
     const tNom = $('topbarBrandName'); if (tNom) tNom.textContent = e.nom_marque;
     const sTit = $('splashTitle'); if (sTit) sTit.textContent = e.nom_marque;
   }
+  const tBox = $('topbarLogoBox');
   if (e.logo_url) {
     const tImg = $('topbarLogoImg');
-    const tEmoji = $('topbarLogoEmoji');
-    if (tImg) { tImg.src = e.logo_url; tImg.style.display = 'block'; }
-    if (tEmoji) tEmoji.style.display = 'none';
+    if (tImg) tImg.src = e.logo_url;
+    if (tBox) tBox.style.display = 'flex';
     const sImg = $('splashLogoImg');
     if (sImg) { sImg.src = e.logo_url; sImg.style.display = 'block'; }
+  } else {
+    if (tBox) tBox.style.display = 'none';
+    const sImg = $('splashLogoImg');
+    if (sImg) sImg.style.display = 'none';
   }
   if (e.couleur_principale) document.documentElement.style.setProperty('--brand-primary', e.couleur_principale);
   if (e.couleur_secondaire) document.documentElement.style.setProperty('--brand-secondary', e.couleur_secondaire);
+  if (e.couleur_topbar) document.documentElement.style.setProperty('--topbar-bg', e.couleur_topbar);
 }
 
 async function renderParametres() {
@@ -1649,19 +1655,26 @@ async function renderParametres() {
       </div>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:18px">
       <div class="fg">
         <label>Couleur principale</label>
-        <div style="display:flex;align-items:center;gap:10px">
-          <input id="prmCol1" type="color" value="${escapeAttr(e.couleur_principale || '#3d6b4f')}" style="width:50px;height:40px;border:1.5px solid var(--bgd);border-radius:8px;cursor:pointer;padding:2px;background:var(--wh)">
-          <input id="prmCol1Hex" type="text" value="${escapeAttr(e.couleur_principale || '#3d6b4f')}" style="flex:1" maxlength="7">
+        <div style="display:flex;align-items:center;gap:8px">
+          <input id="prmCol1" type="color" value="${escapeAttr(e.couleur_principale || '#3d6b4f')}" style="width:46px;height:38px;border:1.5px solid var(--bgd);border-radius:8px;cursor:pointer;padding:2px;background:var(--wh);flex-shrink:0">
+          <input id="prmCol1Hex" type="text" value="${escapeAttr(e.couleur_principale || '#3d6b4f')}" style="flex:1;min-width:0" maxlength="7">
         </div>
       </div>
       <div class="fg">
         <label>Couleur secondaire</label>
-        <div style="display:flex;align-items:center;gap:10px">
-          <input id="prmCol2" type="color" value="${escapeAttr(e.couleur_secondaire || '#5a8a6a')}" style="width:50px;height:40px;border:1.5px solid var(--bgd);border-radius:8px;cursor:pointer;padding:2px;background:var(--wh)">
-          <input id="prmCol2Hex" type="text" value="${escapeAttr(e.couleur_secondaire || '#5a8a6a')}" style="flex:1" maxlength="7">
+        <div style="display:flex;align-items:center;gap:8px">
+          <input id="prmCol2" type="color" value="${escapeAttr(e.couleur_secondaire || '#5a8a6a')}" style="width:46px;height:38px;border:1.5px solid var(--bgd);border-radius:8px;cursor:pointer;padding:2px;background:var(--wh);flex-shrink:0">
+          <input id="prmCol2Hex" type="text" value="${escapeAttr(e.couleur_secondaire || '#5a8a6a')}" style="flex:1;min-width:0" maxlength="7">
+        </div>
+      </div>
+      <div class="fg">
+        <label>Barre du haut</label>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input id="prmCol3" type="color" value="${escapeAttr(e.couleur_topbar || '#0a0a08')}" style="width:46px;height:38px;border:1.5px solid var(--bgd);border-radius:8px;cursor:pointer;padding:2px;background:var(--wh);flex-shrink:0">
+          <input id="prmCol3Hex" type="text" value="${escapeAttr(e.couleur_topbar || '#0a0a08')}" style="flex:1;min-width:0" maxlength="7">
         </div>
       </div>
     </div>
@@ -1691,10 +1704,10 @@ async function renderParametres() {
     await uploadParametresLogo(file);
   });
   // Sync color picker <-> hex
-  $('prmCol1').addEventListener('input', e => { $('prmCol1Hex').value = e.target.value; });
-  $('prmCol2').addEventListener('input', e => { $('prmCol2Hex').value = e.target.value; });
-  $('prmCol1Hex').addEventListener('input', e => { if (/^#[0-9a-f]{6}$/i.test(e.target.value)) $('prmCol1').value = e.target.value; });
-  $('prmCol2Hex').addEventListener('input', e => { if (/^#[0-9a-f]{6}$/i.test(e.target.value)) $('prmCol2').value = e.target.value; });
+  ['prmCol1', 'prmCol2', 'prmCol3'].forEach(id => {
+    $(id).addEventListener('input', e => { $(id + 'Hex').value = e.target.value; });
+    $(id + 'Hex').addEventListener('input', e => { if (/^#[0-9a-f]{6}$/i.test(e.target.value)) $(id).value = e.target.value; });
+  });
   $('prmSave').addEventListener('click', saveParametres);
 }
 
@@ -1723,11 +1736,12 @@ async function saveParametres() {
   const email = $('prmEmail').value.trim();
   const col1 = $('prmCol1Hex').value.trim();
   const col2 = $('prmCol2Hex').value.trim();
+  const col3 = $('prmCol3Hex').value.trim();
   const montant = parseInt($('prmMontant').value, 10);
   const paiement = $('prmPaiement').value.trim();
   const logo = $('prmLogoUrl').value.trim();
   if (!nom) { toast('⚠️ Le nom de la marque est obligatoire'); return; }
-  if (!/^#[0-9a-f]{6}$/i.test(col1) || !/^#[0-9a-f]{6}$/i.test(col2)) { toast('⚠️ Couleurs invalides'); return; }
+  if (![col1, col2, col3].every(c => /^#[0-9a-f]{6}$/i.test(c))) { toast('⚠️ Couleurs invalides'); return; }
   if (isNaN(montant) || montant < 0) { toast('⚠️ Montant invalide'); return; }
 
   const payload = {
@@ -1735,6 +1749,7 @@ async function saveParametres() {
     admin_email: email || null,
     couleur_principale: col1,
     couleur_secondaire: col2,
+    couleur_topbar: col3,
     montant_client_default: montant,
     instructions_paiement: paiement || null,
     logo_url: logo || null
