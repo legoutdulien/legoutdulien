@@ -10,8 +10,9 @@ exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers: corsHeaders, body: '' };
 
   const slug = (event.queryStringParameters?.slug || '').toLowerCase().replace(/[^a-z0-9-]/g, '');
-  if (!slug) {
-    return { statusCode: 400, headers: corsHeaders, body: JSON.stringify({ error: 'slug requis' }) };
+  const id = (event.queryStringParameters?.id || '').replace(/[^a-f0-9-]/g, '');
+  if (!slug && !id) {
+    return { statusCode: 400, headers: corsHeaders, body: JSON.stringify({ error: 'slug ou id requis' }) };
   }
 
   const url = process.env.SUPABASE_URL;
@@ -21,8 +22,9 @@ exports.handler = async (event) => {
   }
 
   try {
+    const filter = id ? `id=eq.${id}` : `slug=eq.${encodeURIComponent(slug)}`;
     const r = await fetch(
-      `${url}/rest/v1/entreprises?slug=eq.${encodeURIComponent(slug)}&select=slug,nom_marque,nom_contact,logo_url,couleur_principale,couleur_secondaire,active`,
+      `${url}/rest/v1/entreprises?${filter}&select=id,slug,nom_marque,nom_contact,logo_url,couleur_principale,couleur_secondaire,active`,
       { headers: { apikey: key, Authorization: `Bearer ${key}` } }
     );
     const data = await r.json();
@@ -37,6 +39,7 @@ exports.handler = async (event) => {
       statusCode: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=300' },
       body: JSON.stringify({
+        id: ent.id,
         slug: ent.slug,
         nom_marque: ent.nom_marque,
         nom_contact: ent.nom_contact,

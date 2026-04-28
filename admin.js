@@ -110,6 +110,12 @@ async function loadAdminFromSession() {
     CURRENT_PLAN = cfg.plan || 'standard';
     document.body.classList.toggle('plan-founder', isFounder());
     document.body.classList.toggle('plan-standard', !isFounder());
+    // Branding immediat (titre + nom) avant le full load
+    if (cfg.nom_marque) {
+      document.title = cfg.nom_marque + ' · Admin';
+      const sTit = $('splashTitle'); if (sTit) sTit.textContent = cfg.nom_marque;
+      const tNom = $('topbarBrandName'); if (tNom) tNom.textContent = cfg.nom_marque;
+    }
     sb = window.supabase.createClient(SB_URL, SB_SERVICE_KEY, {
       auth: { persistSession: false, autoRefreshToken: false }
     });
@@ -176,6 +182,7 @@ async function chargerTout() {
 
     populateUnitDatalist();
     setupRealtimeNotifs();
+    applyEntrepriseBranding();
     $('ariaFab').style.display = 'flex';
     const actifs = DATA.recettes.filter(r => r.active).length;
     $('topStat').textContent = `${DATA.commandes.length} commandes · ${actifs} plats actifs`;
@@ -1576,6 +1583,21 @@ function renderCreneaux() {
 // === PARAMETRES (branding par entreprise) ===
 function getCurrentEntreprise() {
   return DATA.entreprises.find(e => e.id === CURRENT_ENTREPRISE_ID) || {};
+}
+
+// Applique logo + nom + couleurs de l'entreprise sur le dashboard admin
+function applyEntrepriseBranding() {
+  const e = getCurrentEntreprise();
+  if (!e) return;
+  if (e.nom_marque) {
+    document.title = e.nom_marque + ' · Admin';
+    const tNom = $('topbarBrandName'); if (tNom) tNom.textContent = e.nom_marque;
+    const sTit = $('splashTitle'); if (sTit) sTit.textContent = e.nom_marque;
+  }
+  if (e.logo_url) {
+    const tImg = $('topbarLogoImg'); if (tImg) tImg.src = e.logo_url;
+    const sImg = $('splashLogoImg'); if (sImg) sImg.src = e.logo_url;
+  }
 }
 
 async function renderParametres() {

@@ -138,6 +138,11 @@ async function login() {
     }
     if (r.role === 'client') {
       clientProfile = r.data;
+      // Re-applique le branding selon l'entreprise reelle de la cliente (au cas ou
+      // elle a atterri sur un domaine generique)
+      if (clientProfile.entreprise_id && CURRENT_BRANDING?.id !== clientProfile.entreprise_id) {
+        await loadBranding({ id: clientProfile.entreprise_id });
+      }
       await loadDash();
       return;
     }
@@ -927,10 +932,12 @@ function getSubdomainSlug() {
 }
 
 let CURRENT_BRANDING = null;
-async function loadBranding() {
+async function loadBranding(opts = {}) {
   try {
-    const slug = getSubdomainSlug();
-    const r = await fetch(`/.netlify/functions/branding?slug=${encodeURIComponent(slug)}`);
+    let qs;
+    if (opts.id) qs = `id=${encodeURIComponent(opts.id)}`;
+    else qs = `slug=${encodeURIComponent(opts.slug || getSubdomainSlug())}`;
+    const r = await fetch(`/.netlify/functions/branding?${qs}`);
     if (!r.ok) return;
     const b = await r.json();
     CURRENT_BRANDING = b;
@@ -1007,6 +1014,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (r.role === 'salarie') { window.location.href = 'salarie.html'; return; }
     if (r.role === 'client') {
       clientProfile = r.data;
+      if (clientProfile.entreprise_id && CURRENT_BRANDING?.id !== clientProfile.entreprise_id) {
+        await loadBranding({ id: clientProfile.entreprise_id });
+      }
       await loadDash();
       return;
     }
