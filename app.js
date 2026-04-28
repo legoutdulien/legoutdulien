@@ -942,8 +942,8 @@ const GENERIC_BRANDING = {
   nom_marque: 'Mon espace Batchcooking',
   nom_contact: 'votre cuisiniere',
   logo_url: null,
-  couleur_principale: '#1f2937',
-  couleur_secondaire: '#f59e0b'
+  couleur_principale: '#3d3022',
+  couleur_secondaire: '#c89b6b'
 };
 
 let CURRENT_BRANDING = null;
