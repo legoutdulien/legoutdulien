@@ -202,7 +202,7 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
   .welcome-hero .wleaf{width:60px;height:60px;right:14px}
 }
 /* Pattern decoratif login */
-.login-bg-svg{position:fixed;pointer-events:none;opacity:.07;z-index:0}
+.login-bg-svg{position:fixed;pointer-events:none;opacity:.07;z-index:0;fill:var(--vert)}
 #pLogin .lcard{position:relative;z-index:1;animation:fadeInUp .6s cubic-bezier(.16,.84,.44,1) backwards}
 #pLogin .llogo{animation:float 3.5s ease-in-out infinite}
 @media(max-width:640px){
@@ -246,9 +246,9 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
 
 <!-- LOGIN -->
 <div id="pLogin">
-  <svg class="login-bg-svg" style="top:8%;left:6%;width:140px" viewBox="0 0 100 100" fill="#3d6b4f"><path d="M50 10 Q60 30 50 50 Q40 30 50 10 M50 50 Q60 70 50 90 Q40 70 50 50 M30 50 Q50 60 70 50 M50 30 Q40 50 50 70"/></svg>
-  <svg class="login-bg-svg" style="bottom:10%;right:8%;width:110px" viewBox="0 0 100 100" fill="#3d6b4f"><path d="M20 50 Q35 20 50 50 Q35 80 20 50 M50 50 Q65 20 80 50 Q65 80 50 50"/></svg>
-  <svg class="login-bg-svg" style="top:55%;left:15%;width:70px" viewBox="0 0 100 100" fill="#3d6b4f"><circle cx="50" cy="50" r="20"/><path d="M50 30 Q70 50 50 70 Q30 50 50 30"/></svg>
+  <svg class="login-bg-svg" style="top:8%;left:6%;width:140px" viewBox="0 0 100 100"><path d="M50 10 Q60 30 50 50 Q40 30 50 10 M50 50 Q60 70 50 90 Q40 70 50 50 M30 50 Q50 60 70 50 M50 30 Q40 50 50 70"/></svg>
+  <svg class="login-bg-svg" style="bottom:10%;right:8%;width:110px" viewBox="0 0 100 100"><path d="M20 50 Q35 20 50 50 Q35 80 20 50 M50 50 Q65 20 80 50 Q65 80 50 50"/></svg>
+  <svg class="login-bg-svg" style="top:55%;left:15%;width:70px" viewBox="0 0 100 100"><circle cx="50" cy="50" r="20"/><path d="M50 30 Q70 50 50 70 Q30 50 50 30"/></svg>
   <div class="lcard">
     <div class="llogo">Mon espace Batchcooking</div>
     <div class="ltag">Votre espace personnel batch cooking</div>
@@ -257,14 +257,14 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
     <div class="fg"><label>Mot de passe</label><input type="password" id="iMdp" placeholder="••••••••"></div>
     <button class="btnLogin" id="btnLogin">Se connecter</button>
     <div class="lerr" id="lerr"></div>
-    <div style="margin-top:20px;font-size:13px;color:var(--txl)">Probleme ? Contactez Alizee.</div>
+    <div style="margin-top:20px;font-size:13px;color:var(--txl)">Probleme ? Contactez votre cuisiniere.</div>
   </div>
 </div>
 
 <!-- DASHBOARD -->
 <div id="pDash">
   <header>
-    <div class="logo">Le Goût du Lien</div>
+    <div class="logo">Mon espace Batchcooking</div>
     <div class="hbtns">
       <span style="font-size:14px;color:var(--txl)">Bonjour, <strong id="unom"></strong> 👋</span>
       <div style="position:relative">
@@ -285,7 +285,7 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
       <div class="dash-card primary" id="cardCommander">
         <div class="dash-icon">🛒</div>
         <h3>Passer ma commande</h3>
-        <p>Choisissez vos 5 plats de la semaine et votre creneau. Paiement via URSSAF (avance immediate du credit d'impot).</p>
+        <p>Choisissez vos 5 plats de la semaine et votre creneau de livraison.</p>
       </div>
       <div class="dash-card" id="cardMesCommandes">
         <div class="dash-icon">📋</div>
@@ -305,7 +305,7 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
 <!-- APP COMMANDE -->
 <div id="pApp">
   <header>
-    <div class="logo">Le Goût du Lien</div>
+    <div class="logo">Mon espace Batchcooking</div>
     <div class="hbtns">
       <button class="hbtn" id="btnRetourDash">← Retour</button>
       <button class="hbtn" id="btnLogout2">Deconnexion</button>
@@ -353,7 +353,7 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
 <!-- NOUVEAUTES A VENIR -->
 <div id="pAVenir" style="display:none">
   <header>
-    <div class="logo">Le Goût du Lien</div>
+    <div class="logo">Mon espace Batchcooking</div>
     <div class="hbtns">
       <button class="hbtn" id="btnRetourFromAVenir">← Tableau de bord</button>
       <button class="hbtn" id="btnLogoutAVenir">Deconnexion</button>
@@ -377,7 +377,7 @@ header{background:var(--wh);border-bottom:1px solid var(--bgd);padding:0 32px;di
 <!-- DETAIL COMMANDE -->
 <div id="pDetail">
   <header>
-    <div class="logo">Le Goût du Lien</div>
+    <div class="logo">Mon espace Batchcooking</div>
     <div class="hbtns">
       <button class="hbtn" id="btnRetourDash2">← Mes commandes</button>
       <button class="hbtn" id="btnLogout3">Deconnexion</button>

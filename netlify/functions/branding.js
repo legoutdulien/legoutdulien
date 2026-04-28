@@ -24,7 +24,7 @@ exports.handler = async (event) => {
   try {
     const filter = id ? `id=eq.${id}` : `slug=eq.${encodeURIComponent(slug)}`;
     const r = await fetch(
-      `${url}/rest/v1/entreprises?${filter}&select=id,slug,nom_marque,nom_contact,logo_url,couleur_principale,couleur_secondaire,active`,
+      `${url}/rest/v1/entreprises?${filter}&select=id,slug,nom_marque,nom_contact,logo_url,couleur_principale,couleur_secondaire,instructions_paiement,montant_client_default,active`,
       { headers: { apikey: key, Authorization: `Bearer ${key}` } }
     );
     const data = await r.json();
@@ -45,7 +45,9 @@ exports.handler = async (event) => {
         nom_contact: ent.nom_contact,
         logo_url: ent.logo_url,
         couleur_principale: ent.couleur_principale,
-        couleur_secondaire: ent.couleur_secondaire
+        couleur_secondaire: ent.couleur_secondaire,
+        instructions_paiement: ent.instructions_paiement,
+        montant_client_default: ent.montant_client_default
       })
     };
   } catch (e) {

@@ -357,7 +357,7 @@ function renderDetail(data) {
     <div id="tc-courses" class="tc">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
         <div class="cnote" style="margin-bottom:0;flex:1">🛒 Quantites pour <strong>${currentDetailPortions} portions</strong> par plat</div>
-        <button id="btnPrint" style="padding:9px 18px;background:#3d6b4f;color:#fff;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;white-space:nowrap">🖨️ Imprimer</button>
+        <button id="btnPrint" style="padding:9px 18px;background:var(--vert);color:#fff;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;white-space:nowrap">🖨️ Imprimer</button>
       </div>
       <div id="coursesDiv"></div>
     </div>
@@ -429,7 +429,7 @@ function loadCourses(platIds) {
   const checkedSet = new Set(JSON.parse(localStorage.getItem(storageKey) || '[]'));
 
   el.innerHTML = sorted.map(([ray, ings]) => {
-    const color = RAYON_COLOR[ray] || '#3d6b4f';
+    const color = RAYON_COLOR[ray] || (CURRENT_BRANDING?.couleur_principale || '#3d6b4f');
     const emoji = REMOJI[ray] || '🛒';
     const items = Object.entries(ings);
     return `
@@ -525,13 +525,15 @@ function imprimerCourses() {
   }).join('');
 
   const win = window.open('', '_blank');
+  const brandColor = (CURRENT_BRANDING?.couleur_principale) || '#3d6b4f';
+  const brandName = (CURRENT_BRANDING?.nom_marque) || 'Mon espace Batchcooking';
   win.document.write(`<!DOCTYPE html><html><head>
     <meta charset="UTF-8">
-    <title>Liste de courses - Le Gout du Lien</title>
+    <title>Liste de courses - ${brandName}</title>
     <style>
       *{box-sizing:border-box}
       body{font-family:'Helvetica Neue',Arial,sans-serif;max-width:520px;margin:24px auto;padding:0 20px;color:#222;font-size:12px;line-height:1.4}
-      h1{font-size:17px;margin:0 0 2px;color:#3d6b4f;font-weight:700}
+      h1{font-size:17px;margin:0 0 2px;color:${brandColor};font-weight:700}
       .sub{font-size:10px;color:#777;margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px}
       .r{margin-bottom:10px;break-inside:avoid;page-break-inside:avoid}
       .r h2{font-size:12px;font-weight:600;border-bottom:1.5px solid #ddd;padding-bottom:2px;margin:0 0 4px;color:#333;display:flex;align-items:baseline;gap:5px}
@@ -539,16 +541,16 @@ function imprimerCourses() {
       .i{display:flex;align-items:center;gap:7px;padding:2px 0;font-size:11px;line-height:1.3}
       .i .ck{display:inline-block;width:10px;height:10px;border:1px solid #555;border-radius:2px;flex-shrink:0}
       .i .nm{flex:1}
-      .i .qt{color:#3d6b4f;font-weight:600;font-size:10px;white-space:nowrap}
+      .i .qt{color:${brandColor};font-weight:600;font-size:10px;white-space:nowrap}
       .foot{margin-top:18px;font-size:9px;color:#bbb;text-align:center;border-top:1px solid #eee;padding-top:8px}
       @page{margin:10mm}
       @media print{body{margin:0;max-width:100%;padding:0 10mm}}
     </style>
   </head><body>
-    <h1>Liste de courses · Le Gout du Lien</h1>
+    <h1>Liste de courses · ${brandName}</h1>
     <div class="sub">${escapeHtml(semaine)} · ${escapeHtml(clientProfile?.nom || '')}</div>
     ${printHtml}
-    <div class="foot">Imprime depuis legoutdulien.netlify.app</div>
+    <div class="foot">Imprime depuis ${brandName}</div>
   </body></html>`);
   win.document.close();
   win.focus();
@@ -576,7 +578,7 @@ function renderAVenirGrid() {
   });
   const grid = $('aVenirGrid');
   if (!aVenir.length) {
-    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="eicon">⏰</div><p>Aucune nouveauté annoncée pour le moment.<br>Revenez bientôt — Alizée prépare de nouvelles recettes !</p></div>`;
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="eicon">⏰</div><p>Aucune nouveauté annoncée pour le moment.<br>Revenez bientôt — ${escapeHtml(CURRENT_BRANDING?.nom_contact || 'votre cuisinière')} prépare de nouvelles recettes !</p></div>`;
     return;
   }
   grid.innerHTML = aVenir.map(rec => `
@@ -824,13 +826,16 @@ function afficherRecap() {
   pop.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px';
   const semaine = semSel ? semSel.label : '';
   const creneau = crenSel ? crenSel.lbl : '';
+  const montantClient = CURRENT_BRANDING?.montant_client_default ?? 60;
+  const instructionsPaiement = CURRENT_BRANDING?.instructions_paiement || '';
+  const cuisiniereName = CURRENT_BRANDING?.nom_contact || 'votre cuisiniere';
   const platsHtml = sel.map((p, i) => `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #ede7db">
-    <span style="background:#eef4f0;color:#3d6b4f;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0">${i + 1}</span>
+    <span style="background:var(--vp);color:var(--vert);width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0">${i + 1}</span>
     <span style="font-size:14px">${escapeHtml(p.nom)}</span>
   </div>`).join('');
 
   pop.innerHTML = `<div id="recapBox" style="background:#fff;border-radius:20px;padding:0;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);overflow:hidden;max-height:90vh;overflow-y:auto">
-    <div style="background:#3d6b4f;padding:24px;text-align:center;color:#fff">
+    <div style="background:var(--vert);padding:24px;text-align:center;color:#fff">
       <div style="font-size:36px;margin-bottom:10px">📋</div>
       <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-bottom:4px">Recapitulatif</div>
       <div style="font-size:13px;opacity:.85">Verifiez votre selection avant de confirmer</div>
@@ -848,18 +853,15 @@ function afficherRecap() {
         <div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#6b6b6b;margin-bottom:8px">🍽️ Vos 5 plats</div>
         ${platsHtml}
       </div>
-      <div style="background:#eef4f0;border-radius:12px;padding:12px 16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
+      <div style="background:var(--vp);border-radius:12px;padding:12px 16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
         <span style="font-size:15px;font-weight:500">A votre charge</span>
-        <span style="font-size:20px;font-weight:700;color:#3d6b4f">60€</span>
+        <span style="font-size:20px;font-weight:700;color:var(--vert)">${montantClient}€</span>
       </div>
-      <div style="background:#fff8e7;border-left:3px solid #f9c74f;border-radius:10px;padding:14px 16px;margin-bottom:20px">
-        <div style="font-size:13px;font-weight:600;margin-bottom:6px;color:#8a6a1a">💳 Paiement automatique via URSSAF</div>
-        <div style="font-size:12px;line-height:1.6;color:#5a5a3a">
-          Une fois la prestation declaree par Alizee, l'URSSAF prelevera <strong>60€</strong> directement sur votre compte bancaire (l'avance immediate du credit d'impot de 50% est deja deduite — vous payez 60€ au lieu de 120€).<br><br>
-          Vous n'avez <strong>rien a faire</strong> : votre commande passera en "Confirmee" des la declaration validee.
-        </div>
-      </div>
-      <button id="recapConfirm" style="display:block;width:100%;padding:14px;background:#3d6b4f;color:#fff;border-radius:12px;border:none;font-weight:500;font-size:15px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:10px">✓ Confirmer ma commande</button>
+      ${instructionsPaiement ? `<div style="background:#fff8e7;border-left:3px solid #f9c74f;border-radius:10px;padding:14px 16px;margin-bottom:20px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:6px;color:#8a6a1a">💳 Modalité de paiement</div>
+        <div style="font-size:12px;line-height:1.6;color:#5a5a3a;white-space:pre-wrap">${escapeHtml(instructionsPaiement)}</div>
+      </div>` : ''}
+      <button id="recapConfirm" style="display:block;width:100%;padding:14px;background:var(--vert);color:#fff;border-radius:12px;border:none;font-weight:500;font-size:15px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:10px">✓ Confirmer ma commande</button>
       <button id="recapModifier" style="width:100%;padding:12px;background:#f8f4ee;color:#6b6b6b;border-radius:12px;border:none;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif">← Modifier ma selection</button>
     </div>
   </div>`;
@@ -875,6 +877,7 @@ async function confirmerCommande(pop) {
   btn.textContent = 'Enregistrement...';
   btn.style.opacity = '0.6';
   btn.style.cursor = 'not-allowed';
+  const instructionsPaiement = CURRENT_BRANDING?.instructions_paiement || '';
   try {
     const payload = {
       client_id: clientProfile.id,
@@ -895,17 +898,17 @@ async function confirmerCommande(pop) {
 
     // Remplace le contenu de la modal par l'ecran de succes
     $('recapBox').innerHTML = `
-      <div style="background:#3d6b4f;padding:32px 24px;text-align:center;color:#fff">
+      <div style="background:var(--vert);padding:32px 24px;text-align:center;color:#fff">
         <div style="font-size:54px;margin-bottom:12px">✅</div>
         <div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:700;margin-bottom:6px">Commande validee !</div>
         <div style="font-size:13px;opacity:.85">Merci, on s'occupe de tout</div>
       </div>
       <div style="padding:28px 24px">
         <p style="font-size:14px;line-height:1.7;color:#2c2c2c;margin-bottom:18px">
-          Alizee va emettre votre facture via Abby et l'URSSAF prelevera <strong>60€</strong> sur votre compte bancaire.<br><br>
+          ${instructionsPaiement ? escapeHtml(instructionsPaiement).replace(/\n/g, '<br>') + '<br><br>' : ''}
           Vous recevrez une notification quand votre commande passera en <strong>"Confirmee"</strong>.
         </p>
-        <button id="recapClose" style="display:block;width:100%;padding:14px;background:#3d6b4f;color:#fff;border-radius:12px;border:none;font-weight:500;font-size:15px;cursor:pointer;font-family:'DM Sans',sans-serif">Voir mes commandes</button>
+        <button id="recapClose" style="display:block;width:100%;padding:14px;background:var(--vert);color:#fff;border-radius:12px;border:none;font-weight:500;font-size:15px;cursor:pointer;font-family:'DM Sans',sans-serif">Voir mes commandes</button>
       </div>`;
     $('recapClose').addEventListener('click', async () => {
       pop.remove();
