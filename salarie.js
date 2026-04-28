@@ -12,6 +12,7 @@ let recettes = [];
 let ingredients = [];
 let recettesIngredients = [];
 let allCommandesAssignees = [];
+let creneauxTemplate = [];
 let curView = 'liste';
 
 // --- helpers UI ---
@@ -99,19 +100,20 @@ async function initSalarie() {
 
   showLoad();
   try {
-    const [recRes, riRes, ingRes, cmdRes] = await Promise.all([
+    const [recRes, riRes, ingRes, cmdRes, ctRes] = await Promise.all([
       sb.from('recettes').select('id, nom_du_plat, instructions_preparation, photo_url'),
       sb.from('recettes_ingredients').select('id, recette_id, ingredient_id, quantite_par_portion, ordre').order('ordre', { ascending: true }),
       sb.from('ingredients').select('id, nom, unite_par_defaut, rayon'),
       sb.from('commandes')
         .select(`
-          id, semaine_du, creneau, statut,
+          id, semaine_du, creneau, slot_key, statut,
           plat_1_id, plat_2_id, plat_3_id, plat_4_id, plat_5_id,
           nombre_portions, assigne_a_id,
           client:clients(id, nom, email, telephone, adresse, notes)
         `)
         .eq('assigne_a_id', salarieProfile.id)
-        .order('semaine_du', { ascending: false })
+        .order('semaine_du', { ascending: false }),
+      sb.from('creneaux_template').select('*')
     ]);
     if (recRes.error) throw recRes.error;
     if (riRes.error) throw riRes.error;
@@ -121,6 +123,7 @@ async function initSalarie() {
     recettes = recRes.data || [];
     recettesIngredients = riRes.data || [];
     ingredients = ingRes.data || [];
+    creneauxTemplate = ctRes.data || [];
     allCommandesAssignees = cmdRes.data || [];
 
     initCalSelects();
@@ -484,19 +487,22 @@ function renderCalSem() {
   initCalSelects();
   const semId = $('calSemSelect').value;
   const [y, m, d] = semId.split('-').map(Number);
-  const JOURS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi'];
-  const JMAP = { Lundi: 0, Mardi: 1, Mercredi: 2, Jeudi: 3, Vendredi: 4 };
-  const HEURES = ['9h00 - 12h00', '13h00 - 16h00'];
+  const JOURS_ALL = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+  const JMAP_ALL = { Lundi: 0, Mardi: 1, Mercredi: 2, Jeudi: 3, Vendredi: 4, Samedi: 5, Dimanche: 6 };
+  const jours = JOURS_ALL.filter(j => creneauxTemplate.some(t => t.jour === j));
   const cmdSem = allCommandesAssignees.filter(c => (c.semaine_du || '').startsWith(semId));
 
-  $('calContainer').innerHTML = `<div class="cal-semaine">${JOURS.map(j => {
-    const jd = new Date(y, m - 1, d + JMAP[j]);
+  $('calContainer').innerHTML = `<div class="cal-semaine">${jours.map(j => {
+    const jd = new Date(y, m - 1, d + JMAP_ALL[j]);
     const jl = jd.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+    const slots = creneauxTemplate.filter(t => t.jour === j).sort((a, b) => (a.ordre || 0) - (b.ordre || 0));
     return `<div class="cal-jour">
       <div class="cal-jour-header">${j}<span>${jd.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</span></div>
-      ${HEURES.map(h => {
+      ${slots.map(slot => {
+        const h = `${parseInt(slot.heure_debut.split(':')[0], 10)}h${slot.heure_debut.split(':')[1]} - ${parseInt(slot.heure_fin.split(':')[0], 10)}h${slot.heure_fin.split(':')[1]}`;
+        const slotKey = `${j}_${slot.nom_slot}`;
         const lbl = `${jl} · ${h}`;
-        const cmd = cmdSem.find(c => (c.creneau || '').trim() === lbl.trim());
+        const cmd = cmdSem.find(c => c.slot_key === slotKey || (c.creneau || '').trim() === lbl.trim());
         if (cmd) {
           const cName = cmd.client ? cmd.client.nom : '?';
           return `<div class="cal-slot moi">

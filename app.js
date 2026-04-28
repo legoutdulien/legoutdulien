@@ -6,9 +6,14 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const JOURS = ['Lundi', 'Mardi', 'Jeudi', 'Vendredi'];
-const HEURES = ['9h00 - 12h00', '13h00 - 16h00'];
-const JMAP = { Lundi: 0, Mardi: 1, Jeudi: 3, Vendredi: 4 };
+const JOURS_ORDER = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+const JMAP_FULL = { Lundi: 0, Mardi: 1, Mercredi: 2, Jeudi: 3, Vendredi: 4, Samedi: 5, Dimanche: 6 };
+let creneauxTemplate = [];
+function fmtHeure(t) { if (!t) return ''; const [h, m] = t.split(':'); return `${parseInt(h, 10)}h${m}`; }
+function fmtSlotLabel(start, end) { return `${fmtHeure(start)} - ${fmtHeure(end)}`; }
+function getSlotsForJour(jour) {
+  return creneauxTemplate.filter(t => t.jour === jour).sort((a, b) => (a.ordre || 0) - (b.ordre || 0));
+}
 const REMOJI = {
   'Fruits & Légumes': '🥦', 'Fruits et légumes': '🥦', 'Fruits & légumes': '🥦',
   'Viandes': '🥩', 'Boucherie': '🥩', 'Charcuterie': '🥓',
@@ -568,10 +573,11 @@ async function showApp() {
 async function loadRecettesData() {
   showLoad('Chargement des plats...');
   try {
-    const [recRes, riRes, ingRes] = await Promise.all([
+    const [recRes, riRes, ingRes, ctRes] = await Promise.all([
       sb.from('recettes').select('*').order('nom_du_plat'),
       sb.from('recettes_ingredients').select('*').order('ordre', { ascending: true }),
-      sb.from('ingredients').select('*')
+      sb.from('ingredients').select('*'),
+      sb.from('creneaux_template').select('*')
     ]);
     if (recRes.error) throw recRes.error;
     if (riRes.error) throw riRes.error;
@@ -579,6 +585,7 @@ async function loadRecettesData() {
     recettes = recRes.data || [];
     recettesIngredients = riRes.data || [];
     ingredients = ingRes.data || [];
+    creneauxTemplate = ctRes.data || [];
   } finally {
     hideLoad();
   }
@@ -624,14 +631,13 @@ async function affCreneaux(sem) {
   let pris = [], crenRecs = [];
   try {
     const [cmdRes, crRes] = await Promise.all([
-      sb.from('commandes').select('creneau').eq('semaine_du', sem.id),
+      sb.from('commandes').select('creneau, slot_key').eq('semaine_du', sem.id),
       sb.from('creneaux').select('*').eq('semaine', sem.id)
     ]);
-    pris = (cmdRes.data || []).map(r => r.creneau).filter(Boolean);
+    pris = cmdRes.data || [];
     crenRecs = crRes.data || [];
   } catch (e) { /* default to all open */ }
 
-  const SLOT_MAP = { matin: '9h00 - 12h00', apmidi: '13h00 - 16h00' };
   function isActif(j, slot) {
     const k = `${j}_${slot}`;
     const found = crenRecs.find(r => r.slot === k);
@@ -639,14 +645,20 @@ async function affCreneaux(sem) {
   }
   const [y, mo, d] = sem.id.split('-').map(Number);
   c.innerHTML = '';
-  JOURS.forEach(j => {
-    const jd = new Date(y, mo - 1, d + JMAP[j]);
+  const jours = JOURS_ORDER.filter(j => creneauxTemplate.some(t => t.jour === j));
+  if (!jours.length) {
+    c.innerHTML = '<div class="cph">Aucun creneau disponible cette semaine</div>';
+    return;
+  }
+  jours.forEach(j => {
+    const jd = new Date(y, mo - 1, d + JMAP_FULL[j]);
     const jl = jd.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
-    ['matin', 'apmidi'].forEach(slot => {
-      const h = SLOT_MAP[slot];
+    getSlotsForJour(j).forEach(slot => {
+      const h = fmtSlotLabel(slot.heure_debut, slot.heure_fin);
       const lbl = `${jl} · ${h}`;
-      const taken = pris.some(p => p && p.trim() === lbl.trim());
-      const ferme = !isActif(j, slot);
+      const slotKey = `${j}_${slot.nom_slot}`;
+      const taken = pris.some(p => p.slot_key === slotKey || (p.creneau && p.creneau.trim() === lbl.trim()));
+      const ferme = !isActif(j, slot.nom_slot);
       const el = document.createElement('div');
       el.className = 'citem' + ((taken || ferme) ? ' cpris' : '');
       const tag = taken ? '<span class="cpris-tag">Complet</span>' : ferme ? '<span class="cpris-tag">Ferme</span>' : '';
@@ -655,7 +667,7 @@ async function affCreneaux(sem) {
         el.addEventListener('click', () => {
           document.querySelectorAll('.citem').forEach(x => x.classList.remove('on'));
           el.classList.add('on');
-          crenSel = { lbl };
+          crenSel = { lbl, slotKey };
           majBarre();
         });
       }
@@ -835,6 +847,7 @@ async function confirmerCommande(pop) {
       client_id: clientProfile.id,
       semaine_du: semSel.id,
       creneau: crenSel.lbl,
+      slot_key: crenSel.slotKey || null,
       statut: 'En attente de paiement',
       plat_1_id: sel[0].id,
       plat_2_id: sel[1].id,

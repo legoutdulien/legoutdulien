@@ -8,7 +8,22 @@ let sb = null;
 
 const STORAGE_BUCKET = 'photos-recettes';
 
-const DATA = { commandes: [], recettes: [], ri: [], clients: [], salaries: [], ingredients: [], creneaux: [] };
+const DATA = { commandes: [], recettes: [], ri: [], clients: [], salaries: [], ingredients: [], creneaux: [], creneauxTemplate: [] };
+const JOURS_ORDER = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+const JMAP_FULL = { Lundi: 0, Mardi: 1, Mercredi: 2, Jeudi: 3, Vendredi: 4, Samedi: 5, Dimanche: 6 };
+
+function fmtHeure(t) { if (!t) return ''; const [h, m] = t.split(':'); return `${parseInt(h, 10)}h${m}`; }
+function fmtSlotLabel(start, end) { return `${fmtHeure(start)} - ${fmtHeure(end)}`; }
+function getTemplateSorted() {
+  return [...DATA.creneauxTemplate].sort((a, b) => {
+    const ja = JOURS_ORDER.indexOf(a.jour), jb = JOURS_ORDER.indexOf(b.jour);
+    if (ja !== jb) return ja - jb;
+    return (a.ordre || 0) - (b.ordre || 0);
+  });
+}
+function getSlotsForJour(jour) {
+  return DATA.creneauxTemplate.filter(t => t.jour === jour).sort((a, b) => (a.ordre || 0) - (b.ordre || 0));
+}
 let curOffset = 0, crenOffset = 0;
 let calYear, calMonth;
 let ariaConv = [], ariaSys = '', ariaBusy = false;
@@ -74,14 +89,15 @@ function logout() {
 // --- DATA LOAD ---
 async function chargerTout() {
   try {
-    const [cmdR, recR, riR, cliR, salR, ingR, crenR] = await Promise.all([
+    const [cmdR, recR, riR, cliR, salR, ingR, crenR, ctR] = await Promise.all([
       sb.from('commandes').select('*').order('semaine_du', { ascending: false }),
       sb.from('recettes').select('*').order('nom_du_plat', { ascending: true }),
       sb.from('recettes_ingredients').select('*').order('ordre', { ascending: true }),
       sb.from('clients').select('*').order('nom', { ascending: true }),
       sb.from('salaries').select('*').order('nom', { ascending: true }),
       sb.from('ingredients').select('*').order('nom', { ascending: true }),
-      sb.from('creneaux').select('*')
+      sb.from('creneaux').select('*'),
+      sb.from('creneaux_template').select('*')
     ]);
     if (cmdR.error) throw cmdR.error;
     if (recR.error) throw recR.error;
@@ -98,6 +114,7 @@ async function chargerTout() {
     DATA.salaries = salR.data || [];
     DATA.ingredients = ingR.data || [];
     DATA.creneaux = crenR.data || [];
+    DATA.creneauxTemplate = ctR.data || [];
 
     populateUnitDatalist();
     setupRealtimeNotifs();
@@ -356,16 +373,17 @@ function majSelectCreneau(valActuelle = '') {
   sel.innerHTML = '';
   if (!semaine) return;
   const [y, mo, d] = semaine.split('-').map(Number);
-  const JOURS = ['Lundi', 'Mardi', 'Jeudi', 'Vendredi'];
-  const JMAP = { Lundi: 0, Mardi: 1, Jeudi: 3, Vendredi: 4 };
-  const SLOTS = [{ slot: 'matin', h: '9h00 - 12h00' }, { slot: 'apmidi', h: '13h00 - 16h00' }];
-  JOURS.forEach(j => {
-    const jd = new Date(y, mo - 1, d + JMAP[j]);
+  const jours = JOURS_ORDER.filter(j => DATA.creneauxTemplate.some(t => t.jour === j));
+  jours.forEach(j => {
+    const jd = new Date(y, mo - 1, d + JMAP_FULL[j]);
     const jl = jd.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
-    SLOTS.forEach(({ slot, h }) => {
+    getSlotsForJour(j).forEach(slot => {
+      const h = fmtSlotLabel(slot.heure_debut, slot.heure_fin);
       const lbl = `${jl} · ${h}`;
       const opt = document.createElement('option');
-      opt.value = lbl; opt.textContent = lbl + (crActif(semaine, j + '_' + slot) ? '' : ' (ferme)');
+      opt.value = lbl;
+      opt.dataset.slotKey = `${j}_${slot.nom_slot}`;
+      opt.textContent = lbl + (crActif(semaine, `${j}_${slot.nom_slot}`) ? '' : ' (ferme)');
       sel.appendChild(opt);
     });
   });
@@ -1431,38 +1449,41 @@ async function toggleCren(sem, slotKey, currentActif) {
 }
 
 function renderCreneaux() {
-  const jours = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi'];
-  const JMAP = { Lundi: 0, Mardi: 1, Mercredi: 2, Jeudi: 3, Vendredi: 4 };
   const semaine = getMonday(crenOffset);
   const todayMon = getMonday(0);
   const isPasse = semaine < todayMon;
   const [yy, mm, dd] = semaine.split('-').map(Number);
-  const slots = [{ key: 'matin', label: 'Matin', hours: '09h – 12h' }, { key: 'apmidi', label: 'Apres-midi', hours: '13h – 16h' }];
-  const joursHtml = jours.map(jour => {
-    const jd = new Date(yy, mm - 1, dd + JMAP[jour]);
-    const dateLabel = jd.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
-    const cmdJ = DATA.commandes.filter(c => (c.semaine_du || '').startsWith(semaine) && (c.creneau || '').toLowerCase().includes(jour.toLowerCase()));
-    const slotsHtml = slots.map(s => {
-      const k = `${jour}_${s.key}`;
-      const actif = crActif(semaine, k);
-      const cmdS = cmdJ.filter(c => (c.creneau || '').toLowerCase().includes(s.label.toLowerCase().slice(0, 4)));
-      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px solid var(--bgd)">
-        <div>
-          <div style="font-size:12px;font-weight:500;color:var(--tx)">${s.label}</div>
-          <div style="font-size:11px;color:var(--txl)">${s.hours} · ${cmdS.length} cmd</div>
-        </div>
-        ${isPasse ? `<span style="font-size:10px;color:var(--txl)">passe</span>` : `<button class="cren-btn ${actif ? 'on' : 'off'}" style="width:auto;padding:4px 10px" data-act="toggle-cren" data-sem="${semaine}" data-slot="${k}" data-actif="${actif}">${actif ? '✓' : '✗'}</button>`}
+  // Jours actifs = ceux qui ont au moins un slot dans le template
+  const jours = JOURS_ORDER.filter(j => DATA.creneauxTemplate.some(t => t.jour === j));
+  const joursHtml = jours.length === 0
+    ? '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">⚙️</div><div class="empty-txt">Aucun créneau configuré.<br>Cliquez sur ⚙️ Paramètres pour en ajouter.</div></div>'
+    : jours.map(jour => {
+      const jd = new Date(yy, mm - 1, dd + JMAP_FULL[jour]);
+      const dateLabel = jd.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+      const cmdJ = DATA.commandes.filter(c => (c.semaine_du || '').startsWith(semaine) && (c.creneau || '').toLowerCase().includes(jour.toLowerCase()));
+      const slotsForJour = getSlotsForJour(jour);
+      const slotsHtml = slotsForJour.map(s => {
+        const k = `${jour}_${s.nom_slot}`;
+        const actif = crActif(semaine, k);
+        const cmdS = cmdJ.filter(c => c.slot_key === k || (c.creneau || '').toLowerCase().includes(fmtHeure(s.heure_debut).toLowerCase()));
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px solid var(--bgd)">
+          <div>
+            <div style="font-size:12px;font-weight:500;color:var(--tx);text-transform:capitalize">${escapeHtml(s.nom_slot)}</div>
+            <div style="font-size:11px;color:var(--txl)">${escapeHtml(fmtSlotLabel(s.heure_debut, s.heure_fin))} · ${cmdS.length} cmd</div>
+          </div>
+          ${isPasse ? `<span style="font-size:10px;color:var(--txl)">passe</span>` : `<button class="cren-btn ${actif ? 'on' : 'off'}" style="width:auto;padding:4px 10px" data-act="toggle-cren" data-sem="${semaine}" data-slot="${k}" data-actif="${actif}">${actif ? '✓' : '✗'}</button>`}
+        </div>`;
+      }).join('');
+      return `<div class="cren-card${isPasse ? ' past' : ''}">
+        <div class="cren-jour">${jour}</div>
+        <div style="font-size:11px;color:var(--txl);margin-top:-2px;margin-bottom:6px;text-transform:capitalize">${dateLabel}</div>
+        ${slotsHtml || '<div style="font-size:11px;color:var(--txl);padding:8px 0;text-align:center">Aucun creneau</div>'}
       </div>`;
     }).join('');
-    return `<div class="cren-card${isPasse ? ' past' : ''}">
-      <div class="cren-jour">${jour}</div>
-      <div style="font-size:11px;color:var(--txl);margin-top:-2px;margin-bottom:6px;text-transform:capitalize">${dateLabel}</div>
-      ${slotsHtml}
-    </div>`;
-  }).join('');
   showContent(`<div class="card">
     <div class="card-head">
       <div class="card-tit">🕐 Creneaux</div>
+      <button class="btn btn-ghost" id="btnParamCreneaux">⚙️ Paramètres</button>
     </div>
     <div class="snav">
       <button class="snav-btn" id="prevCren">◀</button>
@@ -1478,6 +1499,120 @@ function renderCreneaux() {
   $('nextCren').addEventListener('click', () => { crenOffset++; renderCreneaux(); });
   $('todayCren')?.addEventListener('click', () => { crenOffset = 0; renderCreneaux(); });
   $('content').querySelectorAll('[data-act="toggle-cren"]').forEach(b => b.addEventListener('click', () => toggleCren(b.dataset.sem, b.dataset.slot, b.dataset.actif === 'true')));
+  $('btnParamCreneaux').addEventListener('click', ouvrirParametresCreneaux);
+}
+
+// === PARAMETRES CRENEAUX ===
+function ouvrirParametresCreneaux() {
+  renderParamCreneauxBody();
+  openModal('modalParamCreneaux');
+}
+
+function renderParamCreneauxBody() {
+  const html = JOURS_ORDER.map(jour => {
+    const slots = getSlotsForJour(jour);
+    return `<div style="border:1.5px solid var(--bgd);border-radius:12px;padding:14px;margin-bottom:10px;background:${slots.length ? 'var(--vp)' : 'var(--bgc)'}">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:${slots.length ? '10px' : '0'}">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--v2)">${jour}</div>
+        <button class="btn btn-ghost btn-sm" data-act="add-slot" data-jour="${jour}">+ Ajouter un créneau</button>
+      </div>
+      ${slots.map(s => `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--bgd);font-size:13px">
+        <div style="flex:1">
+          <div style="font-weight:500;text-transform:capitalize">${escapeHtml(s.nom_slot)}</div>
+          <div style="font-size:11px;color:var(--txm)">${escapeHtml(fmtSlotLabel(s.heure_debut, s.heure_fin))}</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" data-act="edit-slot" data-id="${s.id}">✏️</button>
+        <button class="btn btn-danger btn-sm" data-act="del-slot" data-id="${s.id}">🗑️</button>
+      </div>`).join('')}
+    </div>`;
+  }).join('');
+  $('paramCreneauxBody').innerHTML = html;
+  $('paramCreneauxBody').querySelectorAll('[data-act="add-slot"]').forEach(b => b.addEventListener('click', () => editerSlot(null, b.dataset.jour)));
+  $('paramCreneauxBody').querySelectorAll('[data-act="edit-slot"]').forEach(b => b.addEventListener('click', () => editerSlot(b.dataset.id)));
+  $('paramCreneauxBody').querySelectorAll('[data-act="del-slot"]').forEach(b => b.addEventListener('click', () => supprimerSlot(b.dataset.id)));
+}
+
+function editerSlot(id, defaultJour) {
+  const slot = id ? DATA.creneauxTemplate.find(s => s.id === id) : null;
+  const jour = slot ? slot.jour : defaultJour;
+  const nom = slot ? slot.nom_slot : '';
+  const debut = slot ? slot.heure_debut : '09:00';
+  const fin = slot ? slot.heure_fin : '12:00';
+
+  const pop = document.createElement('div');
+  pop.id = 'slotEditPop';
+  pop.className = 'overlay open';
+  pop.style.zIndex = '500';
+  pop.innerHTML = `<div class="modal" style="max-width:440px">
+    <div class="modal-head">
+      <div class="modal-tit">${id ? 'Modifier le créneau' : 'Nouveau créneau'}</div>
+    </div>
+    <div class="form-grid">
+      <div class="fg" style="grid-column:1/-1"><label>Jour</label>
+        <select id="slotJour">
+          ${JOURS_ORDER.map(j => `<option value="${j}" ${j === jour ? 'selected' : ''}>${j}</option>`).join('')}
+        </select>
+      </div>
+      <div class="fg" style="grid-column:1/-1"><label>Nom du créneau</label>
+        <input type="text" id="slotNom" value="${escapeAttr(nom)}" placeholder="ex: matin, apmidi, soir...">
+      </div>
+      <div class="fg"><label>Heure de début</label><input type="time" id="slotDebut" value="${escapeAttr(debut)}"></div>
+      <div class="fg"><label>Heure de fin</label><input type="time" id="slotFin" value="${escapeAttr(fin)}"></div>
+    </div>
+    <div style="margin-top:18px;display:flex;gap:10px">
+      <button class="btn btn-primary" id="slotSave" style="flex:1">💾 Enregistrer</button>
+      <button class="btn btn-ghost" id="slotCancel">Annuler</button>
+    </div>
+  </div>`;
+  document.body.appendChild(pop);
+  pop.querySelector('#slotCancel').addEventListener('click', () => pop.remove());
+  pop.querySelector('#slotSave').addEventListener('click', async () => {
+    const newJour = $('slotJour').value;
+    const newNom = $('slotNom').value.trim().toLowerCase();
+    const newDebut = $('slotDebut').value;
+    const newFin = $('slotFin').value;
+    if (!newNom) { toast('⚠️ Donne un nom au créneau (matin, apmidi, soir...)'); return; }
+    if (!newDebut || !newFin) { toast('⚠️ Renseigne les heures'); return; }
+    if (newDebut >= newFin) { toast('⚠️ Heure de fin doit être après heure de début'); return; }
+    // Check doublon
+    const dup = DATA.creneauxTemplate.find(s => s.jour === newJour && s.nom_slot === newNom && s.id !== id);
+    if (dup) { toast('⚠️ Un créneau "' + newNom + '" existe déjà pour ' + newJour); return; }
+    try {
+      const ordreMax = DATA.creneauxTemplate.filter(s => s.jour === newJour).reduce((a, s) => Math.max(a, s.ordre || 0), 0);
+      if (id) {
+        const { error } = await sb.from('creneaux_template').update({
+          jour: newJour, nom_slot: newNom, heure_debut: newDebut, heure_fin: newFin
+        }).eq('id', id);
+        if (error) throw error;
+        const t = DATA.creneauxTemplate.find(s => s.id === id);
+        if (t) { t.jour = newJour; t.nom_slot = newNom; t.heure_debut = newDebut; t.heure_fin = newFin; }
+      } else {
+        const { data, error } = await sb.from('creneaux_template').insert({
+          jour: newJour, nom_slot: newNom, heure_debut: newDebut, heure_fin: newFin, ordre: ordreMax + 1
+        }).select().single();
+        if (error) throw error;
+        DATA.creneauxTemplate.push(data);
+      }
+      toast('✅ Créneau enregistré');
+      pop.remove();
+      renderParamCreneauxBody();
+      renderCreneaux();
+    } catch (e) { toast('Erreur: ' + (e.message || e)); }
+  });
+}
+
+async function supprimerSlot(id) {
+  const slot = DATA.creneauxTemplate.find(s => s.id === id);
+  if (!slot) return;
+  if (!confirm(`Supprimer le créneau "${slot.nom_slot}" du ${slot.jour} ?`)) return;
+  try {
+    const { error } = await sb.from('creneaux_template').delete().eq('id', id);
+    if (error) throw error;
+    DATA.creneauxTemplate = DATA.creneauxTemplate.filter(s => s.id !== id);
+    toast('🗑️ Créneau supprimé');
+    renderParamCreneauxBody();
+    renderCreneaux();
+  } catch (e) { toast('Erreur: ' + (e.message || e)); }
 }
 
 // --- ARIA ---
