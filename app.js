@@ -923,26 +923,57 @@ async function confirmerCommande(pop) {
 }
 
 // --- branding dynamique selon le sous-domaine ---
+// Renvoie le slug entreprise si on est sur un sous-domaine type
+// <slug>.mybatch.cooking ou <slug>.netlify.app, sinon null pour le root.
 function getSubdomainSlug() {
   const host = window.location.hostname;
-  if (host === 'mybatch.cooking' || host === 'www.mybatch.cooking') return 'legoutdulien';
-  if (host === 'localhost' || host.startsWith('127.') || host.startsWith('192.168.')) return 'legoutdulien';
-  const m = host.match(/^([^.]+)\./);
-  return m ? m[1] : 'legoutdulien';
+  if (host === 'mybatch.cooking' || host === 'www.mybatch.cooking') return null;
+  if (host === 'localhost' || host.startsWith('127.') || host.startsWith('192.168.')) return null;
+  let m = host.match(/^([^.]+)\.mybatch\.cooking$/);
+  if (m) return m[1] === 'www' ? null : m[1];
+  m = host.match(/^([^.]+)\.netlify\.app$/);
+  if (m) return m[1];
+  return null;
 }
+
+const GENERIC_BRANDING = {
+  id: null,
+  slug: null,
+  nom_marque: 'Mon espace Batchcooking',
+  nom_contact: 'votre cuisiniere',
+  logo_url: null,
+  couleur_principale: '#1f2937',
+  couleur_secondaire: '#f59e0b'
+};
 
 let CURRENT_BRANDING = null;
 async function loadBranding(opts = {}) {
   try {
-    let qs;
+    let qs = null;
     if (opts.id) qs = `id=${encodeURIComponent(opts.id)}`;
-    else qs = `slug=${encodeURIComponent(opts.slug || getSubdomainSlug())}`;
+    else if (opts.slug) qs = `slug=${encodeURIComponent(opts.slug)}`;
+    else {
+      const slug = getSubdomainSlug();
+      if (slug) qs = `slug=${encodeURIComponent(slug)}`;
+    }
+    if (!qs) {
+      CURRENT_BRANDING = GENERIC_BRANDING;
+      applyBranding(GENERIC_BRANDING);
+      return;
+    }
     const r = await fetch(`/.netlify/functions/branding?${qs}`);
-    if (!r.ok) return;
+    if (!r.ok) {
+      CURRENT_BRANDING = GENERIC_BRANDING;
+      applyBranding(GENERIC_BRANDING);
+      return;
+    }
     const b = await r.json();
     CURRENT_BRANDING = b;
     applyBranding(b);
-  } catch (e) { /* silent */ }
+  } catch (e) {
+    CURRENT_BRANDING = GENERIC_BRANDING;
+    applyBranding(GENERIC_BRANDING);
+  }
 }
 
 function applyBranding(b) {
