@@ -1563,72 +1563,77 @@ function renderEntreprises() {
   $('content').querySelectorAll('[data-act="del-ent"]').forEach(b => b.addEventListener('click', () => supprimerEntreprise(b.dataset.id)));
 }
 
+function genererMotDePasse() {
+  const adj = ['Belle', 'Douce', 'Verte', 'Soleil', 'Chef', 'Cuisine', 'Recette'];
+  const a = adj[Math.floor(Math.random() * adj.length)];
+  const n = Math.floor(1000 + Math.random() * 9000);
+  return `${a}${n}!`;
+}
+
 function nouvelleEntreprise() {
-  ['entId', 'entNom', 'entSlug', 'entEmail', 'entLogo', 'entInstructions'].forEach(id => { const el = $(id); if (el) el.value = ''; });
+  ['entId', 'entContact', 'entNom', 'entSlug', 'entEmail', 'entPwd'].forEach(id => { const el = $(id); if (el) el.value = ''; });
   $('entPlan').value = 'standard';
-  $('entMontant').value = 60;
-  $('entCouleur1').value = '#3d6b4f';
-  $('entCouleur2').value = '#5a8a6a';
   $('entActive').value = 'true';
-  $('entLogoPreview').innerHTML = '🏢';
-  $('entLogoNom').textContent = 'Format carré recommandé';
+  $('entActiveWrap').style.display = 'none'; // pas de statut a la creation
+  $('entPwd').value = genererMotDePasse(); // pre-genere
   $('modalEntTit').textContent = 'Nouvelle cuisinière';
+  $('btnSaveEnt').textContent = '💾 Créer le compte';
   openModal('modalEntreprise');
 }
 
 function editerEntreprise(id) {
   const e = DATA.entreprises.find(x => x.id === id); if (!e) return;
   $('entId').value = id;
+  $('entContact').value = e.nom_contact || '';
   $('entNom').value = e.nom_marque || '';
   $('entSlug').value = e.slug || '';
   $('entEmail').value = e.admin_email || '';
   $('entPlan').value = e.plan || 'standard';
-  $('entMontant').value = e.montant_client_default || 60;
-  $('entCouleur1').value = e.couleur_principale || '#3d6b4f';
-  $('entCouleur2').value = e.couleur_secondaire || '#5a8a6a';
   $('entActive').value = e.active ? 'true' : 'false';
-  $('entInstructions').value = e.instructions_paiement || '';
-  $('entLogo').value = e.logo_url || '';
-  $('entLogoPreview').innerHTML = e.logo_url ? `<img src="${escapeHtml(e.logo_url)}" style="width:100%;height:100%;object-fit:cover">` : '🏢';
-  $('entLogoNom').textContent = e.logo_url ? 'Logo existant — cliquer pour changer' : 'Format carré recommandé';
-  $('modalEntTit').textContent = 'Modifier · ' + (e.nom_marque || 'entreprise');
+  $('entActiveWrap').style.display = '';
+  $('entPwd').value = '';
+  $('entPwd').placeholder = '(laisser vide pour ne pas changer)';
+  $('modalEntTit').textContent = 'Modifier · ' + (e.nom_marque || 'cuisinière');
+  $('btnSaveEnt').textContent = '💾 Enregistrer';
   openModal('modalEntreprise');
 }
 
 async function saveEntreprise() {
   const id = $('entId').value;
+  const contact = $('entContact').value.trim();
   const nom = $('entNom').value.trim();
   const slug = $('entSlug').value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
   const email = $('entEmail').value.trim();
-  if (!nom || !slug || !email) { toast('⚠️ Nom, slug et email obligatoires'); return; }
+  const pwd = $('entPwd').value.trim();
+  if (!contact || !nom || !slug || !email) { toast('⚠️ Tous les champs obligatoires'); return; }
+  if (!id && !pwd) { toast('⚠️ Mot de passe obligatoire à la création'); return; }
   // Doublon slug
   const dup = DATA.entreprises.find(e => e.slug === slug && e.id !== id);
   if (dup) { toast('⚠️ Le slug "' + slug + '" est déjà pris'); return; }
 
   const payload = {
+    nom_contact: contact,
     nom_marque: nom,
     slug,
     admin_email: email,
-    plan: $('entPlan').value,
-    montant_client_default: parseInt($('entMontant').value, 10) || 60,
-    couleur_principale: $('entCouleur1').value,
-    couleur_secondaire: $('entCouleur2').value,
-    active: $('entActive').value === 'true',
-    instructions_paiement: $('entInstructions').value.trim() || null,
-    logo_url: ($('entLogo').value || '').trim() || null
+    plan: $('entPlan').value
   };
+  if (pwd) payload.admin_password = pwd;
+  if (id) payload.active = $('entActive').value === 'true';
 
   try {
     if (id) {
       const { error } = await sb.from('entreprises').update(payload).eq('id', id);
       if (error) throw error;
       const e = DATA.entreprises.find(x => x.id === id); if (e) Object.assign(e, payload);
-      toast('✅ Entreprise modifiée');
+      toast('✅ Cuisinière modifiée');
     } else {
-      const { data, error } = await sb.from('entreprises').insert(payload).select().single();
+      const { data, error } = await sb.from('entreprises').insert({ ...payload, active: true }).select().single();
       if (error) throw error;
       DATA.entreprises.push(data);
-      toast('✅ Entreprise créée — URL : ' + slug + '.mybatch.cooking');
+      // Rappel vocal des credentials a la cuisinière
+      const url = slug + '.mybatch.cooking/admin.html';
+      alert(`✅ Compte créé !\n\nÀ communiquer à ${contact} :\n\n📧 Email : ${email}\n🔑 Mot de passe : ${pwd}\n🔗 URL admin : ${url}\n\nIls pourront ensuite personnaliser leur logo, couleurs, montant et instructions de paiement depuis leur espace.`);
     }
     closeModal('modalEntreprise');
     renderEntreprises();
@@ -1996,8 +2001,7 @@ document.addEventListener('DOMContentLoaded', () => {
   $('btnSaveSal').addEventListener('click', saveSalarie);
   $('btnSaveCmd').addEventListener('click', saveCommande);
   $('btnSaveEnt').addEventListener('click', saveEntreprise);
-  $('entBtnUpload').addEventListener('click', () => $('entLogoFile').click());
-  $('entLogoFile').addEventListener('change', (e) => { const f = e.target.files[0]; if (f) uploadEntLogo(f); });
+  $('entPwdGen')?.addEventListener('click', () => { $('entPwd').value = genererMotDePasse(); });
   $('btnAddIng').addEventListener('click', ajouterIngRow);
   $('btnUpload').addEventListener('click', uploadPhoto);
   $('rPhotoFile').addEventListener('change', (e) => handlePhotoFile(e.target));

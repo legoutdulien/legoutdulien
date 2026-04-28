@@ -518,61 +518,47 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);heigh
 </div>
 
 <div class="overlay" id="modalEntreprise">
-  <div class="modal" style="max-width:640px">
+  <div class="modal" style="max-width:560px">
     <div class="modal-head">
-      <div class="modal-tit" id="modalEntTit">Nouvelle entreprise</div>
+      <div class="modal-tit" id="modalEntTit">Nouvelle cuisinière</div>
       <button class="modal-x" data-close="modalEntreprise">✕</button>
     </div>
+    <p style="font-size:13px;color:var(--txm);margin-bottom:14px">Renseigne le minimum pour ouvrir le compte. La cuisinière personnalisera elle-même son logo, ses couleurs, ses instructions de paiement et son montant client après sa première connexion.</p>
     <div class="form-grid">
+      <div class="fg" style="grid-column:1/-1"><label>Nom du contact *</label>
+        <input id="entContact" type="text" placeholder="Ex: Julie Dupont">
+      </div>
       <div class="fg" style="grid-column:1/-1"><label>Nom de marque *</label>
         <input id="entNom" type="text" placeholder="Ex: Cuisine de Julie">
       </div>
-      <div class="fg"><label>Slug (URL) *</label>
+      <div class="fg"><label>URL (sous-domaine) *</label>
         <input id="entSlug" type="text" placeholder="cuisinedejulie" pattern="[a-z0-9-]+">
       </div>
       <div class="fg"><label>Plan</label>
         <select id="entPlan">
           <option value="standard">Standard (79€/mois)</option>
-          <option value="founder">Founder (gratuit, toi)</option>
+          <option value="founder">Founder (gratuit)</option>
         </select>
       </div>
-      <div class="fg"><label>Email admin *</label>
+      <div class="fg" style="grid-column:1/-1"><label>Email admin (login) *</label>
         <input id="entEmail" type="email" placeholder="julie@email.fr">
       </div>
-      <div class="fg"><label>Montant client (€)</label>
-        <input id="entMontant" type="number" min="0" max="500" value="60">
-      </div>
-      <div class="fg"><label>Couleur principale</label>
-        <input id="entCouleur1" type="color" value="#3d6b4f">
-      </div>
-      <div class="fg"><label>Couleur secondaire</label>
-        <input id="entCouleur2" type="color" value="#5a8a6a">
-      </div>
-      <div class="fg" style="grid-column:1/-1">
-        <label>Logo</label>
-        <div id="entLogoDropzone" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:14px;border:1.5px dashed var(--bgd);border-radius:12px">
-          <div id="entLogoPreview" style="width:80px;height:80px;border-radius:10px;background:var(--bgc);border:1.5px dashed var(--bgd);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;overflow:hidden">🏢</div>
-          <div style="flex:1;display:flex;flex-direction:column;gap:6px;min-width:160px">
-            <button type="button" class="btn btn-ghost" id="entBtnUpload">📷 Choisir ou glisser un logo</button>
-            <div style="font-size:11px;color:var(--txl)" id="entLogoNom">Format carré recommandé</div>
-          </div>
+      <div class="fg" style="grid-column:1/-1"><label>Mot de passe admin *</label>
+        <div style="display:flex;gap:6px">
+          <input id="entPwd" type="text" placeholder="ex: cuisinedejulie2026" style="flex:1">
+          <button type="button" class="btn btn-ghost btn-sm" id="entPwdGen" title="Générer un mot de passe aléatoire">🎲</button>
         </div>
-        <input type="hidden" id="entLogo">
-        <input type="file" id="entLogoFile" accept="image/*" style="display:none">
       </div>
-      <div class="fg" style="grid-column:1/-1"><label>Instructions de paiement (affichées au client)</label>
-        <textarea id="entInstructions" rows="3" placeholder="Ex: Paiement par virement bancaire à FR76 ..."></textarea>
-      </div>
-      <div class="fg"><label>Statut</label>
+      <div class="fg" style="grid-column:1/-1" id="entActiveWrap" style="display:none"><label>Statut</label>
         <select id="entActive">
           <option value="true">✓ Actif</option>
-          <option value="false">⏸️ Suspendu</option>
+          <option value="false">⏸️ Suspendu (compte bloqué)</option>
         </select>
       </div>
     </div>
     <input type="hidden" id="entId">
     <div style="margin-top:20px;display:flex;gap:10px">
-      <button class="btn btn-primary" id="btnSaveEnt">💾 Enregistrer</button>
+      <button class="btn btn-primary" id="btnSaveEnt">💾 Créer le compte</button>
       <button class="btn btn-ghost" data-close="modalEntreprise">Annuler</button>
     </div>
   </div>
