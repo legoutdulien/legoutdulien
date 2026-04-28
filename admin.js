@@ -1932,6 +1932,22 @@ async function saveEntreprise() {
         throw linkErr;
       }
 
+      // Starter pack : copie les ingredients de Le Gout du Lien comme base
+      // La nouvelle entreprise peut completer / modifier / supprimer chez elle
+      // sans impacter les donnees source. Non bloquant si echec.
+      try {
+        const lgl = DATA.entreprises.find(x => x.slug === 'legoutdulien');
+        if (lgl) {
+          const { data: ingsTpl } = await sb.from('ingredients')
+            .select('nom, unite_par_defaut, rayon')
+            .eq('entreprise_id', lgl.id);
+          if (Array.isArray(ingsTpl) && ingsTpl.length) {
+            const seed = ingsTpl.map(i => ({ ...i, entreprise_id: ent.id }));
+            await sb.from('ingredients').insert(seed);
+          }
+        }
+      } catch (eSeed) { /* silent */ }
+
       DATA.entreprises.push(ent);
       const url = slug + '.mybatch.cooking';
       alert(`✅ Compte créé !\n\nÀ communiquer à ${contact} :\n\n📧 Email : ${email}\n🔑 Mot de passe : ${pwd}\n🔗 URL : ${url}\n\nElle se connectera sur cette URL avec son email et son mot de passe — l'interface admin s'ouvrira automatiquement. Elle pourra ensuite personnaliser son logo, ses couleurs, son montant client et ses instructions de paiement depuis son espace.`);
