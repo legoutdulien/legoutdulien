@@ -1860,6 +1860,11 @@ async function saveEntreprise() {
         throw new Error('Creation compte auth echouee : ' + eAuth.message);
       }
 
+      // Le trigger Postgres cree une ligne clients par defaut a chaque user auth.
+      // Pour un admin d'entreprise on supprime ces lignes parasites avant de lier.
+      await sb.from('clients').delete().eq('id', authUser.id);
+      await sb.from('salaries').delete().eq('id', authUser.id);
+
       const { error: linkErr } = await sb.from('admins_entreprise').insert({
         user_id: authUser.id,
         entreprise_id: ent.id,
