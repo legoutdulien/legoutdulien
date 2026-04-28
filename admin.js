@@ -11,6 +11,33 @@ let SB_SERVICE_KEY = '';
 let sb = null;
 let CURRENT_ENTREPRISE_ID = null;
 let CURRENT_ADMIN_NOM = '';
+let CURRENT_PLAN = 'standard';
+const isFounder = () => CURRENT_PLAN === 'founder';
+
+const PLAN_LIMITS = { recettes: 200, clientes: 30, commandes_mois: 80, photos_mb: 800 };
+
+async function checkPlanLimit(kind, label) {
+  if (isFounder()) return true;
+  const max = PLAN_LIMITS[kind];
+  let q;
+  if (kind === 'recettes') q = sb.from('recettes').select('*', { count: 'exact', head: true });
+  else if (kind === 'clientes') q = sb.from('clients').select('*', { count: 'exact', head: true });
+  else if (kind === 'commandes_mois') {
+    const ym = new Date().toISOString().slice(0, 7);
+    q = sb.from('commandes').select('*', { count: 'exact', head: true }).gte('semaine_du', ym + '-01');
+  }
+  if (!q) return true;
+  const { count, error } = await q;
+  if (error) return true;
+  if (count >= max) {
+    alert(`Limite atteinte : ${count}/${max} ${label}.\n\nTon plan ne permet pas d'ajouter de nouvelle ${label.replace(/s$/, '')}. Contacte support@mybatch.cooking pour passer a un plan superieur.`);
+    return false;
+  }
+  if (count >= max * 0.9) {
+    toast(`Tu approches de la limite : ${count}/${max} ${label}.`);
+  }
+  return true;
+}
 
 const STORAGE_BUCKET = 'photos-recettes';
 
@@ -80,6 +107,9 @@ async function loadAdminFromSession() {
     SB_SERVICE_KEY = cfg.key;
     CURRENT_ENTREPRISE_ID = cfg.entreprise_id;
     CURRENT_ADMIN_NOM = cfg.nom || '';
+    CURRENT_PLAN = cfg.plan || 'standard';
+    document.body.classList.toggle('plan-founder', isFounder());
+    document.body.classList.toggle('plan-standard', !isFounder());
     sb = window.supabase.createClient(SB_URL, SB_SERVICE_KEY, {
       auth: { persistSession: false, autoRefreshToken: false }
     });
@@ -183,6 +213,7 @@ function showTab(tab) {
     clients: renderClients,
     salaries: renderSalaries,
     creneaux: renderCreneaux,
+    parametres: renderParametres,
     entreprises: renderEntreprises
   })[tab]?.();
 }
@@ -684,7 +715,7 @@ function renderStats() {
       </div>
     </div>
 
-    <div style="background:var(--bgc);border-radius:14px;padding:18px;margin-bottom:18px">
+    <div id="stats-six-month" style="background:var(--bgc);border-radius:14px;padding:18px;margin-bottom:18px">
       <div style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--v2);margin-bottom:14px">📈 Evolution CA - 6 derniers mois</div>
       <div style="display:flex;align-items:flex-end;gap:8px;height:140px">
         ${monthsBars.map(m => {
@@ -698,7 +729,7 @@ function renderStats() {
       </div>
     </div>
 
-    <div style="background:var(--vp);border-radius:14px;padding:18px;border-left:4px solid var(--v3)">
+    <div id="stats-charge-prev" style="background:var(--vp);border-radius:14px;padding:18px;border-left:4px solid var(--v3)">
       <div style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--v2);margin-bottom:10px">🍳 Charge previsionnelle</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;font-size:13px">
         <div>
@@ -756,7 +787,8 @@ function renderRecettes() {
     ? 'background:var(--vp);border-color:var(--v3);color:var(--v2);font-weight:600'
     : 'background:var(--bgc);border-color:var(--bgd);color:var(--txm)';
   const catChips = ['all', ...CATS_FIXED].map(c => `<button class="rec-cat-chip" data-cat="${escapeHtml(c)}" style="padding:5px 12px;border:1.5px solid;border-radius:16px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:.15s;${chipCss(c === recetteCatFilter)}">${c === 'all' ? 'Toutes' : escapeHtml(c)}</button>`).join('');
-  const etatChips = [['all', 'Tous statuts'], ['actif', '✓ Actif'], ['a_venir', '⏳ À venir'], ['en_stock', '📦 En stock'], ['inactif', '✗ Inactif']]
+  const allChips = [['all', 'Tous statuts'], ['actif', '✓ Actif'], ['a_venir', '⏳ À venir'], ['en_stock', '📦 En stock'], ['inactif', '✗ Inactif']];
+  const etatChips = (isFounder() ? allChips : allChips.filter(([k]) => k === 'all' || k === 'actif' || k === 'inactif'))
     .map(([v, l]) => `<button class="rec-etat-chip" data-etat="${v}" style="padding:5px 12px;border:1.5px solid;border-radius:16px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:.15s;${chipCss(v === recetteEtatFilter)}">${escapeHtml(l)}</button>`).join('');
 
   showContent(`<div class="card">
@@ -884,7 +916,10 @@ function promptRayonsPourNouveauxIngredients(newIngs) {
 }
 
 async function cycleEtatRecette(id, currentEtat) {
-  const next = { actif: 'a_venir', a_venir: 'en_stock', en_stock: 'inactif', inactif: 'actif' }[currentEtat] || 'actif';
+  const cycle = isFounder()
+    ? { actif: 'a_venir', a_venir: 'en_stock', en_stock: 'inactif', inactif: 'actif' }
+    : { actif: 'inactif', inactif: 'actif', a_venir: 'actif', en_stock: 'actif' };
+  const next = cycle[currentEtat] || 'actif';
   const { error } = await sb.from('recettes').update({ etat: next, active: next === 'actif' }).eq('id', id);
   if (error) { toast('Erreur: ' + error.message); return; }
   const r = getRecette(id); if (r) { r.etat = next; r.active = (next === 'actif'); }
@@ -1077,6 +1112,7 @@ async function saveRecette() {
 
   // === Validation ===
   if (!nom) { toast('⚠️ Le nom du plat est obligatoire'); return; }
+  if (!id && !(await checkPlanLimit('recettes', 'recettes'))) return;
 
   // Doublon de nom (uniquement a la creation)
   if (!id) {
@@ -1301,6 +1337,7 @@ async function saveClient() {
   const notes = $('cNotes').value.trim();
   if (!nom || !email) { toast('⚠️ Nom et email obligatoires'); return; }
   if (portions < 1 || portions > 20) { toast('⚠️ Nb portions entre 1 et 20'); return; }
+  if (!id && !(await checkPlanLimit('clientes', 'clientes'))) return;
 
   try {
     if (id) {
@@ -1518,6 +1555,148 @@ function renderCreneaux() {
   $('todayCren')?.addEventListener('click', () => { crenOffset = 0; renderCreneaux(); });
   $('content').querySelectorAll('[data-act="toggle-cren"]').forEach(b => b.addEventListener('click', () => toggleCren(b.dataset.sem, b.dataset.slot, b.dataset.actif === 'true')));
   $('btnParamCreneaux').addEventListener('click', ouvrirParametresCreneaux);
+}
+
+// === PARAMETRES (branding par entreprise) ===
+function getCurrentEntreprise() {
+  return DATA.entreprises.find(e => e.id === CURRENT_ENTREPRISE_ID) || {};
+}
+
+async function renderParametres() {
+  const e = getCurrentEntreprise();
+  showContent(`<div class="card">
+    <div class="card-head">
+      <div class="card-tit">⚙️ Paramètres de mon espace</div>
+      <span style="font-size:12px;color:var(--txl)">${escapeHtml(CURRENT_ADMIN_NOM)} · plan ${escapeHtml(CURRENT_PLAN)}</span>
+    </div>
+    <p style="color:var(--txm);margin-bottom:18px;font-size:13px">Personnalise ton espace : ces infos apparaissent sur ton login, ton portail client et tes communications.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px">
+      <div class="fg">
+        <label>Nom de ta marque *</label>
+        <input id="prmNom" type="text" value="${escapeAttr(e.nom_marque || '')}" placeholder="Ex: Le Goût du Lien">
+      </div>
+      <div class="fg">
+        <label>Email admin (login)</label>
+        <input id="prmEmail" type="email" value="${escapeAttr(e.admin_email || '')}" placeholder="ton@email.fr">
+      </div>
+    </div>
+
+    <div class="fg" style="margin-bottom:18px">
+      <label>Logo</label>
+      <div style="display:flex;gap:14px;align-items:center;padding:14px;border:1.5px dashed var(--bgd);border-radius:12px">
+        <div id="prmLogoPreview" style="width:80px;height:80px;border-radius:14px;background:var(--bgc);display:flex;align-items:center;justify-content:center;font-size:32px;overflow:hidden">${e.logo_url ? `<img src="${escapeAttr(e.logo_url)}" style="width:100%;height:100%;object-fit:cover">` : '🍳'}</div>
+        <div style="flex:1">
+          <button class="btn btn-ghost" id="prmBtnUpload">📷 Changer le logo</button>
+          <div style="font-size:11px;color:var(--txl);margin-top:6px" id="prmLogoNom">Format carré recommandé. Max 2 MB.</div>
+        </div>
+        <input type="file" id="prmFile" accept="image/*" style="display:none">
+        <input type="hidden" id="prmLogoUrl" value="${escapeAttr(e.logo_url || '')}">
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px">
+      <div class="fg">
+        <label>Couleur principale</label>
+        <div style="display:flex;align-items:center;gap:10px">
+          <input id="prmCol1" type="color" value="${escapeAttr(e.couleur_principale || '#3d6b4f')}" style="width:50px;height:40px;border:1.5px solid var(--bgd);border-radius:8px;cursor:pointer;padding:2px;background:var(--wh)">
+          <input id="prmCol1Hex" type="text" value="${escapeAttr(e.couleur_principale || '#3d6b4f')}" style="flex:1" maxlength="7">
+        </div>
+      </div>
+      <div class="fg">
+        <label>Couleur secondaire</label>
+        <div style="display:flex;align-items:center;gap:10px">
+          <input id="prmCol2" type="color" value="${escapeAttr(e.couleur_secondaire || '#5a8a6a')}" style="width:50px;height:40px;border:1.5px solid var(--bgd);border-radius:8px;cursor:pointer;padding:2px;background:var(--wh)">
+          <input id="prmCol2Hex" type="text" value="${escapeAttr(e.couleur_secondaire || '#5a8a6a')}" style="flex:1" maxlength="7">
+        </div>
+      </div>
+    </div>
+
+    <div class="fg" style="margin-bottom:18px">
+      <label>Montant client par défaut (€ par commande)</label>
+      <input id="prmMontant" type="number" min="0" step="1" value="${escapeAttr(String(e.montant_client_default ?? 60))}" style="max-width:200px">
+      <div style="font-size:11px;color:var(--txl);margin-top:4px">Combien tu factures à chaque cliente par commande. Utilisé sur le portail client et les stats.</div>
+    </div>
+
+    <div class="fg" style="margin-bottom:18px">
+      <label>Instructions de paiement (affichées à tes clientes)</label>
+      <textarea id="prmPaiement" rows="5" placeholder="Ex: Virement sur RIB FR76... | Lien Abby URSSAF | Espèces à la livraison | CESU déclaratif | Sumeria...">${escapeHtml(e.instructions_paiement || '')}</textarea>
+      <div style="font-size:11px;color:var(--txl);margin-top:4px">Texte libre — décris ton mode de paiement comme tu le veux. C'est ce que verra ta cliente après commande.</div>
+    </div>
+
+    <div style="display:flex;gap:12px;margin-top:24px">
+      <button class="btn btn-pri" id="prmSave">💾 Enregistrer</button>
+      <span id="prmStatus" style="font-size:13px;color:var(--txl);align-self:center"></span>
+    </div>
+  </div>`);
+
+  // Bind events
+  $('prmBtnUpload').addEventListener('click', () => $('prmFile').click());
+  $('prmFile').addEventListener('change', async (ev) => {
+    const file = ev.target.files?.[0]; if (!file) return;
+    await uploadParametresLogo(file);
+  });
+  // Sync color picker <-> hex
+  $('prmCol1').addEventListener('input', e => { $('prmCol1Hex').value = e.target.value; });
+  $('prmCol2').addEventListener('input', e => { $('prmCol2Hex').value = e.target.value; });
+  $('prmCol1Hex').addEventListener('input', e => { if (/^#[0-9a-f]{6}$/i.test(e.target.value)) $('prmCol1').value = e.target.value; });
+  $('prmCol2Hex').addEventListener('input', e => { if (/^#[0-9a-f]{6}$/i.test(e.target.value)) $('prmCol2').value = e.target.value; });
+  $('prmSave').addEventListener('click', saveParametres);
+}
+
+async function uploadParametresLogo(file) {
+  if (file.size > 2 * 1024 * 1024) { toast('⚠️ Logo trop lourd (max 2 MB)'); return; }
+  $('prmLogoNom').textContent = '⏳ Upload...';
+  try {
+    const compressed = await compressImage(file, 600, 0.85);
+    const blob = compressed || file;
+    const ext = compressed ? 'jpg' : ((file.name.split('.').pop() || 'jpg').toLowerCase());
+    const ctype = compressed ? 'image/jpeg' : (file.type || 'image/jpeg');
+    const filename = `logos/${CURRENT_ENTREPRISE_ID}-${Date.now()}.${ext}`;
+    const { error } = await sb.storage.from(STORAGE_BUCKET).upload(filename, blob, { upsert: true, contentType: ctype });
+    if (error) throw error;
+    const { data: pub } = sb.storage.from(STORAGE_BUCKET).getPublicUrl(filename);
+    $('prmLogoUrl').value = pub.publicUrl;
+    $('prmLogoPreview').innerHTML = `<img src="${escapeAttr(pub.publicUrl)}" style="width:100%;height:100%;object-fit:cover">`;
+    $('prmLogoNom').textContent = '✅ Logo uploadé — clique Enregistrer';
+  } catch (e) {
+    $('prmLogoNom').textContent = 'Erreur : ' + (e.message || e);
+  }
+}
+
+async function saveParametres() {
+  const nom = $('prmNom').value.trim();
+  const email = $('prmEmail').value.trim();
+  const col1 = $('prmCol1Hex').value.trim();
+  const col2 = $('prmCol2Hex').value.trim();
+  const montant = parseInt($('prmMontant').value, 10);
+  const paiement = $('prmPaiement').value.trim();
+  const logo = $('prmLogoUrl').value.trim();
+  if (!nom) { toast('⚠️ Le nom de la marque est obligatoire'); return; }
+  if (!/^#[0-9a-f]{6}$/i.test(col1) || !/^#[0-9a-f]{6}$/i.test(col2)) { toast('⚠️ Couleurs invalides'); return; }
+  if (isNaN(montant) || montant < 0) { toast('⚠️ Montant invalide'); return; }
+
+  const payload = {
+    nom_marque: nom,
+    admin_email: email || null,
+    couleur_principale: col1,
+    couleur_secondaire: col2,
+    montant_client_default: montant,
+    instructions_paiement: paiement || null,
+    logo_url: logo || null
+  };
+
+  $('prmStatus').textContent = '⏳ Enregistrement...';
+  try {
+    const { error } = await sb.from('entreprises').update(payload).eq('id', CURRENT_ENTREPRISE_ID);
+    if (error) throw error;
+    Object.assign(getCurrentEntreprise(), payload);
+    $('prmStatus').textContent = '✅ Enregistré';
+    toast('✅ Paramètres mis à jour');
+    setTimeout(() => { $('prmStatus').textContent = ''; }, 3000);
+  } catch (e) {
+    $('prmStatus').textContent = '❌ Erreur : ' + (e.message || e);
+  }
 }
 
 // === ENTREPRISES (super-admin) ===

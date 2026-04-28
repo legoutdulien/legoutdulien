@@ -916,8 +916,55 @@ async function confirmerCommande(pop) {
   }
 }
 
+// --- branding dynamique selon le sous-domaine ---
+function getSubdomainSlug() {
+  const host = window.location.hostname;
+  if (host === 'mybatch.cooking' || host === 'www.mybatch.cooking') return 'legoutdulien';
+  if (host === 'localhost' || host.startsWith('127.') || host.startsWith('192.168.')) return 'legoutdulien';
+  const m = host.match(/^([^.]+)\./);
+  return m ? m[1] : 'legoutdulien';
+}
+
+let CURRENT_BRANDING = null;
+async function loadBranding() {
+  try {
+    const slug = getSubdomainSlug();
+    const r = await fetch(`/.netlify/functions/branding?slug=${encodeURIComponent(slug)}`);
+    if (!r.ok) return;
+    const b = await r.json();
+    CURRENT_BRANDING = b;
+    applyBranding(b);
+  } catch (e) { /* silent */ }
+}
+
+function applyBranding(b) {
+  if (!b) return;
+  if (b.nom_marque) {
+    document.title = b.nom_marque;
+    document.querySelectorAll('.llogo, .logo').forEach(el => { el.textContent = b.nom_marque; });
+  }
+  if (b.nom_contact) {
+    const note = document.querySelector('#pLogin .lcard > div[style*="margin-top:20px"]');
+    if (note) note.textContent = `Probleme ? Contactez ${b.nom_contact}.`;
+  }
+  if (b.couleur_principale) document.documentElement.style.setProperty('--vert', b.couleur_principale);
+  if (b.couleur_secondaire) document.documentElement.style.setProperty('--vc', b.couleur_secondaire);
+  if (b.logo_url) {
+    const llogo = document.querySelector('#pLogin .llogo');
+    if (llogo && !document.getElementById('brandingLogoImg')) {
+      const img = document.createElement('img');
+      img.id = 'brandingLogoImg';
+      img.src = b.logo_url;
+      img.alt = b.nom_marque || '';
+      img.style.cssText = 'max-height:64px;width:auto;object-fit:contain;display:block;margin:0 auto 12px;border-radius:12px';
+      llogo.parentElement.insertBefore(img, llogo);
+    }
+  }
+}
+
 // --- bind events ---
 document.addEventListener('DOMContentLoaded', async () => {
+  loadBranding();
   $('btnLogin').addEventListener('click', login);
   $('btnLogout1').addEventListener('click', logout);
   $('btnLogout2').addEventListener('click', logout);

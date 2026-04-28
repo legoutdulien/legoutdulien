@@ -42,12 +42,16 @@ exports.handler = async (event) => {
       const user = await userRes.json();
 
       const adminRes = await fetch(
-        `${url}/rest/v1/admins_entreprise?user_id=eq.${user.id}&select=entreprise_id,nom`,
+        `${url}/rest/v1/admins_entreprise?user_id=eq.${user.id}&select=entreprise_id,nom,entreprises(plan,nom_marque,active)`,
         { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
       );
       const admins = await adminRes.json();
       if (!Array.isArray(admins) || admins.length === 0) {
         return { statusCode: 403, headers: corsHeaders, body: JSON.stringify({ error: "Compte non autorise pour l'admin" }) };
+      }
+      const ent = admins[0].entreprises || {};
+      if (ent.active === false) {
+        return { statusCode: 403, headers: corsHeaders, body: JSON.stringify({ error: 'Compte desactive — contactez le support' }) };
       }
 
       return {
@@ -57,6 +61,8 @@ exports.handler = async (event) => {
           url, key: serviceKey,
           entreprise_id: admins[0].entreprise_id,
           nom: admins[0].nom,
+          plan: ent.plan || 'standard',
+          nom_marque: ent.nom_marque || '',
           user_id: user.id,
           email: user.email
         })
