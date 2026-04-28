@@ -873,6 +873,7 @@ async function confirmerCommande(pop) {
   try {
     const payload = {
       client_id: clientProfile.id,
+      entreprise_id: clientProfile.entreprise_id,
       semaine_du: semSel.id,
       creneau: crenSel.lbl,
       slot_key: crenSel.slotKey || null,

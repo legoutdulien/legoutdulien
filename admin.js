@@ -128,22 +128,28 @@ async function logout() {
 }
 
 // --- DATA LOAD ---
+// Helper : applique le filtre entreprise_id si pas founder. Founder voit tout.
+function scoped(q) {
+  return CURRENT_ENTREPRISE_ID ? q.eq('entreprise_id', CURRENT_ENTREPRISE_ID) : q;
+}
+
 async function chargerTout() {
   try {
-    const [cmdR, recR, riR, cliR, salR, ingR, crenR, ctR, entR] = await Promise.all([
-      sb.from('commandes').select('*').order('semaine_du', { ascending: false }),
-      sb.from('recettes').select('*').order('nom_du_plat', { ascending: true }),
-      sb.from('recettes_ingredients').select('*').order('ordre', { ascending: true }),
-      sb.from('clients').select('*').order('nom', { ascending: true }),
-      sb.from('salaries').select('*').order('nom', { ascending: true }),
-      sb.from('ingredients').select('*').order('nom', { ascending: true }),
-      sb.from('creneaux').select('*'),
-      sb.from('creneaux_template').select('*'),
-      sb.from('entreprises').select('*').order('nom_marque', { ascending: true })
+    const [cmdR, recR, cliR, salR, ingR, crenR, ctR, entR] = await Promise.all([
+      scoped(sb.from('commandes').select('*')).order('semaine_du', { ascending: false }),
+      scoped(sb.from('recettes').select('*')).order('nom_du_plat', { ascending: true }),
+      scoped(sb.from('clients').select('*')).order('nom', { ascending: true }),
+      scoped(sb.from('salaries').select('*')).order('nom', { ascending: true }),
+      scoped(sb.from('ingredients').select('*')).order('nom', { ascending: true }),
+      scoped(sb.from('creneaux').select('*')),
+      scoped(sb.from('creneaux_template').select('*')),
+      // Founder voit toutes les entreprises (super-admin), sinon seulement la sienne
+      isFounder()
+        ? sb.from('entreprises').select('*').order('nom_marque', { ascending: true })
+        : sb.from('entreprises').select('*').eq('id', CURRENT_ENTREPRISE_ID)
     ]);
     if (cmdR.error) throw cmdR.error;
     if (recR.error) throw recR.error;
-    if (riR.error) throw riR.error;
     if (cliR.error) throw cliR.error;
     if (salR.error) throw salR.error;
     if (ingR.error) throw ingR.error;
@@ -151,13 +157,22 @@ async function chargerTout() {
 
     DATA.commandes = cmdR.data || [];
     DATA.recettes = recR.data || [];
-    DATA.ri = riR.data || [];
     DATA.clients = cliR.data || [];
     DATA.salaries = salR.data || [];
     DATA.ingredients = ingR.data || [];
     DATA.creneaux = crenR.data || [];
     DATA.creneauxTemplate = ctR.data || [];
     DATA.entreprises = entR.data || [];
+
+    // recettes_ingredients : pas de colonne entreprise_id, on filtre via les recettes chargees
+    const recIds = new Set(DATA.recettes.map(r => r.id));
+    const riR = DATA.recettes.length
+      ? await sb.from('recettes_ingredients').select('*')
+          .in('recette_id', [...recIds])
+          .order('ordre', { ascending: true })
+      : { data: [], error: null };
+    if (riR.error) throw riR.error;
+    DATA.ri = riR.data || [];
 
     populateUnitDatalist();
     setupRealtimeNotifs();
@@ -1179,7 +1194,7 @@ async function saveRecette() {
       if (error) throw error;
       const r = getRecette(id); if (r) Object.assign(r, payload);
     } else {
-      const { data, error } = await sb.from('recettes').insert(payload).select().single();
+      const { data, error } = await sb.from('recettes').insert({ ...payload, entreprise_id: CURRENT_ENTREPRISE_ID }).select().single();
       if (error) throw error;
       DATA.recettes.push(data);
       recId = data.id;
@@ -1201,7 +1216,7 @@ async function saveRecette() {
         if (found) ingId = found.id;
         else {
           const rayon = rayonsMap.get(ing.nom.toLowerCase().trim()) || null;
-          const { data, error } = await sb.from('ingredients').insert({ nom: ing.nom.trim(), unite_par_defaut: ing.unite || null, rayon }).select().single();
+          const { data, error } = await sb.from('ingredients').insert({ nom: ing.nom.trim(), unite_par_defaut: ing.unite || null, rayon, entreprise_id: CURRENT_ENTREPRISE_ID }).select().single();
           if (!error && data) { DATA.ingredients.push(data); ingId = data.id; }
         }
       }
@@ -1353,8 +1368,8 @@ async function saveClient() {
       if (!mdp) { toast('⚠️ Mot de passe obligatoire pour creation'); return; }
       const u = await adminCreateAuthUser({ email, password: mdp, type: 'client', nom, telephone, adresse, notes });
       await new Promise(r => setTimeout(r, 200));
-      // Update le profil avec nombre_portions (le trigger ne le set pas)
-      await sb.from('clients').update({ nombre_portions: portions }).eq('id', u.id);
+      // Update le profil avec nombre_portions + entreprise_id (le trigger ne les set pas)
+      await sb.from('clients').update({ nombre_portions: portions, entreprise_id: CURRENT_ENTREPRISE_ID }).eq('id', u.id);
       const { data, error } = await sb.from('clients').select('*').eq('id', u.id).single();
       if (!error && data) DATA.clients.push(data);
       toast('✅ Client cree');
@@ -1450,6 +1465,7 @@ async function saveSalarie() {
       if (!mdp) { toast('⚠️ Mot de passe obligatoire pour creation'); return; }
       const u = await adminCreateAuthUser({ email, password: mdp, type: 'salarie', nom, telephone });
       await new Promise(r => setTimeout(r, 200));
+      await sb.from('salaries').update({ entreprise_id: CURRENT_ENTREPRISE_ID }).eq('id', u.id);
       const { data, error } = await sb.from('salaries').select('*').eq('id', u.id).single();
       if (!error && data) DATA.salaries.push(data);
       toast('✅ Partenaire cree');
@@ -1495,7 +1511,7 @@ async function toggleCren(sem, slotKey, currentActif) {
       if (error) throw error;
       existing.actif = newVal;
     } else {
-      const { data, error } = await sb.from('creneaux').insert({ semaine: sem, slot: slotKey, actif: newVal }).select().single();
+      const { data, error } = await sb.from('creneaux').insert({ semaine: sem, slot: slotKey, actif: newVal, entreprise_id: CURRENT_ENTREPRISE_ID }).select().single();
       if (error) throw error;
       DATA.creneaux.push(data);
     }
@@ -2002,7 +2018,7 @@ function editerSlot(id, defaultJour) {
         if (t) { t.jour = newJour; t.nom_slot = newNom; t.heure_debut = newDebut; t.heure_fin = newFin; }
       } else {
         const { data, error } = await sb.from('creneaux_template').insert({
-          jour: newJour, nom_slot: newNom, heure_debut: newDebut, heure_fin: newFin, ordre: ordreMax + 1
+          jour: newJour, nom_slot: newNom, heure_debut: newDebut, heure_fin: newFin, ordre: ordreMax + 1, entreprise_id: CURRENT_ENTREPRISE_ID
         }).select().single();
         if (error) throw error;
         DATA.creneauxTemplate.push(data);
