@@ -497,7 +497,7 @@ async function saveCommande() {
       await sb.from('notifications').insert({
         recipient_id: payload.client_id,
         title: 'Commande confirmée 🎉',
-        body: `Votre commande de la semaine du ${dt} est validée par Alizée.`
+        body: `Votre commande de la semaine du ${dt} est validée par ${getCurrentEntreprise().nom_contact || 'votre cuisinière'}.`
       });
     } catch (e) { /* silent */ }
   }
@@ -714,7 +714,7 @@ function renderStats() {
       </div>
       <div class="stat-card">
         <div class="stat-val" style="color:${cmdAFacturer.length > 0 ? 'var(--or)' : 'var(--v2)'}">${cmdAFacturer.length}</div>
-        <div class="stat-lbl">A facturer Abby</div>
+        <div class="stat-lbl">A facturer</div>
         <div style="margin-top:4px;font-size:12px;color:var(--txl)">${cmdAFacturer.length * PRIX_PRESTATION}€ en attente</div>
       </div>
       <div class="stat-card">
