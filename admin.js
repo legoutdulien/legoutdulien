@@ -1534,10 +1534,10 @@ function renderEntreprises() {
           <div style="font-size:11px;color:var(--txl)">${escapeHtml(e.slug)}.mybatch.cooking</div>
         </div>
       </div></td>
+      <td>${escapeHtml(e.nom_contact || '–')}</td>
       <td>${planBadge}</td>
       <td>${activeBadge}</td>
       <td style="font-size:12px">${s.clients} clients · ${s.recettes} recettes · ${s.commandes} commandes</td>
-      <td>${escapeHtml(e.montant_client_default || 0)}€</td>
       <td>${escapeHtml(e.admin_email || '–')}</td>
       <td style="display:flex;gap:6px">
         <button class="btn btn-ghost btn-sm" data-act="edit-ent" data-id="${e.id}">✏️ Modifier</button>
@@ -1553,8 +1553,8 @@ function renderEntreprises() {
     </div>
     <p style="font-size:13px;color:var(--txm);margin-bottom:14px">Tu vois ici toutes les cuisinières qui utilisent la plateforme. Crée un compte pour onboarder une nouvelle, ou suspends-le si elle ne paie pas.</p>
     <div class="tbl-wrap"><table class="tbl">
-      <thead><tr><th>Cuisinière</th><th>Plan</th><th>Statut</th><th>Activité</th><th>Montant</th><th>Email</th><th>Action</th></tr></thead>
-      <tbody>${rows || '<tr><td colspan="7" class="empty">Aucune entreprise</td></tr>'}</tbody>
+      <thead><tr><th>Cuisinière</th><th>Contact</th><th>Plan</th><th>Statut</th><th>Activité</th><th>Email</th><th>Action</th></tr></thead>
+      <tbody>${rows || '<tr><td colspan="7" class="empty">Aucune cuisinière</td></tr>'}</tbody>
     </table></div>
   </div>`);
 
