@@ -33,6 +33,7 @@ let semSel = null;
 let crenSel = null;
 let platsDetailCache = [];
 let currentCmdId = null;
+let currentDetailPortions = 4;
 let favoris = new Set();
 
 async function loadFavoris() {
@@ -275,6 +276,7 @@ async function ouvrirCommande(idx) {
   const cmd = mesCommandes[idx];
   if (!cmd) return;
   currentCmdId = cmd.id;
+  currentDetailPortions = cmd.nombre_portions || 4;
   showPage('pDetail');
   showLoad('Chargement...');
   try {
@@ -326,7 +328,7 @@ function renderDetail(data) {
     </div>
     <div id="tc-courses" class="tc">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
-        <div class="cnote" style="margin-bottom:0;flex:1">🛒 Quantites pour <strong>4 portions</strong> par plat</div>
+        <div class="cnote" style="margin-bottom:0;flex:1">🛒 Quantites pour <strong>${currentDetailPortions} portions</strong> par plat</div>
         <button id="btnPrint" style="padding:9px 18px;background:#3d6b4f;color:#fff;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;white-space:nowrap">🖨️ Imprimer</button>
       </div>
       <div id="coursesDiv"></div>
@@ -370,7 +372,8 @@ const RAYON_COLOR = {
 };
 
 // Calcule les rayons agreges pour les plats donnes : reutilise par loadCourses + imprimerCourses
-function buildCoursesData(platIds) {
+function buildCoursesData(platIds, portions) {
+  const p = portions || currentDetailPortions || 4;
   const rayons = {};
   platIds.forEach(pid => {
     const ris = recettesIngredients.filter(ri => ri.recette_id === pid);
@@ -379,7 +382,7 @@ function buildCoursesData(platIds) {
       if (!ing) return;
       const ray = ing.rayon || 'Autres';
       const u = ing.unite_par_defaut && ing.unite_par_defaut !== 'Unité par défaut' ? ing.unite_par_defaut : '';
-      const qte = (ri.quantite_par_portion || 0) * 4;
+      const qte = (ri.quantite_par_portion || 0) * p;
       if (!rayons[ray]) rayons[ray] = {};
       if (!rayons[ray][ing.nom]) rayons[ray][ing.nom] = { qte: 0, u };
       rayons[ray][ing.nom].qte += qte;
@@ -448,17 +451,18 @@ function loadCourses(platIds) {
 function voirIngDetail(platId) {
   const plat = recettes.find(r => r.id === platId);
   if (!plat) return;
+  const portions = currentDetailPortions || 4;
   const ris = recettesIngredients.filter(ri => ri.recette_id === platId).sort((a, b) => (a.ordre || 0) - (b.ordre || 0));
   const html = `
     ${plat.photo_url ? `<img class="mimg" src="${escapeHtml(plat.photo_url)}" alt="${escapeHtml(plat.nom_du_plat)}">` : `<div class="mph">🍽️</div>`}
     <div class="mbody">
       <div class="mtit2">${escapeHtml(plat.nom_du_plat)}</div>
       ${ris.length ? `
-      <div class="mstit">🥕 Ingredients (4 portions)</div>
+      <div class="mstit">🥕 Ingredients (${portions} portions)</div>
       <ul class="ings">${ris.map(ri => {
         const ing = ingredients.find(i => i.id === ri.ingredient_id);
         if (!ing) return '';
-        const qte = (ri.quantite_par_portion || 0) * 4;
+        const qte = (ri.quantite_par_portion || 0) * portions;
         const u = ing.unite_par_defaut && ing.unite_par_defaut !== 'Unité par défaut' ? ing.unite_par_defaut : '';
         return `<li style="display:flex;justify-content:space-between"><span>${escapeHtml(ing.nom)}</span><span style="color:var(--txl)">${qte > 0 ? fmtN(qte) + (u ? ' ' + u : '') : '–'}</span></li>`;
       }).join('')}</ul>` : ''}
@@ -563,6 +567,7 @@ function renderAVenirGrid() {
 // --- APP COMMANDE (selection plats) ---
 async function showApp() {
   sel = []; semSel = null; crenSel = null;
+  currentDetailPortions = clientProfile?.nombre_portions || 4;
   showPage('pApp');
   affSemaines();
   if (!recettes.length) await loadRecettesData();
@@ -854,7 +859,7 @@ async function confirmerCommande(pop) {
       plat_3_id: sel[2].id,
       plat_4_id: sel[3].id,
       plat_5_id: sel[4].id,
-      nombre_portions: 4
+      nombre_portions: clientProfile?.nombre_portions || 4
     };
     const { error } = await sb.from('commandes').insert(payload);
     if (error) throw error;

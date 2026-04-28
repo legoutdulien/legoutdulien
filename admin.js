@@ -1211,6 +1211,7 @@ function renderClients() {
 
 function nouveauClient() {
   ['cId', 'cNom', 'cEmail', 'cTel', 'cMdp', 'cAdresse', 'cNotes'].forEach(id => { const el = $(id); if (el) el.value = ''; });
+  $('cPortions').value = 4;
   $('modalCliTit').textContent = 'Nouveau client'; openModal('modalClient');
 }
 function editerClient(id) {
@@ -1220,6 +1221,7 @@ function editerClient(id) {
   $('cEmail').value = c.email || '';
   $('cTel').value = c.telephone || '';
   $('cMdp').value = '';
+  $('cPortions').value = c.nombre_portions || 4;
   $('cAdresse').value = c.adresse || '';
   $('cNotes').value = c.notes || '';
   $('modalCliTit').textContent = 'Modifier · ' + (c.nom || 'client');
@@ -1280,17 +1282,18 @@ async function saveClient() {
   const email = $('cEmail').value.trim();
   const telephone = $('cTel').value.trim();
   const mdp = $('cMdp').value.trim();
+  const portions = parseInt($('cPortions').value, 10) || 4;
   const adresse = $('cAdresse').value.trim();
   const notes = $('cNotes').value.trim();
   if (!nom || !email) { toast('⚠️ Nom et email obligatoires'); return; }
+  if (portions < 1 || portions > 20) { toast('⚠️ Nb portions entre 1 et 20'); return; }
 
   try {
     if (id) {
-      // update
       if (mdp || email !== (getClient(id).email)) {
         await adminUpdateAuthUser(id, { email: email !== getClient(id).email ? email : undefined, password: mdp || undefined });
       }
-      const payload = { nom, email, telephone: telephone || null, adresse: adresse || null, notes: notes || null };
+      const payload = { nom, email, telephone: telephone || null, adresse: adresse || null, notes: notes || null, nombre_portions: portions };
       const { error } = await sb.from('clients').update(payload).eq('id', id);
       if (error) throw error;
       const c = getClient(id); if (c) Object.assign(c, payload);
@@ -1298,8 +1301,9 @@ async function saveClient() {
     } else {
       if (!mdp) { toast('⚠️ Mot de passe obligatoire pour creation'); return; }
       const u = await adminCreateAuthUser({ email, password: mdp, type: 'client', nom, telephone, adresse, notes });
-      // Le trigger insert le profil. On le re-fetche pour avoir la version finale.
       await new Promise(r => setTimeout(r, 200));
+      // Update le profil avec nombre_portions (le trigger ne le set pas)
+      await sb.from('clients').update({ nombre_portions: portions }).eq('id', u.id);
       const { data, error } = await sb.from('clients').select('*').eq('id', u.id).single();
       if (!error && data) DATA.clients.push(data);
       toast('✅ Client cree');
