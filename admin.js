@@ -332,6 +332,7 @@ function renderPlanningListe() {
           </div>
         </div>
         <div class="cmd-actions">
+          <button class="btn btn-ghost btn-sm" data-act="see-courses" data-id="${c.id}" title="Liste de courses">🛒</button>
           <button class="btn btn-ghost btn-sm" data-act="edit-cmd" data-id="${c.id}">✏️ Modifier</button>
           <button class="btn btn-danger btn-sm" data-act="del-cmd" data-id="${c.id}">🗑️</button>
         </div>
@@ -373,6 +374,134 @@ function renderPlanningListe() {
   $('content').querySelectorAll('[data-act="del-cmd"]').forEach(b => b.addEventListener('click', () => supprimerCommande(b.dataset.id)));
   $('content').querySelectorAll('[data-act="see-ing"]').forEach(b => b.addEventListener('click', () => voirIngredients(b.dataset.id, parseInt(b.dataset.portions, 10) || 4)));
   $('content').querySelectorAll('[data-act="assign"]').forEach(s => s.addEventListener('change', (e) => assignerSalarie(s.dataset.id, e.target.value)));
+  $('content').querySelectorAll('[data-act="see-courses"]').forEach(b => b.addEventListener('click', () => voirCoursesCommande(b.dataset.id)));
+}
+
+// === LISTE DE COURSES PAR COMMANDE (admin) ===
+function buildCoursesAdmin(platIds, portions) {
+  const p = portions || 4;
+  const rayons = {};
+  platIds.forEach(pid => {
+    const ris = DATA.ri.filter(ri => ri.recette_id === pid);
+    ris.forEach(ri => {
+      const ing = DATA.ingredients.find(i => i.id === ri.ingredient_id);
+      if (!ing) return;
+      const ray = ing.rayon || 'Autres';
+      const u = ing.unite_par_defaut && ing.unite_par_defaut !== 'Unité par défaut' ? ing.unite_par_defaut : '';
+      const qte = (ri.quantite_par_portion || 0) * p;
+      if (!rayons[ray]) rayons[ray] = {};
+      if (!rayons[ray][ing.nom]) rayons[ray][ing.nom] = { qte: 0, u };
+      rayons[ray][ing.nom].qte += qte;
+    });
+  });
+  return Object.entries(rayons).sort((a, b) => a[0].localeCompare(b[0]));
+}
+
+function voirCoursesCommande(cmdId) {
+  const cmd = DATA.commandes.find(c => c.id === cmdId);
+  if (!cmd) return;
+  const cli = getClient(cmd.client_id) || {};
+  const platIds = [cmd.plat_1_id, cmd.plat_2_id, cmd.plat_3_id, cmd.plat_4_id, cmd.plat_5_id].filter(Boolean);
+  const portions = cmd.nombre_portions || 4;
+  const sorted = buildCoursesAdmin(platIds, portions);
+  const semLabel = cmd.semaine_du ? new Date(cmd.semaine_du + 'T00:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+  const storageKey = `admin-courses-${cmdId}`;
+  const checkedSet = new Set(JSON.parse(localStorage.getItem(storageKey) || '[]'));
+
+  const pop = document.createElement('div');
+  pop.id = 'popCourses';
+  pop.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px';
+  pop.innerHTML = `<div style="background:var(--wh);border-radius:18px;max-width:560px;width:100%;max-height:90vh;display:flex;flex-direction:column;overflow:hidden">
+    <div style="padding:20px 24px;border-bottom:1px solid var(--bgd);display:flex;align-items:center;justify-content:space-between;gap:14px">
+      <div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--v2)">🛒 Liste de courses</div>
+        <div style="font-size:12px;color:var(--txl);margin-top:2px">${escapeHtml(cli.nom || '')} · semaine du ${semLabel} · ${portions} portions</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="popCoursesClose">✕</button>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:16px 22px" id="popCoursesBody">
+      ${!sorted.length ? '<p style="color:var(--txl);padding:18px;text-align:center">Aucun ingredient trouve.</p>' : sorted.map(([ray, ings]) => `
+        <div style="background:var(--bgc);border-radius:12px;padding:12px 14px;margin-bottom:10px">
+          <div style="font-weight:600;font-size:13px;color:var(--v2);margin-bottom:8px">${escapeHtml(ray)}</div>
+          ${Object.entries(ings).map(([nom, d]) => {
+            const key = ray + '::' + nom;
+            const checked = checkedSet.has(key);
+            return `<label style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:13px;cursor:pointer;${checked ? 'opacity:.5;text-decoration:line-through' : ''}" data-key="${escapeAttr(key)}">
+              <input type="checkbox" ${checked ? 'checked' : ''} style="width:16px;height:16px;cursor:pointer;flex-shrink:0">
+              <span style="flex:1">${escapeHtml(nom)}</span>
+              <span style="color:var(--v2);font-weight:600;font-size:12px;white-space:nowrap">${fmtN(d.qte)} ${escapeHtml(d.u)}</span>
+            </label>`;
+          }).join('')}
+        </div>`).join('')}
+    </div>
+    <div style="padding:14px 22px;border-top:1px solid var(--bgd);display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn btn-ghost" id="popCoursesReset">Décocher tout</button>
+      <button class="btn btn-pri" id="popCoursesPrint">🖨️ Imprimer</button>
+    </div>
+  </div>`;
+  document.body.appendChild(pop);
+
+  $('popCoursesClose').addEventListener('click', () => pop.remove());
+  pop.addEventListener('click', (e) => { if (e.target === pop) pop.remove(); });
+
+  $('popCoursesBody').querySelectorAll('label[data-key]').forEach(lab => {
+    const cb = lab.querySelector('input');
+    cb.addEventListener('change', () => {
+      const k = lab.dataset.key;
+      if (cb.checked) checkedSet.add(k); else checkedSet.delete(k);
+      localStorage.setItem(storageKey, JSON.stringify([...checkedSet]));
+      lab.style.opacity = cb.checked ? '.5' : '1';
+      lab.style.textDecoration = cb.checked ? 'line-through' : 'none';
+    });
+  });
+
+  $('popCoursesReset').addEventListener('click', () => {
+    checkedSet.clear();
+    localStorage.removeItem(storageKey);
+    pop.remove();
+    voirCoursesCommande(cmdId);
+  });
+
+  $('popCoursesPrint').addEventListener('click', () => imprimerCoursesAdmin(cmd, sorted, portions));
+}
+
+function imprimerCoursesAdmin(cmd, sorted, portions) {
+  const cli = getClient(cmd.client_id) || {};
+  const ent = getCurrentEntreprise();
+  const brandColor = ent.couleur_principale || '#3d6b4f';
+  const brandName = ent.nom_marque || 'Mon espace Batchcooking';
+  const semLabel = cmd.semaine_du ? new Date(cmd.semaine_du + 'T00:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+
+  const win = window.open('', '_blank');
+  win.document.write(`<!DOCTYPE html><html><head>
+    <meta charset="UTF-8">
+    <title>Liste de courses - ${escapeHtml(cli.nom || '')} - ${brandName}</title>
+    <style>
+      *{box-sizing:border-box}
+      body{font-family:'Helvetica Neue',Arial,sans-serif;max-width:520px;margin:24px auto;padding:0 20px;color:#222;font-size:12px;line-height:1.4}
+      h1{font-size:17px;margin:0 0 2px;color:${brandColor};font-weight:700}
+      .sub{font-size:10px;color:#777;margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px}
+      .r{margin-bottom:10px;break-inside:avoid;page-break-inside:avoid}
+      .r h2{font-size:12px;font-weight:600;border-bottom:1.5px solid #ddd;padding-bottom:2px;margin:0 0 4px;color:#333}
+      .i{display:flex;align-items:center;gap:7px;padding:2px 0;font-size:11px;line-height:1.3}
+      .i .ck{display:inline-block;width:10px;height:10px;border:1px solid #555;border-radius:2px;flex-shrink:0}
+      .i .nm{flex:1}
+      .i .qt{color:${brandColor};font-weight:600;font-size:10px;white-space:nowrap}
+      .foot{margin-top:18px;font-size:9px;color:#bbb;text-align:center;border-top:1px solid #eee;padding-top:8px}
+      @page{margin:10mm}
+      @media print{body{margin:0;max-width:100%;padding:0 10mm}}
+    </style>
+  </head><body>
+    <h1>Liste de courses · ${escapeHtml(cli.nom || '')}</h1>
+    <div class="sub">Semaine du ${semLabel} · ${portions} portions</div>
+    ${sorted.map(([ray, ings]) => `<div class="r">
+      <h2>${escapeHtml(ray)}</h2>
+      ${Object.entries(ings).map(([nom, d]) => `<div class="i"><span class="ck"></span><span class="nm">${escapeHtml(nom)}</span><span class="qt">${fmtN(d.qte)} ${escapeHtml(d.u)}</span></div>`).join('')}
+    </div>`).join('')}
+    <div class="foot">Imprime depuis ${escapeHtml(brandName)}</div>
+    <script>setTimeout(()=>window.print(),300)<\/script>
+  </body></html>`);
+  win.document.close();
 }
 
 async function supprimerCommande(id) {
