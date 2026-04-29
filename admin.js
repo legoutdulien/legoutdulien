@@ -1838,8 +1838,9 @@ async function renderParametres() {
       <div style="font-size:11px;color:var(--txl);margin-top:4px">Texte libre — décris ton mode de paiement comme tu le veux. C'est ce que verra ta cliente après commande.</div>
     </div>
 
-    <div style="display:flex;gap:12px;margin-top:24px;padding-bottom:24px;border-bottom:1px solid var(--bgd)">
+    <div style="display:flex;gap:12px;margin-top:24px;padding-bottom:24px;border-bottom:1px solid var(--bgd);flex-wrap:wrap">
       <button class="btn btn-pri" id="prmSave">💾 Enregistrer mes paramètres</button>
+      ${e.plan !== 'founder' ? `<button class="btn btn-ghost" id="prmManageSub">💳 Gérer mon abonnement</button>` : ''}
       <span id="prmStatus" style="font-size:13px;color:var(--txl);align-self:center"></span>
     </div>
 
@@ -1868,6 +1869,24 @@ async function renderParametres() {
   });
   $('prmSave').addEventListener('click', saveParametres);
   $('prmAddForfait').addEventListener('click', () => openForfaitForm(null));
+  $('prmManageSub')?.addEventListener('click', ouvrirPortailStripe);
+}
+
+async function ouvrirPortailStripe() {
+  try {
+    const { data: { session } } = await sbAuth.auth.getSession();
+    if (!session) { toast('Session perdue, reconnecte-toi'); return; }
+    const r = await fetch('/.netlify/functions/stripe-portal', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ access_token: session.access_token })
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || 'Erreur ouverture portail');
+    window.location.href = data.url;
+  } catch (e) {
+    toast('Erreur : ' + (e.message || e));
+  }
 }
 
 function renderForfaitsList() {
@@ -2080,6 +2099,10 @@ function renderEntreprises() {
     const activeBadge = e.active
       ? '<span class="badge b-ok">✓ Actif</span>'
       : '<span class="badge" style="background:#fdecea;color:#c62828">⏸️ Suspendu</span>';
+    const subBadge = subscriptionStatusBadge(e);
+    const formuleStr = e.plan === 'founder'
+      ? '🎁 Founder'
+      : `${e.formule === 'premium' ? '💎 Premium' : '📦 Standard'} · ${e.cycle === 'annuel' ? 'Annuel' : 'Mensuel'}`;
     return `<tr>
       <td><div style="display:flex;align-items:center;gap:10px">
         ${e.logo_url ? `<img src="${escapeHtml(e.logo_url)}" style="width:36px;height:36px;border-radius:8px;object-fit:cover">` : `<div style="width:36px;height:36px;border-radius:8px;background:${escapeHtml(e.couleur_principale || '#3d6b4f')};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:16px">${escapeHtml((e.nom_marque || '?').charAt(0).toUpperCase())}</div>`}
@@ -2089,12 +2112,13 @@ function renderEntreprises() {
         </div>
       </div></td>
       <td>${escapeHtml(e.nom_contact || '–')}</td>
-      <td>${planBadge}</td>
+      <td><div style="font-size:12px">${formuleStr}</div>${subBadge}</td>
       <td>${activeBadge}</td>
       <td style="font-size:12px">${s.clients} clients · ${s.recettes} recettes · ${s.commandes} commandes</td>
       <td>${escapeHtml(e.admin_email || '–')}</td>
-      <td style="display:flex;gap:6px">
-        <button class="btn btn-ghost btn-sm" data-act="edit-ent" data-id="${e.id}">✏️ Modifier</button>
+      <td style="display:flex;gap:6px;flex-wrap:wrap">
+        ${e.plan !== 'founder' ? `<button class="btn btn-ghost btn-sm" data-act="pay-link" data-id="${e.id}" title="Générer le lien de paiement Stripe">💳 Lien</button>` : ''}
+        <button class="btn btn-ghost btn-sm" data-act="edit-ent" data-id="${e.id}">✏️</button>
         ${e.plan !== 'founder' ? `<button class="btn btn-danger btn-sm" data-act="del-ent" data-id="${e.id}">🗑️</button>` : ''}
       </td>
     </tr>`;
@@ -2105,9 +2129,9 @@ function renderEntreprises() {
       <div class="card-tit">🏢 Entreprises <span>${ents.length}</span></div>
       <button class="btn btn-primary" id="btnNewEnt">+ Nouvelle cuisinière</button>
     </div>
-    <p style="font-size:13px;color:var(--txm);margin-bottom:14px">Tu vois ici toutes les cuisinières qui utilisent la plateforme. Crée un compte pour onboarder une nouvelle, ou suspends-le si elle ne paie pas.</p>
+    <p style="font-size:13px;color:var(--txm);margin-bottom:14px">Crée un compte pour onboarder une nouvelle cuisinière. Génère son lien de paiement Stripe (💳) pour qu'elle saisisse sa CB et démarre son essai 7 jours.</p>
     <div class="tbl-wrap"><table class="tbl">
-      <thead><tr><th>Cuisinière</th><th>Contact</th><th>Plan</th><th>Statut</th><th>Activité</th><th>Email</th><th>Action</th></tr></thead>
+      <thead><tr><th>Cuisinière</th><th>Contact</th><th>Formule</th><th>Statut</th><th>Activité</th><th>Email</th><th>Actions</th></tr></thead>
       <tbody>${rows || '<tr><td colspan="7" class="empty">Aucune cuisinière</td></tr>'}</tbody>
     </table></div>
   </div>`);
@@ -2115,6 +2139,42 @@ function renderEntreprises() {
   $('btnNewEnt').addEventListener('click', nouvelleEntreprise);
   $('content').querySelectorAll('[data-act="edit-ent"]').forEach(b => b.addEventListener('click', () => editerEntreprise(b.dataset.id)));
   $('content').querySelectorAll('[data-act="del-ent"]').forEach(b => b.addEventListener('click', () => supprimerEntreprise(b.dataset.id)));
+  $('content').querySelectorAll('[data-act="pay-link"]').forEach(b => b.addEventListener('click', () => genererLienPaiement(b.dataset.id)));
+}
+
+function subscriptionStatusBadge(e) {
+  if (e.plan === 'founder') return '<span class="badge b-ok" style="font-size:10px;margin-top:4px;display:inline-block">∞ Gratuit</span>';
+  const map = {
+    pending: { c: '#8a6a1a', bg: '#fff3cd', l: '⏳ En attente paiement' },
+    trialing: { c: '#1565c0', bg: '#e3f2fd', l: '🆓 Essai 7j' },
+    active: { c: '#2e7d32', bg: '#e8f5e9', l: '✓ Abo actif' },
+    past_due: { c: '#c62828', bg: '#fdecea', l: '⚠️ Paiement échoué' },
+    canceled: { c: '#6b6b6b', bg: '#f0f0f0', l: '✗ Annulé' },
+    incomplete: { c: '#8a6a1a', bg: '#fff3cd', l: '⚠️ Incomplet' }
+  };
+  const s = map[e.subscription_status] || map.pending;
+  return `<span class="badge" style="background:${s.bg};color:${s.c};font-size:10px;margin-top:4px;display:inline-block">${s.l}</span>`;
+}
+
+async function genererLienPaiement(entrepriseId) {
+  const e = DATA.entreprises.find(x => x.id === entrepriseId);
+  if (!e) return;
+  toast('⏳ Génération du lien de paiement...');
+  try {
+    const r = await fetch('/.netlify/functions/stripe-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ entreprise_id: entrepriseId })
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || 'Erreur génération lien');
+    // Copie l'URL et affiche un dialog
+    const txt = `Lien de paiement Stripe pour ${e.nom_marque} :\n\n${data.url}\n\n7 jours d'essai gratuit, puis ${e.formule === 'premium' ? '579€' : '79€'}/${e.cycle === 'annuel' ? 'an' : 'mois'}${e.cycle === 'annuel' ? ' (-20%)' : ''}.\n\nLe lien a été copié dans ton presse-papier.`;
+    try { await navigator.clipboard.writeText(data.url); } catch (_) {}
+    alert(txt);
+  } catch (err) {
+    toast('Erreur : ' + (err.message || err));
+  }
 }
 
 function genererMotDePasse() {
@@ -2124,14 +2184,31 @@ function genererMotDePasse() {
   return `${a}${n}!`;
 }
 
+function togglePlanFields() {
+  const isFnd = $('entPlan').value === 'founder';
+  $('entFormuleWrap').style.display = isFnd ? 'none' : '';
+  $('entCycleWrap').style.display = isFnd ? 'none' : '';
+  // Premium n'a que le cycle mensuel
+  const cycleSel = $('entCycle');
+  if ($('entFormule')?.value === 'premium') {
+    cycleSel.value = 'mensuel';
+    cycleSel.querySelectorAll('option').forEach(o => { o.disabled = o.value === 'annuel'; });
+  } else {
+    cycleSel.querySelectorAll('option').forEach(o => { o.disabled = false; });
+  }
+}
+
 function nouvelleEntreprise() {
   ['entId', 'entContact', 'entNom', 'entSlug', 'entEmail', 'entPwd'].forEach(id => { const el = $(id); if (el) el.value = ''; });
   $('entPlan').value = 'standard';
+  $('entFormule').value = 'standard';
+  $('entCycle').value = 'mensuel';
   $('entActive').value = 'true';
-  $('entActiveWrap').style.display = 'none'; // pas de statut a la creation
-  $('entPwd').value = genererMotDePasse(); // pre-genere
+  $('entActiveWrap').style.display = 'none';
+  $('entPwd').value = genererMotDePasse();
   $('modalEntTit').textContent = 'Nouvelle cuisinière';
   $('btnSaveEnt').textContent = '💾 Créer le compte';
+  togglePlanFields();
   openModal('modalEntreprise');
 }
 
@@ -2143,12 +2220,15 @@ function editerEntreprise(id) {
   $('entSlug').value = e.slug || '';
   $('entEmail').value = e.admin_email || '';
   $('entPlan').value = e.plan || 'standard';
+  $('entFormule').value = e.formule || 'standard';
+  $('entCycle').value = e.cycle || 'mensuel';
   $('entActive').value = e.active ? 'true' : 'false';
   $('entActiveWrap').style.display = '';
   $('entPwd').value = '';
   $('entPwd').placeholder = '(laisser vide pour ne pas changer)';
   $('modalEntTit').textContent = 'Modifier · ' + (e.nom_marque || 'cuisinière');
   $('btnSaveEnt').textContent = '💾 Enregistrer';
+  togglePlanFields();
   openModal('modalEntreprise');
 }
 
@@ -2165,13 +2245,23 @@ async function saveEntreprise() {
   const dup = DATA.entreprises.find(e => e.slug === slug && e.id !== id);
   if (dup) { toast('⚠️ Le slug "' + slug + '" est déjà pris'); return; }
 
+  const plan = $('entPlan').value;
   const payload = {
     nom_contact: contact,
     nom_marque: nom,
     slug,
     admin_email: email,
-    plan: $('entPlan').value
+    plan
   };
+  if (plan === 'founder') {
+    payload.formule = 'standard';
+    payload.cycle = 'mensuel';
+    payload.subscription_status = 'active';
+  } else {
+    payload.formule = $('entFormule').value;
+    payload.cycle = $('entCycle').value;
+    if (!id) payload.subscription_status = 'pending';
+  }
   if (pwd) payload.admin_password = pwd;
   if (id) payload.active = $('entActive').value === 'true';
 
@@ -2248,7 +2338,13 @@ async function saveEntreprise() {
 
       DATA.entreprises.push(ent);
       const url = slug + '.mybatch.cooking';
-      alert(`✅ Compte créé !\n\nÀ communiquer à ${contact} :\n\n📧 Email : ${email}\n🔑 Mot de passe : ${pwd}\n🔗 URL : ${url}\n\nElle se connectera sur cette URL avec son email et son mot de passe — l'interface admin s'ouvrira automatiquement. Elle pourra ensuite personnaliser son logo, ses couleurs, son montant client et ses instructions de paiement depuis son espace.`);
+      const isFounder = plan === 'founder';
+      const formuleLabel = payload.formule === 'premium' ? 'Premium' : 'Standard';
+      const cycleLabel = payload.cycle === 'annuel' ? 'Annuel (-20%)' : 'Mensuel';
+      const billingLine = isFounder
+        ? '🎁 Plan : Founder (gratuit à vie)'
+        : `💳 Formule : ${formuleLabel} · ${cycleLabel}\n⏳ Statut : compte créé en attente de paiement\n\n👉 Clique ensuite sur "💳 Lien de paiement" sur sa ligne pour générer son lien Stripe (essai 7 jours).`;
+      alert(`✅ Compte créé !\n\nÀ communiquer à ${contact} :\n\n📧 Email : ${email}\n🔑 Mot de passe : ${pwd}\n🔗 URL : ${url}\n\n${billingLine}`);
     }
     closeModal('modalEntreprise');
     renderEntreprises();
@@ -2627,6 +2723,8 @@ document.addEventListener('DOMContentLoaded', () => {
   $('btnSaveCmd').addEventListener('click', saveCommande);
   $('btnSaveEnt').addEventListener('click', saveEntreprise);
   $('entPwdGen')?.addEventListener('click', () => { $('entPwd').value = genererMotDePasse(); });
+  $('entPlan')?.addEventListener('change', togglePlanFields);
+  $('entFormule')?.addEventListener('change', togglePlanFields);
   $('btnAddIng').addEventListener('click', ajouterIngRow);
   $('btnUpload').addEventListener('click', uploadPhoto);
   $('rPhotoFile').addEventListener('change', (e) => handlePhotoFile(e.target));

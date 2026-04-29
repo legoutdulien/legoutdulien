@@ -554,8 +554,20 @@ body.plan-standard option.founder-only-opt{display:none}
       </div>
       <div class="fg"><label>Plan</label>
         <select id="entPlan">
+          <option value="standard">Payant</option>
+          <option value="founder">Founder (gratuit à vie)</option>
+        </select>
+      </div>
+      <div class="fg" id="entFormuleWrap"><label>Formule</label>
+        <select id="entFormule">
           <option value="standard">Standard (79€/mois)</option>
-          <option value="founder">Founder (gratuit)</option>
+          <option value="premium">Premium (579€/mois — incl. 4h visio)</option>
+        </select>
+      </div>
+      <div class="fg" id="entCycleWrap"><label>Cycle de facturation</label>
+        <select id="entCycle">
+          <option value="mensuel">Mensuel</option>
+          <option value="annuel">Annuel (-20%)</option>
         </select>
       </div>
       <div class="fg" style="grid-column:1/-1"><label>Email admin (login) *</label>
