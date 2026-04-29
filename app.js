@@ -323,7 +323,7 @@ async function ouvrirCommande(idx) {
     const platIds = [cmd.plat_1_id, cmd.plat_2_id, cmd.plat_3_id, cmd.plat_4_id, cmd.plat_5_id].filter(Boolean);
     platsDetailCache = platIds.map(id => recettes.find(r => r.id === id)).filter(Boolean);
     const semLabel = cmd.semaine_du ? 'Semaine du ' + fmtDate(cmd.semaine_du) : '';
-    renderDetail({ nom: clientProfile.nom || '', semLabel, creneau: cmd.creneau || '', id: cmd.id, statut: cmd.statut || 'En attente de paiement' });
+    renderDetail({ nom: clientProfile.nom || '', semLabel, creneau: cmd.creneau || '', id: cmd.id, statut: cmd.statut || 'En attente de paiement', montant: cmd.montant ?? CURRENT_BRANDING?.montant_client_default ?? 60 });
   } catch (e) {
     showToast('Erreur: ' + e.message, 'err');
   } finally {
@@ -337,6 +337,8 @@ function renderDetail(data) {
   const icone = ok
     ? '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>'
     : '<svg viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8zm.5-13H11v6l5.2 3.2.8-1.3-4.5-2.7V7z"/></svg>';
+  // Si la cuisiniere fait les courses pour cette cliente, on cache l'onglet et le contenu Liste de courses
+  const showCourses = !clientProfile?.courses_par_cuisiniere;
   $('detailMain').innerHTML = `
     <div class="cbanner">
       <div class="cicon">${icone}</div>
@@ -347,11 +349,11 @@ function renderDetail(data) {
       <div><div class="ilbl">Client</div><div class="ival">${escapeHtml(data.nom)}</div></div>
       <div><div class="ilbl">Semaine</div><div class="ival">${escapeHtml(data.semLabel)}</div></div>
       <div><div class="ilbl">Creneau</div><div class="ival">${escapeHtml(data.creneau)}</div></div>
-      <div><div class="ilbl">Montant</div><div class="ival">60€</div></div>
+      <div><div class="ilbl">Montant</div><div class="ival">${data.montant}€</div></div>
     </div>
     <div class="tabs">
       <button class="tab on" data-tab="plats">🍽️ Mes plats</button>
-      <button class="tab" data-tab="courses">🛒 Liste de courses</button>
+      ${showCourses ? `<button class="tab" data-tab="courses">🛒 Liste de courses</button>` : ''}
       <button class="tab" data-tab="memo">♨️ Rechauffage & conservation</button>
     </div>
     <div id="tc-plats" class="tc on">
@@ -365,13 +367,13 @@ function renderDetail(data) {
         </div>`).join('')}
       </div>
     </div>
-    <div id="tc-courses" class="tc">
+    ${showCourses ? `<div id="tc-courses" class="tc">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
         <div class="cnote" style="margin-bottom:0;flex:1">🛒 Quantites pour <strong>${currentDetailPortions} portions</strong> par plat</div>
         <button id="btnPrint" style="padding:9px 18px;background:var(--vert);color:#fff;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;white-space:nowrap">🖨️ Imprimer</button>
       </div>
       <div id="coursesDiv"></div>
-    </div>
+    </div>` : ''}
     <div id="tc-memo" class="tc">
       ${platsDetailCache.map(p => `
         <div class="mcard">
@@ -386,8 +388,11 @@ function renderDetail(data) {
 
   $('detailMain').querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => chgTab(t.dataset.tab, t)));
   $('detailMain').querySelectorAll('.eccard').forEach(c => c.addEventListener('click', () => voirIngDetail(c.dataset.platid)));
-  $('btnPrint').addEventListener('click', imprimerCourses);
-  loadCourses(platsDetailCache.map(p => p.id));
+  const btnP = $('btnPrint');
+  if (btnP) {
+    btnP.addEventListener('click', imprimerCourses);
+    loadCourses(platsDetailCache.map(p => p.id));
+  }
 }
 
 function chgTab(t, btn) {
