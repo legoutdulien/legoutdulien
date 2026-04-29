@@ -327,8 +327,8 @@ function renderPlanningListe() {
           <div class="cmd-meta">
             <span class="cmd-meta-item">📅 ${escapeHtml(c.creneau || '–')}</span>
             <span class="cmd-meta-item">🍽️ ${c.nombre_portions || 4} portions</span>
-            ${cli.adresse ? `<span class="cmd-meta-item">📍 ${escapeHtml(cli.adresse)}</span>` : ''}
-            ${cli.telephone ? `<span class="cmd-meta-item">📞 ${escapeHtml(cli.telephone)}</span>` : ''}
+            ${cli.adresse ? `<a class="cmd-meta-item" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(cli.adresse)}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;border-bottom:1px dashed var(--bgd)">📍 ${escapeHtml(cli.adresse)}</a>` : ''}
+            ${cli.telephone ? `<a class="cmd-meta-item" href="tel:${escapeAttr(cli.telephone.replace(/\s/g, ''))}" style="color:inherit;text-decoration:none;border-bottom:1px dashed var(--bgd)">📞 ${escapeHtml(cli.telephone)}</a>` : ''}
           </div>
         </div>
         <div class="cmd-actions">
