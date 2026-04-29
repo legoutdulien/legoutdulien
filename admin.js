@@ -323,7 +323,7 @@ function renderPlanningListe() {
     return `<div class="cmd-card">
       <div class="cmd-top">
         <div class="cmd-info">
-          <div class="cmd-client">${escapeHtml(cli.nom || '–')} <span class="badge ${bc}">${escapeHtml(statut)}</span></div>
+          <div class="cmd-client">${escapeHtml(cli.nom || '–')} <span class="badge ${bc}">${escapeHtml(statut)}</span>${cli.courses_par_cuisiniere ? ' <span class="badge" style="background:#fff3cd;color:#8a6a1a;border:1px solid #f6e0a3">🛒 Courses à faire</span>' : ''}</div>
           <div class="cmd-meta">
             <span class="cmd-meta-item">📅 ${escapeHtml(c.creneau || '–')}</span>
             <span class="cmd-meta-item">🍽️ ${c.nombre_portions || 4} portions</span>
@@ -755,7 +755,7 @@ function voirJourCal(iso, dow) {
     const sal = getSalarie(c.assigne_a_id);
     const plats = platsOfCommande(c);
     return `<div style="background:var(--bgc);border-radius:12px;padding:14px;margin-bottom:10px;border:1.5px solid var(--bgd)">
-      <div style="font-weight:600;margin-bottom:4px">${escapeHtml((cli && cli.nom) || '–')}</div>
+      <div style="font-weight:600;margin-bottom:4px">${escapeHtml((cli && cli.nom) || '–')}${cli && cli.courses_par_cuisiniere ? ' <span style="background:#fff3cd;color:#8a6a1a;border:1px solid #f6e0a3;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:500">🛒 Courses</span>' : ''}</div>
       <div style="font-size:12px;color:var(--txl);margin-bottom:8px">📅 ${escapeHtml(c.creneau || '–')} · ${c.nombre_portions || 4} portions · ${escapeHtml(c.statut || 'En attente')}</div>
       <div style="display:flex;flex-wrap:wrap;gap:5px">${plats.map(p => `<span class="plat-chip">${escapeHtml(p.nom_du_plat)}</span>`).join('')}</div>
       ${sal ? `<div style="font-size:12px;color:var(--txl);margin-top:8px">👷 ${escapeHtml(sal.nom)}</div>` : ''}
