@@ -378,6 +378,8 @@ function renderPlanningListe() {
 }
 
 // === LISTE DE COURSES PAR COMMANDE (admin) ===
+function fmtN(n) { return n % 1 === 0 ? n : parseFloat(n.toFixed(2)); }
+
 function buildCoursesAdmin(platIds, portions) {
   const p = portions || 4;
   const rayons = {};
