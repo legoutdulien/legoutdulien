@@ -11,6 +11,7 @@ let SB_SERVICE_KEY = '';
 let sb = null;
 let CURRENT_ENTREPRISE_ID = null;
 let CURRENT_ADMIN_NOM = '';
+let CURRENT_ADMIN_USER_ID = null;
 let CURRENT_PLAN = 'standard';
 const isFounder = () => CURRENT_PLAN === 'founder';
 
@@ -107,6 +108,7 @@ async function loadAdminFromSession() {
     SB_SERVICE_KEY = cfg.key;
     CURRENT_ENTREPRISE_ID = cfg.entreprise_id;
     CURRENT_ADMIN_NOM = cfg.nom || '';
+    CURRENT_ADMIN_USER_ID = cfg.user_id || null;
     CURRENT_PLAN = cfg.plan || 'standard';
     document.body.classList.toggle('plan-founder', isFounder());
     document.body.classList.toggle('plan-standard', !isFounder());
@@ -1782,6 +1784,12 @@ async function renderParametres() {
     </div>
 
     <div class="fg" style="margin-bottom:18px">
+      <label>Nouveau mot de passe (laisser vide pour ne pas changer)</label>
+      <input id="prmNewPwd" type="password" placeholder="••••••••" autocomplete="new-password">
+      <div style="font-size:11px;color:var(--txl);margin-top:4px">Min 8 caractères. Tu seras déconnectée après changement et devras te reconnecter.</div>
+    </div>
+
+    <div class="fg" style="margin-bottom:18px">
       <label>Logo</label>
       <div style="display:flex;gap:14px;align-items:center;padding:14px;border:1.5px dashed var(--bgd);border-radius:12px">
         <div id="prmLogoPreview" style="width:80px;height:80px;border-radius:14px;background:var(--bgc);display:flex;align-items:center;justify-content:center;font-size:32px;overflow:hidden">${e.logo_url ? `<img src="${escapeAttr(e.logo_url)}" style="width:100%;height:100%;object-fit:cover">` : '🍳'}</div>
@@ -1986,6 +1994,7 @@ async function uploadParametresLogo(file) {
 async function saveParametres() {
   const nom = $('prmNom').value.trim();
   const email = $('prmEmail').value.trim();
+  const newPwd = $('prmNewPwd').value;
   const col1 = $('prmCol1Hex').value.trim();
   const col2 = $('prmCol2Hex').value.trim();
   const col3 = $('prmCol3Hex').value.trim();
@@ -1995,6 +2004,11 @@ async function saveParametres() {
   if (!nom) { toast('⚠️ Le nom de la marque est obligatoire'); return; }
   if (![col1, col2, col3].every(c => /^#[0-9a-f]{6}$/i.test(c))) { toast('⚠️ Couleurs invalides'); return; }
   if (isNaN(montant) || montant < 0) { toast('⚠️ Montant invalide'); return; }
+  if (newPwd && newPwd.length < 8) { toast('⚠️ Le mot de passe doit faire au moins 8 caractères'); return; }
+
+  const oldEnt = getCurrentEntreprise();
+  const oldEmail = oldEnt.admin_email || '';
+  const emailChanged = email && email !== oldEmail;
 
   const payload = {
     nom_marque: nom,
@@ -2006,17 +2020,44 @@ async function saveParametres() {
     instructions_paiement: paiement || null,
     logo_url: logo || null
   };
+  if (newPwd) payload.admin_password = newPwd;
 
   $('prmStatus').textContent = '⏳ Enregistrement...';
   try {
+    // Sync Supabase auth en premier (email / password)
+    if (emailChanged || newPwd) {
+      const authUpdate = {};
+      if (emailChanged) authUpdate.email = email;
+      if (newPwd) authUpdate.password = newPwd;
+      try {
+        let uid = CURRENT_ADMIN_USER_ID;
+        if (!uid) {
+          const { data: sessionData } = await sbAuth.auth.getUser();
+          uid = sessionData?.user?.id;
+        }
+        if (!uid) throw new Error('Session perdue');
+        await adminUpdateAuthUser(uid, authUpdate);
+      } catch (eAuth) {
+        $('prmStatus').textContent = '❌ Auth : ' + (eAuth.message || eAuth);
+        return;
+      }
+    }
+
     const { error } = await sb.from('entreprises').update(payload).eq('id', CURRENT_ENTREPRISE_ID);
     if (error) throw error;
-    Object.assign(getCurrentEntreprise(), payload);
-    // Applique tout de suite le nouveau branding (nom + logo + couleurs)
+    Object.assign(oldEnt, payload);
     applyEntrepriseBranding();
-    $('prmStatus').textContent = '✅ Enregistré';
-    toast('✅ Paramètres mis à jour');
-    setTimeout(() => { $('prmStatus').textContent = ''; }, 3000);
+    $('prmNewPwd').value = '';
+
+    if (emailChanged || newPwd) {
+      $('prmStatus').textContent = '✅ Mis à jour — reconnecte-toi';
+      toast('🔐 Identifiants modifiés. Reconnexion nécessaire.');
+      setTimeout(async () => { await sbAuth.auth.signOut(); window.location.href = '/'; }, 1500);
+    } else {
+      $('prmStatus').textContent = '✅ Enregistré';
+      toast('✅ Paramètres mis à jour');
+      setTimeout(() => { $('prmStatus').textContent = ''; }, 3000);
+    }
   } catch (e) {
     $('prmStatus').textContent = '❌ Erreur : ' + (e.message || e);
   }
@@ -2136,22 +2177,27 @@ async function saveEntreprise() {
 
   try {
     if (id) {
-      // Modification : mise a jour des champs + eventuel update du compte auth
-      const { error } = await sb.from('entreprises').update(payload).eq('id', id);
-      if (error) throw error;
-      const e = DATA.entreprises.find(x => x.id === id); if (e) Object.assign(e, payload);
+      // Modification : on capture l'ancien email AVANT toute mutation pour
+      // pouvoir detecter un changement d'email
+      const oldEnt = DATA.entreprises.find(x => x.id === id);
+      const oldEmail = oldEnt?.admin_email || '';
 
       // Si email ou password change, on met a jour le compte Supabase auth associe
       const { data: link } = await sb.from('admins_entreprise')
         .select('user_id').eq('entreprise_id', id).maybeSingle();
       if (link && link.user_id) {
-        const update = {};
-        if (e && email !== e.admin_email) update.email = email;
-        if (pwd) update.password = pwd;
-        if (Object.keys(update).length) {
-          await adminUpdateAuthUser(link.user_id, update);
+        const authUpdate = {};
+        if (email && email !== oldEmail) authUpdate.email = email;
+        if (pwd) authUpdate.password = pwd;
+        if (Object.keys(authUpdate).length) {
+          await adminUpdateAuthUser(link.user_id, authUpdate);
         }
       }
+
+      // Puis on met a jour la ligne entreprises
+      const { error } = await sb.from('entreprises').update(payload).eq('id', id);
+      if (error) throw error;
+      if (oldEnt) Object.assign(oldEnt, payload);
       toast('✅ Cuisinière modifiée');
     } else {
       // Creation : 1) entreprise, 2) compte auth, 3) lien admins_entreprise
